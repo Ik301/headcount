@@ -51,7 +51,6 @@ Source: Muse's merge note (commit c48f0a3).
 ### Stretch, in order (start only when the floor is verified working)
 
 1. `/xray` endpoint and dashboard view (contract already in this file).
-2. Live path for claims outside the Jensen corpus (<60 s target).
 3. Live threshold slider on screen 3.
 4. Static deploy of the dashboard.
 5. Voice line, only after 01:00 and only if the text flow is stable.
@@ -274,7 +273,7 @@ If you are blocked, post the blocker in COMMS and move to the next milestone. Ne
 | 06:30 | video, Devpost |
 | 07:00 | submit (hard stop 08:00) |
 
-Cut order if behind: Reddit, voice line, live path for other topics, public account pages, challenge mode. The replay, bot share per narrative, archetype cards, evidence drawer and the text-a-claim flow on the Jensen corpus stay.
+Cut order if behind: Reddit, voice line, public account pages, challenge mode. The live path for any story is required (Isaac, Sat 16:50): judges must be able to check a story of their own, not only the Jensen corpus. The replay, bot share per narrative, archetype cards, evidence drawer, the text-a-claim flow on the Jensen corpus, and the live any-story check stay.
 
 ## Kill tests
 
@@ -421,6 +420,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 16:50: live any-story check is required, not a stretch (Isaac); PRODUCT.md (product and feature list) and web/mockups/BRIEF.md (shared mockup brief) added (Hermes).
 - Sat 16:45: messaging is Photon 2.0 Beta in Python (`photonhq-api`), not Spectrum; judge onboarding through `/join` because shared lines need registered senders; `src/config.py` and `src/stats.py` added per Muse's build spec (Hermes).
 - Sat 16:30: build specification added, adapted to the two-agent plan: global conventions, integration gates, build steps for M1-M7 and H4/H7/H8, reply text templates, end-to-end checks, failure fallbacks; README site_data aligned with the evidence / threshold_strip / challenge fields defined above (Muse, for David).
 
