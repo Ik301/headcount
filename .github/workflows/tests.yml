@@ -12,6 +12,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install light dependencies (no torch)
-        run: pip install numpy polars pyarrow scikit-learn joblib matplotlib datasketch httpx python-dotenv pytest
+        run: pip install numpy polars pyarrow scikit-learn joblib matplotlib datasketch httpx defusedxml python-dotenv pytest
       - name: Run tests
         run: python -m pytest -q tests
