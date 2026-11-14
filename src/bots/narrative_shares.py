@@ -30,6 +30,24 @@ from src.config import HEADLINE_THRESHOLD, STRIP_THRESHOLDS
 from src.stats import share_ci
 
 
+POST_NARRATIVE_PATHS = ("data/processed/narratives/post_narrative.parquet", "data/processed/post_narrative.parquet")
+
+
+def find_post_narrative(paths=POST_NARRATIVE_PATHS) -> Path | None:
+    """H3 writes data/processed/narratives/post_narrative.parquet; the README table path is accepted too."""
+    return next((Path(x) for x in paths if Path(x).exists()), None)
+
+
+def narrative_labels() -> dict[str, str]:
+    """Display labels from the API's table (H3), so the report and the dashboard use the same names."""
+    try:
+        from src.api.analysis import NARRATIVE_LABELS
+
+        return {k: (v[0] if isinstance(v, (tuple, list)) else str(v)) for k, v in NARRATIVE_LABELS.items()}
+    except Exception:
+        return {}
+
+
 def _assign(post_narrative: pl.DataFrame) -> pl.DataFrame:
     return post_narrative.sort("prob", descending=True).unique(subset="post_id", keep="first").select("post_id", "narrative_id")
 
@@ -109,14 +127,16 @@ def kill_test_3(res: dict, exclude: tuple[str, ...] = ("n0",)) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--processed", default="data/processed")
-    ap.add_argument("--post-narrative", default="data/processed/post_narrative.parquet")
-    ap.add_argument("--narratives", default="data/processed/narratives.parquet", help="narrative_id -> label, if present")
+    ap.add_argument("--post-narrative", default=None, help="default: the first of " + ", ".join(POST_NARRATIVE_PATHS) + " that exists")
     ap.add_argument("--out", default="data/processed/artifacts/narrative_shares.json")
     ap.add_argument("--report", default="eval/bots/narrative_shares.md")
     a = ap.parse_args()
     proc = Path(a.processed)
-    pn = pl.read_parquet(a.post_narrative)
-    labels = dict(pl.read_parquet(a.narratives).select("narrative_id", "label").iter_rows()) if Path(a.narratives).exists() else {}
+    pn_path = Path(a.post_narrative) if a.post_narrative else find_post_narrative()
+    if pn_path is None or not pn_path.exists():
+        raise SystemExit(f"no post_narrative.parquet found (looked in {', '.join(POST_NARRATIVE_PATHS)}); H3 writes it")
+    pn = pl.read_parquet(pn_path)
+    labels = narrative_labels()
     res = narrative_shares(pn, pl.read_parquet(proc / "posts.parquet"), pl.read_parquet(proc / "artifacts/bot_scores.parquet"),
                            pl.read_parquet(proc / "accounts.parquet"), labels)
     kt = kill_test_3(res)
@@ -126,7 +146,7 @@ def main() -> None:
     lines = [
         "# Likely automated share per narrative (M4)",
         "",
-        f"Command: `python -m src.bots.narrative_shares --post-narrative {a.post_narrative}`",
+        f"Command: `python -m src.bots.narrative_shares` (post_narrative: `{pn_path}`)",
         f"Denominator: {res['denominator']}. Intervals: shared bootstrap over accounts (1,000 resamples, seed 42).",
         "",
         f"Story baseline: {b['bot_post_share']:.1%} of posts ({b['bot_post_share_ci'][0]:.1%} to {b['bot_post_share_ci'][1]:.1%}) and"
