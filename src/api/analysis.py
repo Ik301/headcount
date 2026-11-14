@@ -43,6 +43,7 @@ class Store:
     interactions: pl.DataFrame | None
     baseline_bot_share: float
     claims: dict = field(default_factory=dict)
+    matched: dict = field(default_factory=dict)  # claim_id -> matched posts (text, narrative_id) for the news block
 
     @classmethod
     def load(cls, base: str = "data/processed") -> "Store":
@@ -78,6 +79,7 @@ def analyze_claim(store: Store, text: str, floor: float = cfg.SIMILARITY_FLOOR, 
     hits = rc.search_claim(store.corpus, text, floor=floor)
     sims = dict(zip(hits["norm"].to_list(), hits["sim"].to_list()))
     m = store.posts.filter(pl.col("norm").is_in(list(sims))).with_columns(pl.col("norm").replace_strict(sims, default=0.0).alias("sim"))
+    store.matched[claim_id] = m.select("text", "narrative_id")
     result = {
         "claim_id": claim_id,
         "claim": text,

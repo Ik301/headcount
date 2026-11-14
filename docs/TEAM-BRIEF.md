@@ -15,7 +15,7 @@ Line to land: volume is not consensus.
 1. (10 s) "Jensen Huang resigned November 12. Bluesky had 46,656 posts about it from 20,482 accounts. How much of that was real?"
 2. (30 s) Dashboard replay: the network builds hour by hour; likely automated accounts in red; the three events on the timeline (WSJ ouster report, resignation, the Post's bots report).
 3. (20 s) The story without the bots: bars per narrative with the likely automated share; flip the toggle and the ranking changes. The cutoff strip shows the result does not depend on where we drew the line.
-4. (20 s) The news baseline: 57% of wire and public-broadcaster spy headlines hedge ("alleged", "suspected"); about 27% of Bluesky posts on the same claim do. The only "smear campaign" headlines report Beijing and Trump saying it.
+4. (20 s) The news baseline: 54% of these outlets' spy headlines hedge ("alleged", "suspected", "claims"). On Bluesky, posts that share a link mostly keep the headline's wording (50% hedge), but posts written in people's own words drop it: 29% hedge. The caution survives the share button and disappears in the retelling. The only "smear campaign" headlines in that coverage attribute the claim to Beijing.
 5. (40 s) The judge texts or types their own claim, about Jensen or any other story, and gets the answer live.
 
 Backup if the live part fails: the "Spot the automation" game on the laptop, then recordings.
@@ -94,11 +94,11 @@ What a score means: an account at 0.87 behaves like the automated accounts we kn
 
 ### 4. Amplifiers and archetypes
 
-An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Current result (Muse's M5 v0): after matching on activity, followers, reach and timing, no archetype is measurably more likely to amplify automated posts; every lift interval includes 1. That is a null result so far, and the pitch should say so rather than promise a susceptible type. It is being rerun with narratives now.
+An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Result on the VM with narratives (642 amplifiers, 628 matched on narrative, 6-hour window, reach, activity and followers): no archetype is measurably more likely to amplify automated posts; every lift interval includes 1 (new small accounts 1.12, 0.91 to 1.38). Without narrative matching, new small accounts looked 1.32 times as likely; that effect was the narrative, not the person. Say this as a clean null result.
 
 ### 5. The news baseline
 
-Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, so through Google News search, fine for a demo), BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian. 198 headlines about Huang in the window. None of them is neutral and none is "the truth"; they are accountable, edited and comparable. First findings: 57% of their spy headlines hedge, against about 27% of Bluesky posts; the only "smear campaign" headlines report others (Beijing, Trump) saying it.
+Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, so through Google News search, fine for a demo), BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian. 198 headlines about Huang in the window. None of them is neutral and none is "the truth"; they are accountable, edited and comparable. Findings: 54% of these outlets' spy headlines hedge ("alleged", "suspected", "claims"). On Bluesky, posts that share a link mostly keep the headline's wording (50% hedge), but posts written in people's own words drop it: 29% hedge. The caution survives the share button and disappears in the retelling. The only "smear campaign" headlines in that coverage attribute the claim to Beijing.
 
 ### 6. How the answer reaches people
 
@@ -120,14 +120,14 @@ Across the story, 5.0% of posts come from likely automated accounts. By narrativ
 | Defending Huang | 1,457 | 3.4% (1.9 to 5.5%) |
 | Jokes and memes | 10,435 | 0.5% (0.3 to 0.6%) |
 
-The finding: on Bluesky, automation is not defending Huang. It concentrates in the narratives that relay news (board, market, spy plot), at up to 1.8 times the baseline, while the posts defending him come mostly from real accounts, below the baseline. The Washington Post's "online bots" defending him (reported on X) do not show up on Bluesky. Caveat to say out loud: the model learned from self-labeled bots, which are mostly news-relay feeds, so it is best at that kind of automation; campaign-style accounts show up through the coordination evidence. The ranking holds at all four cutoffs.
+The finding: on Bluesky, automation is not defending Huang. It concentrates in the narratives that relay news (board, market, spy plot), at up to 1.8 times the baseline, while posts defending him are 3.4% likely automated, not clearly different from the 5.0% baseline. The Washington Post's "online bots" defending him (reported on X) do not show up on Bluesky. Caveat to say out loud: the model learned from self-labeled bots, which are mostly news-relay feeds, so it is best at that kind of automation; campaign-style accounts show up through the coordination evidence. The ranking holds at all four cutoffs.
 
 ## Why it fits each prize
 
 Arlequin Track 2 (content and connectivity):
 - Both layers matter: narratives and repetition come from content; coordination, amplification and the replay come from who interacts with whom. The ablation is in the method view.
 - Sound pipeline with metrics: recall@k on held-out bots against a baseline; claim retrieval recall@20 = 0.577 on Muse's first 20 hand-checked claims (an embedding plus keyword hybrid reaches 0.785, being adopted); narrative agreement with hand labels pending.
-- Non-obvious insight: the hedging gap between newsrooms and social posts; which narratives carry automation; the story ranking with the bots removed.
+- Non-obvious insight: the hedge survives when people share a link and disappears when they retell it in their own words; automation relays news instead of defending Huang; no type of real account stands out as an amplifier once you match on narrative.
 - Efficient compute: CPU only, small embedding model, one cheap language-model call per 25 posts; a live check runs in under a minute.
 - Responsible data: public API only, read-only, private accounts never named, no truth verdicts.
 
