@@ -218,6 +218,7 @@ Until Lane A's tables exist, B and C can start from the raw JSONL file with a th
   "archetype_mix": [{"id": "a1", "label": "", "share": 0.0}],
   "coordination_clusters": [{"size": 0, "reasons": [""]}],
   "public_accounts": [{"handle": "", "p_automated": 0.0}],
+  "evidence": [{"kind": "coordination_trace", "created_at": "", "summary": "", "reasons": [""]}],
   "seconds": 0.0
 }
 ```
