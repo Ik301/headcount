@@ -192,6 +192,8 @@ Local tables use the Bluesky DID as `account_id`; `data/processed/` never leaves
 }
 ```
 
+`python -m src.export.build_site_data` writes it (`--sample-out data/sample/site_data.sample.json` for the committed sample). Beyond the shape above it carries: `findings` (3 to 5 sentences computed from the data), `narratives_meta` (baseline, denominator, bots-off definition), per narrative `posts`, `share`, `expected_share`, `threshold_strip_ci`, `with_bridged`, `bridged` and `without_automated` (ranking with likely automated accounts and their engagement removed), `graph.replay` (cumulative node and edge counts per hour over time-sorted arrays) and `graph.meta`, `archetypes_meta`, `coordination` (clusters with reasons and evidence), `news` (outlet counts, spy-claim hedging vs Bluesky) and `sources`. Timeline rows add `likely_automated`, `likely_automated_by_narrative` and `engagements`. Evidence items add `account_ref` and `public_handle`; `post_uri`, `url` and `text` are present only for nameable accounts. The export refuses to write if its privacy sweep finds a private DID or handle.
+
 ## Stack and layout
 
 Python 3.11 with `uv`, DuckDB, Polars, igraph, leidenalg, sentence-transformers, scikit-learn, umap-learn, hdbscan, datasketch (MinHash), httpx. LLM calls (cluster names, the gold-labeling assist, reply stance) go through whichever key a teammate has. Keep them to a few thousand short calls. Frontend: Vite, React, TypeScript, sigma.js, graphology, Observable Plot or Recharts.
