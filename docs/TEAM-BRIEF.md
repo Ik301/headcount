@@ -88,13 +88,13 @@ How good it is (VM run, full data):
 - Held-out test: we hide 20% of the labeled bots, train on the rest, and see where the hidden ones land among all 20,000 accounts. The model puts 27% of them in its top 100 (recall@100 = 0.272). Posting rate alone puts 4.5% there. That is 6 times better than the obvious baseline.
 - Of its 50 highest-scored accounts, 82% are labeled bots.
 - The undisclosed check: Muse's run hand-checked the 50 highest-scored accounts with no bot label; 45 of 50 were clearly automated (RSS and news feeds, mirrors, market-data feeds). That is the evidence that it finds automation the labels miss. (Muse's local run; re-check on the VM numbers pending.)
-- Honest limits: our own pre-set bar was 0.3 at the top 100; the VM run reached 0.272 (Muse's laptop run reached 0.333 on the same protocol). Some self-labeled "bots" are people joking, which caps any model. Coordination adds little to finding disclosed bots, because honest news bots do not coordinate; it matters for the undisclosed, campaign-style accounts, which is what clusters show in the evidence drawer.
+- Honest limits: our own pre-set bar was 0.3 at the top 100; the VM run, which is what the demo uses, reached 0.272. Muse's laptop run reached 0.333 on a slightly different fresh pull (46,605 posts against 46,656, different labeled-bot counts and history coverage), so quote the VM number. Some self-labeled "bots" are people joking, which caps any model. Coordination adds little to finding disclosed bots (0.236 to 0.243 at the top 100); labeled bots are 3 times over-represented in clustered accounts, and the clusters are shown as evidence of accounts acting in lockstep, not as a separate accuracy claim.
 
 What a score means: an account at 0.87 behaves like the automated accounts we know about, for the reasons listed. It is not proof, and it never says who runs the account. That is why every screen says "likely automated" with an interval.
 
 ### 4. Amplifiers and archetypes
 
-An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Status: Muse's archetype build is in progress; placeholder archetypes until it lands.
+An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Current result (Muse's M5 v0): after matching on activity, followers, reach and timing, no archetype is measurably more likely to amplify automated posts; every lift interval includes 1. That is a null result so far, and the pitch should say so rather than promise a susceptible type. It is being rerun with narratives now.
 
 ### 5. The news baseline
 
@@ -106,11 +106,27 @@ Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, 
 - Web claim checker: any story, live.
 - Dashboard: one story in depth for journalists, with citable evidence.
 
+## What the data says so far (VM, full data, bridged accounts excluded)
+
+Across the story, 5.0% of posts come from likely automated accounts. By narrative:
+
+| Narrative | Posts | Likely automated (95% interval) |
+|---|---|---|
+| Board, resignation and succession | 5,130 | 8.9% (6.5 to 11.7%) |
+| Stock, market and lawsuits | 3,263 | 7.8% (5.1 to 10.5%) |
+| Spy plot and national security | 8,698 | 7.0% (5.1 to 9.3%) |
+| The affairs as personal misconduct | 4,205 | 6.8% (4.3 to 9.8%) |
+| Trump and politics | 3,733 | 3.6% (2.1 to 5.2%) |
+| Defending Huang | 1,457 | 3.4% (1.9 to 5.5%) |
+| Jokes and memes | 10,435 | 0.5% (0.3 to 0.6%) |
+
+The finding: on Bluesky, automation is not defending Huang. It concentrates in the narratives that relay news (board, market, spy plot), at up to 1.8 times the baseline, while the posts defending him come mostly from real accounts, below the baseline. The Washington Post's "online bots" defending him (reported on X) do not show up on Bluesky. Caveat to say out loud: the model learned from self-labeled bots, which are mostly news-relay feeds, so it is best at that kind of automation; campaign-style accounts show up through the coordination evidence. The ranking holds at all four cutoffs.
+
 ## Why it fits each prize
 
 Arlequin Track 2 (content and connectivity):
 - Both layers matter: narratives and repetition come from content; coordination, amplification and the replay come from who interacts with whom. The ablation is in the method view.
-- Sound pipeline with metrics: recall@k on held-out bots against a baseline, claim retrieval recall@k (pending), narrative agreement with hand labels (pending).
+- Sound pipeline with metrics: recall@k on held-out bots against a baseline; claim retrieval recall@20 = 0.577 on Muse's first 20 hand-checked claims (an embedding plus keyword hybrid reaches 0.785, being adopted); narrative agreement with hand labels pending.
 - Non-obvious insight: the hedging gap between newsrooms and social posts; which narratives carry automation; the story ranking with the bots removed.
 - Efficient compute: CPU only, small embedding model, one cheap language-model call per 25 posts; a live check runs in under a minute.
 - Responsible data: public API only, read-only, private accounts never named, no truth verdicts.

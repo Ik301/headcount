@@ -70,6 +70,7 @@ def main() -> None:
     ap.add_argument("--sample", type=int, default=4000)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--llm-only", action="store_true", help="only write llm_labels.parquet")
+    ap.add_argument("--all", action="store_true", help="LLM-label every unique text not yet labeled (the classifier then only fills gaps)")
     a = ap.parse_args()
     d = Path(a.dir)
     full = pl.read_parquet(d / "posts_clusters.parquet").with_columns(
@@ -79,9 +80,10 @@ def main() -> None:
     order = order.join(full.unique(subset="norm").select("norm", "cluster"), on="norm", how="left")
 
     llm_path = d / "llm_labels.parquet"
-    if llm_path.exists():
-        lab = pl.read_parquet(llm_path)
-    else:
+    lab = pl.read_parquet(llm_path) if llm_path.exists() else pl.DataFrame(schema={"eidx": pl.Int64, "narrative_id": pl.Utf8, "side": pl.Utf8})
+    if a.all:
+        picks = [i for i in order["eidx"].to_list() if i not in set(lab["eidx"].to_list())]
+    elif lab.height == 0:
         rng = np.random.default_rng(0)
         per = max(1, a.sample // max(1, order["cluster"].n_unique()))
         picks = []
@@ -90,20 +92,30 @@ def main() -> None:
             k = min(sub.height, per if c != -1 else per * 4)
             picks += sub["eidx"].to_list() if sub.height <= k else rng.choice(sub["eidx"].to_numpy(), k, replace=False).tolist()
         picks = picks[: a.sample]
+    else:
+        picks = []
+    if picks:
         texts = dict(zip(order["eidx"].to_list(), order["text"].to_list()))
         batches = [[(i, texts[i]) for i in picks[j : j + 25]] for j in range(0, len(picks), 25)]
         key = os.environ["DEEPSEEK_API_KEY"]
         t0 = time.time()
         rows = []
         with httpx.Client(timeout=120, headers={"Authorization": f"Bearer {key}"}) as client, ThreadPoolExecutor(a.workers) as pool:
+            def save() -> None:
+                nonlocal lab
+                new = pl.DataFrame(rows, schema={"eidx": pl.Int64, "narrative_id": pl.Utf8, "side": pl.Utf8}).filter(pl.col("eidx").is_in(picks))
+                merged = pl.concat([lab.cast({"eidx": pl.Int64}), new]).unique(subset="eidx", keep="first")
+                merged.write_parquet(str(llm_path) + ".tmp")
+                os.replace(str(llm_path) + ".tmp", llm_path)
+
             for k, res in enumerate(pool.map(lambda b: call(client, b), batches)):
                 rows += [{"eidx": int(o["i"]), "narrative_id": o["n"], "side": o["s"]} for o in res]
-                if k % 20 == 0:
+                if k % 50 == 0:
                     print(f"batch {k}/{len(batches)} labels {len(rows)} {time.time() - t0:.0f}s", flush=True)
-        lab = pl.DataFrame(rows).unique(subset="eidx")
-        lab = lab.filter(pl.col("eidx").is_in(picks))
-        lab.write_parquet(llm_path)
-        print(f"LLM labels: {lab.height} in {time.time() - t0:.0f}s", flush=True)
+                    save()  # incremental, so a killed run keeps its labels
+            save()
+        lab = pl.read_parquet(llm_path)
+        print(f"LLM labels now: {lab.height} ({len(rows)} new in {time.time() - t0:.0f}s)", flush=True)
 
     if a.llm_only:
         return

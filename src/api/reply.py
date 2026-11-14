@@ -27,7 +27,7 @@ def compose(result: dict) -> str:
             f"I found {n} Bluesky posts making this claim, which isn't enough to measure automation reliably (I need at least {cfg.MIN_MATCHES}). "
             "Try a broader wording, or ask about the Jensen Huang story from Nov 5 to 13. " + TRUTH_LINE
         )
-    narrs = result["narratives"][:4]
+    narrs = [nr for nr in result["narratives"] if nr["share_of_matches"] >= 0.05][:4] or result["narratives"][:1]
     base = result.get("baseline_bot_share") or 0
     lines = [f"I found {n:,} Bluesky posts making this claim ({_window(result)})."]
     for nr in narrs:
@@ -39,7 +39,8 @@ def compose(result: dict) -> str:
     com = [c for c in result.get("bot_commonalities", []) if c.get("accounts")]
     if com and narrs:
         top = max(narrs, key=lambda nr: nr["bot_post_share"])["label"]
-        lines.append(f"The likely automated accounts pushing {top}: " + "; ".join(f"{c['signal']} ({c['accounts']} accounts)" for c in com[:2]) + ".")
+        parts = [c["signal"] if "account" in c["signal"] else f"{c['signal']} ({c['accounts']} accounts)" for c in com[:2]]
+        lines.append(f"The likely automated accounts pushing {top}: " + "; ".join(parts) + ".")
     amp = result.get("amplifiers", {})
     mix = [a for a in amp.get("archetype_mix", []) if a.get("lift")]
     if amp.get("n_humans", 0) >= cfg.MIN_HUMANS_FOR_AMPLIFIER_LINE and mix:
