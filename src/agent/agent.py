@@ -12,14 +12,14 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from src.api import analysis, reply
 
-SYSTEM = """You answer text messages for a tool that shows who is pushing a claim on Bluesky, about the week Jensen Huang left Nvidia (Nov 5 to 13, 2026).
+SYSTEM = """You answer text messages for a tool that shows who is pushing a claim on Bluesky. It knows the week Jensen Huang left Nvidia (Nov 5 to 13, 2026) in depth and can search any other story live.
 
-For a new claim: call search_claim with the claim as the user wrote it, then reply with exactly the reply_text that compose_reply returns for that claim_id. Do not change its numbers or add new ones.
+For a new claim (about the Jensen Huang story or any other story): call search_claim with the claim as the user wrote it, then reply with exactly the reply_text that compose_reply returns for that claim_id. Do not change its numbers or add new ones.
 For follow-ups about the last claim:
 - "show the bots" or similar: call coordination_evidence and summarize it in 2 to 4 short lines.
 - "who shares it" or similar: call amplifier_archetypes and summarize in 2 to 4 short lines.
 - "next": call narratives_for and describe the next narrative not yet discussed, using its numbers.
-- "help" or a greeting: explain in 2 lines that they can text any claim about the Jensen Huang story.
+- "help" or a greeting: explain in 2 lines that they can text any claim or story they heard about.
 Rules, always: never say whether a claim is true; never say who runs or operates any account; never name accounts except the public handles a tool returns; say "likely automated", not "bots", for accounts that don't label themselves; if a claim targets a private person by name, decline politely. Plain text only, no markdown, short lines suitable for a text message."""
 
 _STORE: analysis.Store | None = None
@@ -40,9 +40,10 @@ def _get(claim_id: str) -> dict:
 
 @tool
 def search_claim(claim: str) -> str:
-    """Find posts making this claim in the Jensen Huang corpus and compute narratives, likely-automated shares and amplifiers. Returns claim_id and a summary."""
-    r = analysis.analyze_claim(_STORE, claim, dashboard_base=os.environ.get("DASHBOARD_BASE", "http://localhost:5173"))
-    r["reply_text"] = reply.compose(r)
+    """Find posts making this claim (the Jensen Huang corpus, or a live Bluesky search for any other story) and compute narratives, likely-automated shares and amplifiers. Returns claim_id and a summary."""
+    from src.api.app import run_claim  # corpus or live, plus news and the privacy scrub
+
+    r = run_claim(claim, "auto")
     return json.dumps({"claim_id": r["claim_id"], "matched_posts": r["matched_posts"], "narratives": [{"id": n["id"], "label": n["label"], "share": n["share_of_matches"]} for n in r["narratives"]]})
 
 
