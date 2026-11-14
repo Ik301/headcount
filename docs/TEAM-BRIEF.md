@@ -94,7 +94,7 @@ What a score means: an account at 0.87 behaves like the automated accounts we kn
 
 ### 4. Amplifiers and archetypes
 
-An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Result on the VM with narratives (642 amplifiers, 628 matched on narrative, 6-hour window, reach, activity and followers): no archetype is measurably more likely to amplify automated posts; every lift interval includes 1 (new small accounts 1.12, 0.91 to 1.38). Without narrative matching, new small accounts looked 1.32 times as likely; that effect was the narrative, not the person. Say this as a clean null result.
+An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Result on the VM with narratives (642 amplifiers, 628 matched on narrative, 6-hour window, reach, activity and followers): no archetype is measurably more likely to amplify automated posts; every lift interval includes 1 (new small accounts 1.12, 0.91 to 1.38). Without narrative matching, new small accounts looked 1.32 times as likely; that effect was the narrative, not the person. One difference does survive, in the regression that adjusts for followers, activity, narrative and hour: prolific posters whose posts get many likes are modestly more likely than occasional posters to amplify automated posts (odds ratio 1.58, 1.10 to 2.27; p = 0.039 after correcting for 3 comparisons). Say: "No group of real accounts stands out as the ones who spread automation. The one difference that survives: prolific, well-liked posters are modestly more likely, about 1.6x the odds, than occasional posters."
 
 ### 5. The news baseline
 
@@ -127,7 +127,7 @@ The finding: on Bluesky, automation is not defending Huang. It concentrates in t
 Arlequin Track 2 (content and connectivity):
 - Both layers matter: narratives and repetition come from content; coordination, amplification and the replay come from who interacts with whom. The ablation is in the method view.
 - Sound pipeline with metrics: recall@k on held-out bots against a baseline; claim retrieval recall@20 = 0.577 on Muse's first 20 hand-checked claims (an embedding plus keyword hybrid reaches 0.785, being adopted); narrative agreement with hand labels pending.
-- Non-obvious insight: the hedge survives when people share a link and disappears when they retell it in their own words; automation relays news instead of defending Huang; no type of real account stands out as an amplifier once you match on narrative.
+- Non-obvious insight: the hedge survives when people share a link and disappears when they retell it in their own words; automation relays news instead of defending Huang; once you match on narrative, no group of real accounts stands out as an amplifier, apart from one modest difference (prolific, well-liked posters at about 1.6x the odds of occasional posters).
 - Efficient compute: CPU only, small embedding model, one cheap language-model call per 25 posts; a live check runs in under a minute.
 - Responsible data: public API only, read-only, private accounts never named, no truth verdicts.
 
@@ -156,4 +156,4 @@ Avoid: "bots" for undisclosed accounts, "fake", "the truth", "neutral sources", 
 ## Status (update before rehearsal)
 
 Done: data, narratives (all posts labeled), bot model and coordination on the full data, claim API, agent, Photon service, news headlines, six mockups.
-In progress tonight: live any-story path, dashboard data export, news matching, wired web app, archetypes, retrieval evaluation, Photon line activation (needs a dedicated line from Photon's booth for instant texting).
+Done and merged: live any-story path, dashboard data export, news matching, wired web app, archetypes, retrieval evaluation. Still open: Photon line activation (needs a dedicated line from Photon's booth for instant texting), Isaac's labels for the 10 middle challenge accounts.
