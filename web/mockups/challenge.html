@@ -22,15 +22,20 @@
     --human-wash: #E3EEF3;
     --serif: "Newsreader", Georgia, serif;
     --sans: "IBM Plex Sans", system-ui, sans-serif;
+    /* mono is kept for one job only: hashed account refs (acct·9b04), so they read as IDs, not words */
     --mono: "IBM Plex Mono", ui-monospace, monospace;
     --ease: cubic-bezier(.16,1,.3,1);
+    --soft-rule: #F0EDE6;
+    --edge: #CFCAC0;
+    /* --signal darkened for small text so it clears 4.5:1 on white; same hue, same meaning */
+    --signal-ink: #B3371E;
   }
   * { box-sizing: border-box; }
   html { background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; scrollbar-color: var(--rule) var(--paper); }
   body { margin: 0; font: 400 15px/1.45 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
   ::selection { background: var(--human-wash); color: var(--ink); }
   :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
-  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .ref, .id { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
   .app { max-width: 430px; min-height: 100svh; margin: 0 auto; display: flex; flex-direction: column; }
 
@@ -38,15 +43,18 @@
   .top { padding: 16px 20px 12px; }
   .top .row { display: flex; align-items: baseline; justify-content: space-between; }
   .top h1 { margin: 0; font: 500 22px/1.15 var(--serif); letter-spacing: -0.01em; }
-  .count { font: 400 13px/1 var(--mono); color: var(--ink-2); }
+  .count { font: 500 13px/1 var(--sans); color: var(--ink-2); }
   .dots { display: flex; justify-content: space-between; margin-top: 12px; max-width: 330px; }
   .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background-color .4s var(--ease), box-shadow .4s var(--ease); }
   .dots i.done { background: var(--ink); }
   .dots i.now { background: var(--card); box-shadow: inset 0 0 0 2px var(--ink); }
-  .mock { margin-top: 7px; font: 400 12px/1.2 var(--mono); color: var(--ink-2); }
+  .mock { margin-top: 7px; font: 400 12px/1.2 var(--sans); color: var(--ink-2); }
 
   main { flex: 1; display: flex; flex-direction: column; padding: 4px 16px 20px; }
   [data-view] { display: none; }
+  .play { display: flex; flex-direction: column; flex: 1; }
+  body[data-state="final"] .play { display: none; }
+  body[data-state="reveal"] .acct.full { display: none; }
   body[data-state="card"] [data-view="card"],
   body[data-state="reveal"] [data-view="reveal"],
   body[data-state="final"] [data-view="final"] { display: flex; flex-direction: column; flex: 1; animation: arrive .5s var(--ease) both; }
@@ -61,57 +69,62 @@
   .av { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: none; }
   .av svg { display: block; width: 100%; height: 100%; }
   .who b { display: block; font-weight: 600; font-size: 15px; line-height: 1.25; }
-  .who .ref { font: 400 13px/1.2 var(--mono); color: var(--ink-2); }
+  .who .ref { font-size: 13px; line-height: 1.2; color: var(--ink-2); }
   .stats { display: grid; grid-template-columns: 1fr 1fr 1.2fr; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   .stats div { padding: 12px 12px 12px 16px; }
   .stats div + div { border-left: 1px solid var(--rule); padding-left: 12px; }
   .stats dt { font-size: 12px; color: var(--ink-2); }
-  .stats dd { margin: 2px 0 0; font: 400 21px/1.1 var(--serif); }
-  .stats dd small { font: 400 12px/1 var(--mono); color: var(--ink-2); margin-left: 3px; }
+  .stats dd { margin: 2px 0 0; font: 400 21px/1.1 var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+  .stats dd small { font: 400 12px/1 var(--sans); color: var(--ink-2); margin-left: 3px; }
   .posts { list-style: none; margin: 0; padding: 4px 16px 0; }
-  .posts li { padding: 12px 0; border-bottom: 1px solid #F0EDE6; font-size: 14px; line-height: 1.38; }
+  .posts li { padding: 12px 0; border-bottom: 1px solid var(--soft-rule); font-size: 14px; line-height: 1.38; }
   .posts li:last-child { border-bottom: 0; }
-  .posts time { display: block; font: 400 12px/1.2 var(--mono); color: var(--ink-2); margin-bottom: 2px; }
+  /* timestamps: humane date and clock time in the UI sans, tabular figures so the minutes line up */
+  .posts time { display: block; font: 500 12.5px/1.2 var(--sans); color: var(--ink-2); margin-bottom: 3px; letter-spacing: .005em; }
+  .posts time .gap { font-weight: 400; }
   .posts .rp { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-2); font-size: 12.5px; }
   .posts .rp svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .when { padding: 12px 16px 14px; border-top: 1px solid var(--rule); background: #FCFBF8; }
-  .when .lab { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); }
+  .when .lab { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--ink-2); }
   .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; margin-top: 7px; height: 26px; }
   .hours i { border-radius: 1.5px; background: var(--ink); }
-  .haxis { display: flex; justify-content: space-between; margin-top: 4px; font: 400 12px/1 var(--mono); color: var(--ink-2); }
+  .haxis { display: flex; justify-content: space-between; margin-top: 5px; font: 400 12px/1 var(--sans); color: var(--ink-2); }
 
   /* ---------- Decide ---------- */
   .ask { margin: 0 4px 12px; font: 400 18px/1.3 var(--serif); }
   .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .choice { appearance: none; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: 64px; padding: 12px 14px; border-radius: 12px; border: 1px solid #CFCAC0; background: var(--card); color: var(--ink); font: 600 15px/1.2 var(--sans); text-align: left; cursor: pointer; transition: transform .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease); }
+  .choice { appearance: none; position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: 64px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--edge); background: var(--card); color: var(--ink); font: 600 15px/1.2 var(--sans); text-align: left; cursor: pointer; transition: transform .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease); }
   .choice:hover { border-color: var(--ink-2); }
   .choice:active { transform: scale(.98); }
   .choice .sw { width: 12px; height: 12px; border-radius: 50%; }
   .choice.auto .sw { background: var(--signal); }
   .choice.person .sw { background: var(--human); }
+  kbd { display: none; font: 500 12px/1 var(--sans); color: var(--ink-2); border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: 5px; padding: 4px 7px; background: var(--paper); }
+  .ask-sub { display: none; }
   .skip { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink-2); font: 400 13px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); cursor: pointer; padding: 6px; }
+  .skip:hover { color: var(--ink); text-decoration-color: var(--ink-2); }
 
   /* ---------- Reveal ---------- */
   .acct.mini .who { padding: 12px 14px; }
   .acct.mini .av { width: 36px; height: 36px; }
-  .acct.mini .meta { margin-left: auto; text-align: right; font: 400 12px/1.35 var(--mono); color: var(--ink-2); }
+  .acct.mini .meta { margin-left: auto; text-align: right; font: 400 12.5px/1.35 var(--sans); color: var(--ink-2); }
   .agree { display: flex; align-items: center; gap: 12px; margin: 14px 2px 0; font-size: 14px; color: var(--ink-2); }
   .agree svg { width: 22px; height: 22px; flex: none; }
   .agree b { color: var(--ink); font-weight: 600; }
   .score { margin-top: 12px; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px 6px; }
   .score .head { display: flex; align-items: flex-end; gap: 12px; }
-  .score .big { font: 400 50px/0.85 var(--serif); letter-spacing: -0.02em; }
+  .score .big { font: 400 50px/0.85 var(--serif); letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; }
   .score .head p { margin: 0 0 2px; font-size: 13.5px; line-height: 1.3; color: var(--ink-2); }
-  .score .head p b { color: var(--signal); font-weight: 600; }
+  .score .head p b { color: var(--signal-ink); font-weight: 600; white-space: nowrap; }
   .scale { position: relative; height: 12px; margin: 16px 0 0; border-radius: 2px; background: linear-gradient(to right, var(--human-wash) 0 50%, var(--signal-wash) 50% 100%); }
   .scale .cut { position: absolute; left: 50%; top: -5px; bottom: -5px; border-left: 1px dashed var(--ink-2); }
   .scale .pt { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 3px var(--card); }
-  .sax { display: flex; justify-content: space-between; margin-top: 6px; font: 400 12px/1 var(--mono); color: var(--ink-2); }
+  .sax { display: flex; justify-content: space-between; margin-top: 6px; font: 400 12px/1 var(--sans); color: var(--ink-2); }
   .why { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--rule); }
-  .why li { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid #F0EDE6; font-size: 13.5px; line-height: 1.38; }
+  .why li { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--soft-rule); font-size: 13.5px; line-height: 1.38; }
   .why li:last-child { border-bottom: 0; }
-  .why .k { font: 500 12px/1 var(--mono); color: var(--ink-2); }
-  .why .w { font: 400 12px/1 var(--mono); color: var(--signal); white-space: nowrap; }
+  .why .k { font: 600 12px/1 var(--sans); color: var(--ink-2); }
+  .why .w { font: 600 12.5px/1 var(--sans); color: var(--signal-ink); white-space: nowrap; }
   .fine { margin: 12px 4px 0; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
 
   .actions { display: grid; gap: 8px; padding-top: 16px; }
@@ -120,26 +133,174 @@
   .primary:hover { background: #2A2D35; }
   .primary:active, .secondary:active { transform: scale(.985); }
   .primary svg, .secondary svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .secondary { background: transparent; color: var(--ink); border: 1px solid #CFCAC0; font-weight: 500; }
+  .secondary { background: transparent; color: var(--ink); border: 1px solid var(--edge); font-weight: 500; }
   .secondary:hover { background: var(--card); }
+  .primary kbd { color: var(--paper); background: transparent; border-color: rgba(247,245,240,.4); }
 
   /* ---------- Final ---------- */
   .result { margin: 12px 4px 0; }
   .result h2 { margin: 0; font: 400 32px/1.08 var(--serif); letter-spacing: -0.015em; text-wrap: balance; }
-  .result p { margin: 12px 0 0; color: var(--ink-2); font-size: 14.5px; max-width: 34ch; }
+  .result p { margin: 12px 0 0; color: var(--ink-2); font-size: 14.5px; max-width: 34ch; text-wrap: pretty; }
   .recap { list-style: none; margin: 20px 0 0; padding: 0; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
   .recap li { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--rule); }
   .recap li:first-child { border-top: 0; }
   .recap .av { width: 32px; height: 32px; }
-  .recap .ref { font: 500 13px/1.2 var(--mono); }
+  .recap .ref { font-weight: 500; font-size: 13px; line-height: 1.2; }
   .recap .calls { margin-top: 3px; font-size: 12.5px; color: var(--ink-2); line-height: 1.35; }
-  .recap .calls .m { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .recap .calls .m { font-weight: 600; color: var(--ink); }
   .tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 999px; font: 500 12px/1 var(--sans); white-space: nowrap; }
   .tag svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .tag.yes { background: var(--paper); color: var(--ink-2); }
   .tag.q { background: var(--ink); color: var(--paper); }
   .queue { margin: 14px 4px 0; display: grid; grid-template-columns: 18px 1fr; gap: 8px; font-size: 13px; color: var(--ink-2); line-height: 1.4; }
   .queue svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+
+  /* =========================================================
+     Tablet and up: same single column, larger type, darker hairlines
+     ========================================================= */
+  @media (min-width: 720px) {
+    body { font-size: 17px; }
+    :root { --soft-rule: #E8E4DB; }
+    .app { max-width: 680px; }
+    .top { padding: 32px 24px 20px; }
+    .top h1 { font-size: 30px; }
+    .count { font-size: 15px; color: var(--ink); }
+    .dots { max-width: 460px; margin-top: 16px; }
+    .dots i { width: 10px; height: 10px; }
+    .mock { margin-top: 10px; font-size: 14px; }
+    main { padding: 4px 24px 32px; }
+
+    .acct { border-radius: 16px; border-color: #DCD7CC; }
+    .who { gap: 16px; padding: 20px 24px 18px; }
+    .av { width: 56px; height: 56px; }
+    .who b { font-size: 19px; }
+    .who .ref { font-size: 15px; }
+    .stats div { padding: 16px 16px 16px 24px; }
+    .stats div + div { padding-left: 18px; }
+    .stats dt { font-size: 14px; }
+    .stats dd { font-size: 32px; margin-top: 4px; }
+    .stats dd small { font-size: 14px; margin-left: 4px; }
+    .posts { padding: 6px 24px 0; }
+    .posts li { padding: 16px 0; font-size: 17px; line-height: 1.45; }
+    .posts time { font-size: 14px; margin-bottom: 5px; }
+    .posts .rp { font-size: 14.5px; gap: 6px; }
+    .posts .rp svg { width: 15px; height: 15px; }
+    .when { padding: 16px 24px 18px; }
+    .when .lab { font-size: 14px; }
+    .hours { height: 36px; gap: 3px; margin-top: 10px; }
+    .haxis { font-size: 13.5px; margin-top: 7px; }
+
+    .spacer { flex-basis: 28px; }
+    .ask { font-size: 26px; margin: 0 0 16px; }
+    .choices { gap: 16px; }
+    .choice { min-height: 84px; padding: 18px 20px; gap: 12px; font-size: 18px; border-radius: 14px; }
+    .choice .sw { width: 14px; height: 14px; }
+    .skip { font-size: 15px; margin-top: 16px; }
+
+    .acct.mini .who { padding: 16px 20px; }
+    .acct.mini .av { width: 44px; height: 44px; }
+    .acct.mini .meta { font-size: 15px; }
+    .agree { font-size: 17px; margin-top: 20px; gap: 14px; }
+    .agree svg { width: 26px; height: 26px; }
+    .score { padding: 22px 24px 8px; border-radius: 16px; margin-top: 16px; }
+    .score .head { gap: 18px; }
+    .score .big { font-size: 76px; }
+    .score .head p { font-size: 16px; color: var(--ink); }
+    .scale { height: 14px; margin-top: 22px; }
+    .sax { font-size: 13.5px; margin-top: 8px; }
+    .why { margin-top: 16px; }
+    .why li { grid-template-columns: 28px 1fr auto; gap: 10px; padding: 16px 0; font-size: 17px; line-height: 1.45; color: var(--ink); }
+    .why .k { font-size: 15px; }
+    .why .w { font-size: 15px; }
+    .fine { font-size: 14px; margin: 16px 0 0; }
+
+    .actions { gap: 12px; padding-top: 24px; }
+    .primary, .secondary { height: 58px; font-size: 17px; border-radius: 14px; }
+
+    .result { margin: 16px 0 0; }
+    .result h2 { font-size: 46px; }
+    .result p { font-size: 17px; max-width: 42ch; margin-top: 16px; }
+    .recap { margin-top: 28px; border-radius: 16px; }
+    .recap li { grid-template-columns: 44px 1fr auto; gap: 16px; padding: 18px 22px; }
+    .recap .av { width: 44px; height: 44px; }
+    .recap .ref { font-size: 16px; }
+    .recap .calls { font-size: 15px; margin-top: 4px; }
+    .tag { font-size: 14px; padding: 6px 11px; gap: 6px; }
+    .tag svg { width: 13px; height: 13px; }
+    .queue { font-size: 15px; grid-template-columns: 22px 1fr; gap: 10px; margin: 20px 0 0; }
+    .queue svg { width: 22px; height: 22px; }
+  }
+
+  /* Keyboard hints only where there is likely a keyboard */
+  @media (min-width: 720px) and (hover: hover) and (pointer: fine) {
+    kbd { display: inline-block; }
+    .choice kbd { position: absolute; top: 16px; right: 16px; }
+    .primary kbd { margin-left: 4px; }
+  }
+
+  /* =========================================================
+     Desktop: the account on the left, the decision on the right
+     ========================================================= */
+  @media (min-width: 1024px) {
+    .app { max-width: 1280px; }
+    .top { padding: 36px 48px 28px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 56px; align-items: end; }
+    .top .row { display: contents; }
+    .top h1 { font-size: 36px; grid-column: 1; grid-row: 1; align-self: baseline; }
+    .count { grid-column: 2; grid-row: 1; justify-self: end; align-self: baseline; font-size: 17px; }
+    .dots { grid-column: 1 / -1; grid-row: 2; max-width: none; margin-top: 20px; }
+    .mock { grid-column: 1 / -1; grid-row: 3; }
+    main { padding: 0 48px 48px; }
+
+    .play { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 56px; align-items: start; }
+    .play .acct.full { grid-column: 1; grid-row: 1; }
+    body[data-state="reveal"] .acct.full { display: block; }
+    .play [data-view] { grid-column: 2; grid-row: 1; position: sticky; top: 24px; }
+    .acct.mini { display: none; }
+    .acct.full .who { padding: 24px 28px 20px; gap: 18px; }
+    .acct.full .av { width: 64px; height: 64px; }
+    .acct.full .who b { font-size: 21px; }
+    .acct.full .who .ref { font-size: 16px; }
+    .stats div { padding: 18px 18px 18px 28px; }
+    .stats div + div { padding-left: 22px; }
+    .stats dt { font-size: 15px; }
+    .stats dd { font-size: 40px; }
+    .stats dd small { font-size: 15px; }
+    .posts { padding: 6px 28px 0; }
+    .posts li { padding: 18px 0; font-size: 19px; }
+    .posts time { font-size: 15px; margin-bottom: 6px; }
+    .posts .rp { font-size: 15.5px; }
+    .when { padding: 18px 28px 20px; }
+    .when .lab { font-size: 15px; }
+    .hours { height: 40px; }
+    .haxis { font-size: 14.5px; }
+    .spacer { display: none; }
+    .decide { margin-top: 0; padding-top: 4px; }
+    .ask { font-size: 36px; line-height: 1.15; margin-bottom: 10px; text-wrap: balance; }
+    .ask-sub { display: block; margin: 0 0 28px; font-size: 17px; color: var(--ink-2); }
+    .choices { grid-template-columns: 1fr; gap: 14px; }
+    .choice { flex-direction: row; align-items: center; gap: 16px; min-height: 84px; padding: 0 26px; font-size: 20px; }
+    .fine { font-size: 15px; }
+    .choice kbd { position: static; margin-left: auto; }
+    .skip { margin: 20px 0 0; padding: 6px 0; }
+
+    .agree { margin-top: 0; font-size: 18px; }
+    .agree svg { width: 28px; height: 28px; }
+    .score { margin-top: 20px; }
+    .actions { margin-top: 0; }
+
+    [data-view="final"] { display: none; }
+    body[data-state="final"] [data-view="final"] { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 72px; align-content: start;
+      grid-template-areas: "result recap" "queue recap" "actions recap" ". recap"; }
+    .result { grid-area: result; margin-top: 8px; }
+    .result h2 { font-size: 56px; line-height: 1.04; }
+    .result p { font-size: 18px; }
+    .recap { grid-area: recap; margin-top: 8px; align-self: start; }
+    .recap li { padding: 22px 28px; }
+    .recap .ref { font-size: 17px; }
+    .recap .calls { font-size: 16px; }
+    .queue { grid-area: queue; margin-top: 28px; }
+    [data-view="final"] .actions { grid-area: actions; padding-top: 32px; }
+  }
 </style>
 </head>
 <body data-state="card">
@@ -154,9 +315,9 @@
   </header>
 
   <main>
-    <!-- ============ CARD ============ -->
-    <section data-view="card" aria-label="Account 3 of 20">
-      <article class="acct">
+    <div class="play">
+      <!-- The account under review. On phones it shows only while deciding; from 1024px it stays beside the reveal. -->
+      <article class="acct full" aria-label="Account 3 of 20">
         <div class="who">
           <span class="av" data-ref="9b04"></span>
           <div><b>A private account</b><span class="ref">acct·9b04</span></div>
@@ -167,63 +328,67 @@
           <div><dt>Follows / followers</dt><dd>1,912<small>/ 37</small></dd></div>
         </dl>
         <ul class="posts" aria-label="Three most recent posts">
-          <li><time class="num">Nov 12 · 20:31 UTC</time>The smear campaign against Jensen is a gift to Beijing. Wake up.</li>
-          <li><time class="num">Nov 12 · 20:29 UTC</time><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 4 7l3 3"/><path d="M4 7h11a4 4 0 0 1 4 4v1"/><path d="m17 20 3-3-3-3"/><path d="M20 17H9a4 4 0 0 1-4-4v-1"/></svg>Reposted @nowbreezing.ntw.app</span><br>Trending now: Nvidia, Huang, Kress, interim CEO.</li>
-          <li><time class="num">Nov 12 · 20:26 UTC</time>NVDA holders, this is a coordinated hit job. Hold the line.</li>
+          <li><time datetime="2026-11-12T20:31Z">Nov 12, 8:31 PM UTC</time>The smear campaign against Jensen is a gift to Beijing. Wake up.</li>
+          <li><time datetime="2026-11-12T20:29Z">8:29 PM <span class="gap">· 2 minutes earlier</span></time><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 4 7l3 3"/><path d="M4 7h11a4 4 0 0 1 4 4v1"/><path d="m17 20 3-3-3-3"/><path d="M20 17H9a4 4 0 0 1-4-4v-1"/></svg>Reposted @nowbreezing.ntw.app</span><br>Trending now: Nvidia, Huang, Kress, interim CEO.</li>
+          <li><time datetime="2026-11-12T20:26Z">8:26 PM <span class="gap">· 3 minutes before that</span></time>NVDA holders, this is a coordinated hit job. Hold the line.</li>
         </ul>
         <div class="when">
-          <div class="lab"><span>When it posts, by hour</span><span class="num">last 7 days, UTC</span></div>
+          <div class="lab"><span>When it posts, by hour</span><span>Last 7 days, UTC</span></div>
           <div class="hours" id="hours" role="img" aria-label="Posts spread across all 24 hours, with no quiet period"></div>
-          <div class="haxis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+          <div class="haxis"><span>12 am</span><span>6 am</span><span>Noon</span><span>6 pm</span><span>12 am</span></div>
         </div>
       </article>
 
-      <div class="spacer"></div>
-      <div class="decide">
-      <p class="ask">Is this account likely automated?</p>
-      <div class="choices">
-        <button class="choice auto" type="button" data-go="reveal"><span class="sw" aria-hidden="true"></span>Likely automated</button>
-        <button class="choice person" type="button" data-go="reveal"><span class="sw" aria-hidden="true"></span>Probably a person</button>
-      </div>
-      <button class="skip" type="button" data-go="card">Skip, I can’t tell</button>
-      </div>
-    </section>
-
-    <!-- ============ REVEAL ============ -->
-    <section data-view="reveal" aria-label="The model's score for account 3">
-      <article class="acct mini">
-        <div class="who">
-          <span class="av" data-ref="9b04"></span>
-          <div><b>A private account</b><span class="ref">acct·9b04</span></div>
-          <span class="meta">19 days old<br>84 posts a day</span>
+      <!-- ============ CARD ============ -->
+      <section data-view="card" aria-label="Your call on account 3 of 20">
+        <div class="spacer"></div>
+        <div class="decide">
+          <p class="ask">Is this account likely automated?</p>
+          <span class="ask-sub">Look at its age, how often it posts and when.</span>
+          <div class="choices">
+            <button class="choice auto" type="button" data-go="reveal"><span class="sw" aria-hidden="true"></span>Likely automated<kbd aria-hidden="true">A</kbd></button>
+            <button class="choice person" type="button" data-go="reveal"><span class="sw" aria-hidden="true"></span>Probably a person<kbd aria-hidden="true">P</kbd></button>
+          </div>
+          <button class="skip" type="button" data-go="card">Skip, I can’t tell</button>
         </div>
-      </article>
+      </section>
 
-      <p class="agree">
-        <svg viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#16181D"/><path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#F7F5F0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>You said <b>likely automated</b>. <b>The model agrees.</b></span>
-      </p>
+      <!-- ============ REVEAL ============ -->
+      <section data-view="reveal" aria-label="The model's score for account 3">
+        <article class="acct mini">
+          <div class="who">
+            <span class="av" data-ref="9b04"></span>
+            <div><b>A private account</b><span class="ref">acct·9b04</span></div>
+            <span class="meta">19 days old<br>84 posts a day</span>
+          </div>
+        </article>
 
-      <div class="score">
-        <div class="head">
-          <span class="big num" style="font-family:var(--serif)">0.86</span>
-          <p>automation score, out of 1.<br>0.5 or higher counts as <b>likely automated</b>.</p>
+        <p class="agree">
+          <svg viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#16181D"/><path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#F7F5F0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>You said <b>likely automated</b>. <b>The model agrees.</b></span>
+        </p>
+
+        <div class="score">
+          <div class="head">
+            <span class="big">0.86</span>
+            <p>automation score, out of 1.<br>0.5 or higher counts as <b>likely automated</b>.</p>
+          </div>
+          <div class="scale" role="img" aria-label="Score 0.86 on a scale from 0 to 1, cutoff at 0.5"><span class="cut"></span><span class="pt" style="left:86%"></span></div>
+          <div class="sax"><span>0</span><span>Cutoff 0.5</span><span>1</span></div>
+          <ol class="why" aria-label="Top three reasons">
+            <li><span class="k">1</span><span>Posts in every hour of the day, 84 times a day, with no quiet period in 7 days.</span><span class="w">+0.31</span></li>
+            <li><span class="k">2</span><span>Posted the same text as 13 other accounts within 54 seconds on Nov 12.</span><span class="w">+0.24</span></li>
+            <li><span class="k">3</span><span>Created Oct 26, in a two-week window when 41 similar accounts were created.</span><span class="w">+0.17</span></li>
+          </ol>
         </div>
-        <div class="scale" role="img" aria-label="Score 0.86 on a scale from 0 to 1, cutoff at 0.5"><span class="cut"></span><span class="pt" style="left:86%"></span></div>
-        <div class="sax"><span>0</span><span>cutoff 0.5</span><span>1</span></div>
-        <ol class="why" aria-label="Top three reasons">
-          <li><span class="k">1</span><span>Posts in every hour of the day, 84 times a day, with no quiet period in 7 days.</span><span class="w">+0.31</span></li>
-          <li><span class="k">2</span><span>Posted the same text as 13 other accounts within 54 seconds on Nov 12.</span><span class="w">+0.24</span></li>
-          <li><span class="k">3</span><span>Created Oct 26, in a two-week window when 41 similar accounts were created.</span><span class="w">+0.17</span></li>
-        </ol>
-      </div>
-      <p class="fine">The model can be wrong. On held-out accounts known to be automated, it ranks 58% of them in its top 100 (recall@100 0.58).</p>
+        <p class="fine">The model can be wrong. On held-out accounts known to be automated, it ranks 58% of them in its top 100 (recall@100 0.58).</p>
 
-      <div class="actions">
-        <button class="primary" type="button" data-go="card">Next account<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9M8.5 4l4 4-4 4"/></svg></button>
-        <button class="secondary" type="button" data-go="final">Stop and see my results</button>
-      </div>
-    </section>
+        <div class="actions">
+          <button class="primary" type="button" data-go="card">Next account<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9M8.5 4l4 4-4 4"/></svg><kbd aria-hidden="true">N</kbd></button>
+          <button class="secondary" type="button" data-go="final">Stop and see my results</button>
+        </div>
+      </section>
+    </div>
 
     <!-- ============ FINAL ============ -->
     <section data-view="final" aria-label="Your results">
@@ -252,7 +417,7 @@
 
       <div class="queue">
         <svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.3"/><path d="M9 8.2v4.3"/><path d="M9 5.6v.1"/></svg>
-        <span>Hand-checked accounts join the labeled set we test the model against, so the disagreement on <span class="num">acct·c3e8</span> counts either way.</span>
+        <span>Hand-checked accounts join the labeled set we test the model against, so the disagreement on <span class="id">acct·c3e8</span> counts either way.</span>
       </div>
 
       <div class="actions">
@@ -289,18 +454,26 @@
   const dots = document.getElementById('dots');
   for (let n = 1; n <= 20; n++) dots.appendChild(document.createElement('i'));
 
+  function state() { const m = location.hash.match(/state=(card|reveal|final)/); return m ? m[1] : 'card'; }
   function render() {
-    const m = location.hash.match(/state=(card|reveal|final)/);
-    const state = m ? m[1] : 'card';
-    document.body.dataset.state = state;
-    const done = state === 'card' ? 2 : 3;
-    [...dots.children].forEach((d, i) => { d.className = i < done ? 'done' : (i === done && state === 'card' ? '' : ''); if (state === 'card' && i === 2) d.className = 'now'; });
-    document.getElementById('count').textContent = state === 'final' ? '3 of 20 labeled' : '3 of 20';
+    const s = state();
+    document.body.dataset.state = s;
+    const done = s === 'card' ? 2 : 3;
+    [...dots.children].forEach((d, i) => { d.className = i < done ? 'done' : (s === 'card' && i === 2 ? 'now' : ''); });
+    document.getElementById('count').textContent = s === 'final' ? '3 of 20 labeled' : '3 of 20';
     window.scrollTo(0, 0);
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-go]');
     if (b) location.hash = 'state=' + b.dataset.go;
+  });
+  // Keyboard: A / P to answer, S to skip, N for the next account.
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const k = e.key.toLowerCase(), s = state();
+    if (s === 'card' && (k === 'a' || k === 'p')) location.hash = 'state=reveal';
+    else if (s === 'card' && k === 's') render();
+    else if (s === 'reveal' && k === 'n') location.hash = 'state=card';
   });
   window.addEventListener('hashchange', render);
   render();

@@ -35,13 +35,15 @@ body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--s
 :focus-visible{outline:2px solid var(--human);outline-offset:3px;border-radius:6px}
 a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
 button{font:inherit;color:inherit}
-.num,.mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
+/* numbers, times and dates use the UI sans with tabular figures; mono is kept only for hashed account refs */
+.num,.mono{font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+.ref{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .sig{color:var(--signal-ink)}
 .r-head .sig{color:var(--signal)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 
-.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px}
 .narrow{max-width:640px}
 
 /* top bar */
@@ -58,7 +60,7 @@ body[data-state="running"] [data-view="running"],
 body[data-state="result"] [data-view="result"]{display:block}
 
 /* ---------- idle ---------- */
-.idle{padding-top:44px;padding-bottom:56px}
+.idle{padding-top:56px;padding-bottom:56px}
 .idle h1{font:500 36px/1.1 var(--serif);letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance;max-width:16ch}
 .idle .lede{font-size:17px;color:var(--ink-2);margin:0 0 28px;max-width:52ch}
 .field{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:4px;
@@ -90,7 +92,7 @@ body[data-state="result"] [data-view="result"]{display:block}
 .never svg{margin-top:2px;color:var(--cap)}
 
 /* ---------- query echo ---------- */
-.query{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 0 18px;border-bottom:1px solid var(--rule)}
+.query{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:36px 0 20px;border-bottom:1px solid var(--rule)}
 .query q{font:400 20px/1.35 var(--serif);quotes:"\201C" "\201D";color:var(--ink);text-wrap:pretty}
 .query .src{display:block;margin-top:6px;font-size:13px;color:var(--cap)}
 .linkbtn{background:none;border:0;padding:8px 2px;cursor:pointer;color:var(--ink-2);font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule);white-space:nowrap}
@@ -106,7 +108,7 @@ body[data-state="result"] [data-view="result"]{display:block}
   color:var(--cap);transition:color .4s var(--ease)}
 .step .lbl{font-size:16px}
 .step .sub{display:block;font-size:13px;color:var(--cap);margin-top:1px}
-.step .t{font-family:var(--mono);font-size:14px;color:var(--cap)}
+.step .t{font-size:14px;color:var(--cap)}
 .step .st{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--rule);display:grid;place-items:center}
 .step.done{color:var(--ink)}
 .step.done .st{background:var(--ink);border-color:var(--ink);color:var(--paper)}
@@ -131,7 +133,7 @@ body[data-state="result"] [data-view="result"]{display:block}
 .pending-row{display:grid;grid-template-columns:12px 1fr auto;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule)}
 .pending-row .sw{width:10px;height:10px;border-radius:2px;transform:translateY(1px)}
 .pending-row .nm{font-size:16px}
-.pending-row .ps{font-family:var(--mono);font-size:14px;color:var(--ink-2)}
+.pending-row .ps{font-size:14px;color:var(--ink-2)}
 .pending-row .au{grid-column:2 / 4;font-size:13px;color:var(--cap)}
 .pending-row .au b{font-weight:500}
 .pending-row.ghost .nm{color:var(--cap)}
@@ -148,7 +150,7 @@ body[data-state="result"] [data-view="result"]{display:block}
 .r-head h1{font:500 30px/1.18 var(--serif);letter-spacing:-.018em;margin:0;text-wrap:balance}
 .r-head h1 .n{font-weight:600}
 .r-meta{margin:14px 0 0;font-size:14px;color:var(--cap);display:flex;flex-wrap:wrap;gap:4px 14px}
-.r-meta .mono{color:var(--ink-2);font-size:13px}
+.r-meta .mono{color:var(--ink-2);font-weight:500}
 .nojudge{margin:18px 0 0;display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--ink-2)}
 .nojudge svg{margin-top:2px;color:var(--ink-2)}
 .nojudge b{color:var(--ink);font-weight:500}
@@ -159,7 +161,7 @@ body[data-state="result"] [data-view="result"]{display:block}
 .sms.open{display:block}
 .sms label{display:block;font-size:14px;color:var(--ink-2);margin-bottom:8px}
 .sms .in{display:flex;gap:8px}
-.sms input{flex:1;min-width:0;height:44px;border:1px solid var(--rule);border-radius:8px;padding:0 12px;font:400 16px var(--mono);background:var(--paper);color:var(--ink)}
+.sms input{flex:1;min-width:0;height:44px;border:1px solid var(--rule);border-radius:8px;padding:0 12px;font:400 16px var(--sans);background:var(--paper);color:var(--ink)}
 .sms input:focus{outline:none;border-color:var(--ink-2)}
 .sms .fine{margin:8px 0 0;font-size:13px;color:var(--cap)}
 .copied{font-size:13px;color:var(--ink-2);margin:8px 0 0;min-height:20px}
@@ -177,8 +179,8 @@ section.blk{padding-top:34px}
 .nrow .l1{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline}
 .nrow .sw{width:10px;height:10px;border-radius:2px;transform:translateY(1px)}
 .nrow .nm{font-weight:500;font-size:16px}
-.nrow .sh{font-family:var(--mono);font-size:14px;color:var(--ink-2);white-space:nowrap}
-.nrow .sh b{font-weight:500;color:var(--ink)}
+.nrow .sh{font-size:14px;color:var(--ink-2);white-space:nowrap}
+.nrow .sh b{font-weight:600;color:var(--ink)}
 .flag{display:inline-block;margin-left:8px;font-size:12px;font-weight:500;color:var(--signal-ink);white-space:nowrap}
 .nrow .l2{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin:10px 0 0 22px}
 .track{position:relative;height:16px}
@@ -189,7 +191,7 @@ section.blk{padding-top:34px}
 .nrow.top .track .pt{border-color:var(--signal-wash)}
 .track .base{position:absolute;top:0;width:1px;height:16px;background:var(--ink-3)}
 .au-val{font-size:14px;color:var(--ink-2);white-space:nowrap;text-align:right;min-width:9.5em}
-.au-val b{font:500 16px var(--mono);color:var(--signal-ink)}
+.au-val b{font:600 16px var(--sans);color:var(--signal-ink)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 0 0 22px;font-size:13px;color:var(--cap)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend .k-base{width:1px;height:12px;background:var(--ink-3)}
@@ -211,7 +213,7 @@ section.blk{padding-top:34px}
 .arow{padding:13px 0;border-bottom:1px solid var(--rule)}
 .arow .l1{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .arow .nm{font-size:15px;font-weight:500}
-.arow .sh{font-family:var(--mono);font-size:14px;color:var(--ink-2);white-space:nowrap}
+.arow .sh{font-size:14px;font-weight:500;color:var(--ink-2);white-space:nowrap}
 .arow .l2{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-top:9px}
 .ltrack{position:relative;height:16px}
 .ltrack::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;background:var(--rule)}
@@ -219,7 +221,7 @@ section.blk{padding-top:34px}
 .ltrack .band{position:absolute;top:4px;height:8px;border-radius:4px;background:rgba(47,111,143,.24)}
 .ltrack .pt{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--human);border:2px solid var(--paper)}
 .lift{font-size:14px;color:var(--ink-2);white-space:nowrap;min-width:8.6em;text-align:right}
-.lift b{font:500 16px var(--mono);color:var(--human)}
+.lift b{font:600 16px var(--sans);color:var(--human)}
 .lift.low b{color:var(--ink-2)}
 
 .evid{grid-area:evid;padding-top:30px}
@@ -232,16 +234,17 @@ details.ev summary svg{transition:transform .3s var(--ease);color:var(--ink-2)}
 details.ev[open] summary svg{transform:rotate(180deg)}
 .coord{margin:0 0 6px;padding:14px;background:var(--card);border:1px solid var(--rule);border-radius:10px;font-size:14px;color:var(--ink-2)}
 .coord b{color:var(--ink);font-weight:500}
-.coord .mono{font-size:13px;color:var(--ink);white-space:nowrap}
+.coord .mono{color:var(--ink);font-weight:500;white-space:nowrap}
 .posts{list-style:none;margin:0;padding:0}
 .post{padding:16px 0;border-bottom:1px solid var(--rule)}
 .post:last-child{border-bottom:0}
 .post .who{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:13px;color:var(--cap)}
-.post .who .h{font:500 14px var(--mono);color:var(--ink)}
-.post .who time{font-family:var(--mono);font-size:12.5px}
+.post .who .h{font:600 14.5px var(--sans);color:var(--ink)}
+.post .who .h.ref{font:500 14px var(--mono)}
+.post .who time{font-size:13px;color:var(--ink-2)}
 .post blockquote{margin:8px 0 0;font:400 17px/1.45 var(--serif);color:var(--ink);max-width:62ch}
 .post .why{margin:8px 0 0;font-size:13px;color:var(--ink-2)}
-.score{font:500 12.5px var(--mono);padding:2px 7px;border-radius:5px;white-space:nowrap}
+.score{font:500 12.5px var(--sans);padding:2px 8px;border-radius:5px;white-space:nowrap}
 .score.hi{color:var(--signal-ink);background:var(--signal-wash)}
 .score.lo{color:var(--ink-2);background:#EFECE5}
 .more{display:inline-flex;align-items:center;gap:6px;margin:6px 0 18px;font-size:14px;color:var(--ink-2)}
@@ -258,18 +261,18 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 
 /* ---------- desktop ---------- */
 @media (min-width:720px){
-  .wrap{padding:0 40px}
-  .idle{padding:88px 0 96px}
+  .wrap{padding-inline:40px}
+  .idle{padding:112px 0 96px}
   .idle h1{font-size:54px}
   .idle .lede{font-size:18px}
   .chips{flex-direction:row;flex-wrap:wrap}
+  .query{padding:56px 0 24px}
   .run-head{padding-top:44px}
   .run-head h1{font-size:38px}
   .actions .row{grid-template-columns:auto auto;justify-content:start}
 }
 @media (min-width:1080px){
-  .wrap{padding:0 56px}
-  .query{padding:28px 0 22px}
+  .wrap{padding-inline:56px}
   .query q{font-size:22px}
   .r-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:72px;
     grid-template-areas:"head actions" "narr amp" "common amp" "evid evid" "method method";
@@ -282,7 +285,91 @@ details.ev[open] summary svg{transform:rotate(180deg)}
   section.blk{padding-top:44px}
   .evid{padding-top:48px}
   .posts{display:grid;grid-template-columns:1fr 1fr;column-gap:56px}
+  .post:last-child{border-bottom:1px solid var(--rule)}
   .coord{max-width:none}
+
+  /* idle: the question runs the full width; the field on the left, examples and promises on the right */
+  .idle.narrow{max-width:1200px;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:80px;
+    grid-template-areas:"h1 h1" "main side";align-items:start}
+  .idle h1{grid-area:h1;max-width:none;font-size:68px;line-height:1.04;letter-spacing:-.025em;margin-bottom:28px}
+  .idle-main{grid-area:main}
+  .idle-side{grid-area:side;padding-top:6px}
+  .idle .lede{font-size:20px;line-height:1.5;margin-bottom:32px}
+  .field textarea{font-size:23px;min-height:132px;padding:20px 20px 12px}
+  .field-foot{padding:8px 8px 8px 20px}
+  .field-foot .hint{font-size:14px}
+  .idle .btn{min-height:52px;padding:0 24px;font-size:16px}
+  .try{margin:0 0 14px;font-size:15px}
+  .chips{flex-direction:column;gap:10px;align-items:stretch}
+  .chip{font-size:19px;padding:16px 18px;border-radius:12px}
+  .never{margin-top:36px;padding-top:24px;gap:14px;font-size:15px}
+
+  /* running: steps beside the partial tally */
+  .run.narrow{max-width:1200px;display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);column-gap:80px;
+    grid-template-areas:"query query" "head head" "steps partial" "foot partial";align-items:start}
+  .run .query{grid-area:query}
+  .run-head{grid-area:head}
+  .steps{grid-area:steps}
+  .partial{grid-area:partial;margin-top:22px}
+  .run-foot{grid-area:foot}
+}
+@media (min-width:1280px){
+  body{font-size:17px}
+  .wrap,.idle.narrow,.run.narrow{max-width:1600px;padding-inline:72px}
+  .bar .wrap{height:64px}
+  .mark{font-size:21px}
+  .where{font-size:14px}
+  .query{padding:72px 0 28px}
+  .query q{font-size:26px}
+  .query .src{font-size:14px;margin-top:8px}
+  .linkbtn{font-size:15px}
+  .idle{padding-top:128px}
+  .idle h1{font-size:80px}
+
+  /* result: headline across two columns, then narratives, traits and amplifiers side by side */
+  .r-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);column-gap:64px;
+    grid-template-areas:"head head actions" "narr common amp" "evid evid evid" "method method method";
+    grid-template-rows:auto auto auto auto}
+  .r-head{padding-top:48px}
+  .r-head h1{font-size:58px;line-height:1.1;max-width:24ch}
+  .r-meta{font-size:15px;margin-top:20px}
+  .nojudge{font-size:16px;margin-top:20px}
+  .actions{padding-bottom:6px}
+  .actions .row{grid-template-columns:1fr;gap:10px}
+  .btn{min-height:52px;font-size:16px}
+  section.blk{padding-top:64px}
+  .common,.amp{align-self:start}
+  .blk h2{font-size:26px;line-height:1.22;margin-bottom:8px}
+  .blk .sub{font-size:15px;margin-bottom:18px}
+  .nrow .nm{font-size:17px}
+  .nrow .sh,.arow .sh{font-size:15px}
+  .au-val,.lift{font-size:15px}
+  .au-val b,.lift b{font-size:18px}
+  .legend{font-size:14px}
+  .traits li{grid-template-columns:5.2em 1fr;padding:16px 0}
+  .traits .k{font-size:28px}
+  .traits .k small{font-size:14px}
+  .traits .v{font-size:16.5px;line-height:1.45}
+  .aside-note{font-size:14px}
+  .arow{padding:15px 0}
+  .arow .nm{font-size:16.5px;line-height:1.35}
+  .evid{padding-top:72px}
+  details.ev summary .t{font-size:26px}
+  details.ev summary .c{font-size:14px}
+  .coord{font-size:16px;padding:16px 20px}
+  .posts{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:48px}
+  .post{padding:20px 0}
+  .post .who{font-size:14px}
+  .post .who time{font-size:14px}
+  .post blockquote{font-size:19px;margin-top:10px}
+  .post .why{font-size:14px}
+  .more{font-size:15px}
+  .method{font-size:14px;margin-top:32px}
+  .foot .wrap{font-size:14px}
+}
+@media (min-width:1680px){
+  .wrap,.idle.narrow,.run.narrow{padding-inline:80px}
+  .r-head h1{font-size:64px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -319,6 +406,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 <section data-view="idle" aria-labelledby="idle-h">
   <div class="wrap narrow idle">
     <h1 id="idle-h">Who is pushing this story?</h1>
+    <div class="idle-main">
     <p class="lede">Type any claim or story. In under a minute we read what Bluesky is posting about it and measure how much comes from likely automated accounts, and which real people spread it.</p>
 
     <form id="ask" class="field" autocomplete="off">
@@ -329,7 +417,9 @@ details.ev[open] summary svg{transform:rotate(180deg)}
         <button class="btn" id="go" type="submit" disabled>Check <svg class="i"><use href="#i-arrow"/></svg></button>
       </div>
     </form>
+    </div>
 
+    <div class="idle-side">
     <p class="try" id="try-l">Or try one</p>
     <div class="chips" role="group" aria-labelledby="try-l">
       <button type="button" class="chip" data-q="Was Jensen Huang's mistress a Chinese spy?" aria-pressed="false">Was Jensen Huang’s mistress a Chinese spy?</button>
@@ -339,6 +429,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
     <div class="never">
       <p><svg class="i"><use href="#i-scale"/></svg><span>It measures who is posting a story. It never rules on whether the story is true.</span></p>
       <p><svg class="i"><use href="#i-lock"/></svg><span>Private accounts are counted, never named. Only public accounts, like news organizations, appear by handle.</span></p>
+    </div>
     </div>
   </div>
 </section>
@@ -403,7 +494,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
     <div class="query">
       <div>
         <q class="qtext">Is the new NYC congestion toll being repealed?</q>
-        <span class="src">Checked Nov 14, 2026, 10:42 EST</span>
+        <span class="src">Checked Nov 14, 2026, 10:42 AM EST</span>
       </div>
       <button class="linkbtn" type="button" data-go="idle">New check</button>
     </div>
@@ -501,31 +592,31 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 
       <div class="evid">
         <details class="ev" id="ev">
-          <summary><span><span class="t">Evidence</span><span class="c">5 sample posts with UTC timestamps and the reasons behind each score</span></span><svg class="i"><use href="#i-chev"/></svg></summary>
-          <p class="coord"><b>9 accounts posted the same link</b> between <span class="mono">2026-11-13T14:02:11Z</span> and <span class="mono">14:03:40Z</span>, each with near-identical text. Three are shown below.</p>
+          <summary><span><span class="t">Evidence</span><span class="c">5 sample posts, their times (UTC) and the reasons behind each score</span></span><svg class="i"><use href="#i-chev"/></svg></summary>
+          <p class="coord"><b>9 accounts posted the same link within 89 seconds</b> on Nov 13, from <span class="mono">2:02:11</span> to <span class="mono">2:03:40 PM UTC</span>, each with near-identical text. Three are shown below.</p>
           <ul class="posts">
             <li class="post">
-              <div class="who"><span class="h">acct·3f9a</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:11Z">2026-11-13T14:02:11Z</time><span class="score hi">0.91 likely automated</span></div>
+              <div class="who"><span class="h ref">acct·3f9a</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:11Z">Nov 13, 2:02:11 PM</time><span class="score hi">0.91 likely automated</span></div>
               <blockquote>Albany is about to scrap the congestion toll. Drivers finally win. Read before it’s deleted 👇</blockquote>
               <p class="why">Account 11 days old · 74 posts a day · same link as 8 other accounts within 90 s</p>
             </li>
             <li class="post">
-              <div class="who"><span class="h">acct·b71c</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:39Z">2026-11-13T14:02:39Z</time><span class="score hi">0.88 likely automated</span></div>
+              <div class="who"><span class="h ref">acct·b71c</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:39Z">Nov 13, 2:02:39 PM</time><span class="score hi">0.88 likely automated</span></div>
               <blockquote>Albany about to scrap the congestion toll. Drivers finally win. Read before it gets deleted</blockquote>
-              <p class="why">Account 9 days old · 96% reposts · same link within 28 s of acct·3f9a</p>
+              <p class="why">Account 9 days old · 96% reposts · same link within 28 s of <span class="ref">acct·3f9a</span></p>
             </li>
             <li class="post">
-              <div class="who"><span class="h">acct·0e52</span><span>private account</span><time class="mono" datetime="2026-11-13T14:03:05Z">2026-11-13T14:03:05Z</time><span class="score hi">0.84 likely automated</span></div>
+              <div class="who"><span class="h ref">acct·0e52</span><span>private account</span><time class="mono" datetime="2026-11-13T14:03:05Z">Nov 13, 2:03:05 PM</time><span class="score hi">0.84 likely automated</span></div>
               <blockquote>Congestion toll is DONE. Albany scrapping it. Read before it’s deleted</blockquote>
-              <p class="why">Posts around the clock with no gap longer than 40 min · same link within 54 s of acct·3f9a</p>
+              <p class="why">Posts around the clock with no gap longer than 40 min · same link within 54 s of <span class="ref">acct·3f9a</span></p>
             </li>
             <li class="post">
-              <div class="who"><span class="h">@nytimes.com</span><span>news organization</span><time class="mono" datetime="2026-11-12T19:20:00Z">2026-11-12T19:20:00Z</time><span class="score lo">0.02</span></div>
+              <div class="who"><span class="h">@nytimes.com</span><span>news organization</span><time class="mono" datetime="2026-11-12T19:20:00Z">Nov 12, 7:20 PM</time><span class="score lo">0.02</span></div>
               <blockquote>Federal judge declines to pause Manhattan congestion pricing while the lawsuit proceeds.</blockquote>
               <p class="why">Court ruling coverage · 1,180 reposts</p>
             </li>
             <li class="post">
-              <div class="who"><span class="h">@nowbreezing.ntw.app</span><span>self-labeled trend bot</span><time class="mono" datetime="2026-11-13T15:00:00Z">2026-11-13T15:00:00Z</time></div>
+              <div class="who"><span class="h">@nowbreezing.ntw.app</span><span>self-labeled trend bot</span><time class="mono" datetime="2026-11-13T15:00:00Z">Nov 13, 3:00 PM</time></div>
               <blockquote>Trending in New York: “congestion toll repeal”, up 340% in the last hour.</blockquote>
               <p class="why">Declares itself automated, so it is counted apart from the likely automated share.</p>
             </li>
