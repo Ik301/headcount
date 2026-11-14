@@ -198,6 +198,7 @@ Judge's phone ─> Photon (Spectrum) ─> messaging service (TS) ─> analysis A
   "archetype_mix": [{"id": "a1", "label": "", "share": 0.0}],
   "coordination_clusters": [{"size": 0, "reasons": [""]}],
   "public_accounts": [{"handle": "", "p_automated": 0.0}],
+  "evidence_posts": [{"text": "", "public_handle": null, "reasons": [""], "created_at": ""}],
   "seconds": 0.0
 }
 ```
@@ -328,6 +329,165 @@ Cut order if behind: Reddit, then the voice line, then `/xray`, then the live pa
 3. Spread (18:00): bot post share in the most automated narrative at least twice that of the least automated one. If not, the headline is "automation is spread evenly, and the bots-defending-Huang claim does not show on Bluesky".
 4. Retrieval (21:00): recall@20 of at least 0.6 on the first 20 hand-written claims.
 
+## Build specification (how an agent builds each piece, end to end)
+
+This section is the instruction set for the coding agents. Read it with `README.md` (schemas, pipeline detail) and the MVP scope section above. Where this section and a work package disagree, this section wins for *how*; the work package wins for *who* and *done when*. No API shape changes are introduced here except the two flagged `[contract]` items, which land in `README.md` in the same pull request.
+
+### Global conventions (every agent, every package)
+
+- IDs: `account_id = sha256(SALT + did)[:16]`, `post_id` is the Bluesky `at://` URI for Bluesky posts. Never invent a second ID scheme. `SALT` comes from `.env`; code must run with the dev salt `dev-salt` when `.env` is missing, and print a warning.
+- Time: everything UTC, ISO 8601 strings in JSON, `TIMESTAMP` in Parquet. The story window is 2026-11-05T00:00:00Z to 2026-11-14T00:00:00Z.
+- Thresholds live in one place, `src/config.py`, and nowhere else as literals: `BOT_SHARE_THRESHOLD = 0.5` (headline shares), `HUMAN_MAX = 0.3` and `BOT_MIN = 0.7` (amplifier definition, per README WP-4), `MIN_MATCHED_POSTS = 30` (below this, no shares are reported), sensitivity thresholds `[0.3, 0.5, 0.7, 0.9]`.
+- Intervals: bootstrap over accounts, 1,000 resamples, seed 42, percentile 2.5/97.5. Same function (`src/stats.py: bootstrap_share`) used by WP-3, WP-4, WP-6 and the export, so the dashboard, the API and the texts never disagree.
+- Artifacts: the batch pipeline writes `data/processed/artifacts/manifest.json` listing every artifact file, its producing WP, `model_version`, and row counts. The API refuses to start if the manifest is missing a required artifact, and `/health` reports the manifest's `model_version`.
+- Every stage script is idempotent and runnable as `python -m src.<stage>` from the repo root, reads only the tables listed as its inputs, and writes only its own outputs. A stage that crashes must leave the previous good output in place (write to a temp file, then rename).
+- Tests: each WP ships a `tests/test_wp<n>_*.py` smoke test that runs on `data/sample/` in under a minute. "v0" in a status line means its smoke test passes end to end on sample or stub data, not that the code merely exists.
+
+### Build order and integration gates
+
+Build in this order; a step starts when its gate passes, not when the clock says so.
+
+1. **Contracts and stubs (now).** `src/model/schema.py` implements the README tables; `data/sample/site_data.sample.json` matches the README shape plus the `[contract]` fields below; WP-6 ships a stub `/claim` returning the example response in this file with `model_version: "stub"`. Gate: dashboard renders from the sample file, messaging service completes a full exchange against the stub.
+2. **WP-1 tables.** Gate: row counts and a 20-row eyeball sample posted in the WP-1 status note; `interactions` covers every likely-automated post with engagement (v0 definition: posts by self-labeled bots) plus the top 500 human posts.
+3. **WP-2 and WP-3 in parallel** on WP-1 outputs. Gates: WP-2 kill test 2 numbers in `eval/narratives/report.md`; WP-3 kill test 1 numbers in `eval/bots/report.md` (pass or fail, both are progress).
+4. **WP-4** on WP-3 v0 scores. Gate: lift table with intervals in `eval/thesis/report.md`, even if every interval crosses 1.
+5. **Export v0** (`build_site_data.py`) from whatever tables exist; missing sections ship as empty arrays, never as a crash. Gate: dashboard runs on real data with at least narratives and bot shares real.
+6. **WP-5 + WP-6 real `/claim`** against the artifacts. Gate: the end-to-end checks below pass for the three rehearsal claims.
+7. **WP-8 live, WP-11 agent layer** swapped in front of the same API. Gate: one full text exchange with a saved LangSmith trace.
+8. **Freeze (03:00).** After the freeze only bug fixes with a failing end-to-end check as the reason.
+
+### WP-1 Ingest: build steps
+
+- `src/ingest/bluesky.py` with one function per endpoint in the README; every page saved to `data/raw/` as it arrives (append-only JSONL per endpoint per day), then a separate `build_tables.py` turns raw pages into the Parquet tables. A crash in table building never requires re-pulling.
+- Search paging: slide `until` to the oldest `createdAt` seen, per the README (cursor paging 403s). Dedupe on post URI at table build.
+- `getRepostedBy` has no timestamps: for repost times use `com.atproto.repo.listRecords` on the reposter's PDS, and store `created_at = null` when even that fails. Never fabricate a timestamp.
+- Rate limits: token bucket at 4 workers to start; on 429, exponential backoff 5/15/45 s and log the endpoint; the measured sustainable rate goes into the WP-1 status note.
+- Public/private split happens here, once: `is_public` and the public handle map are computed in `build_tables.py` from the README rule, and every later stage only ever sees `handle_public` (null for private accounts).
+
+### WP-2 Narratives: build steps
+
+- Dedup first: exact-duplicate texts collapse to one embedding row with a `dup_count`; the 40,197 unique posts are what gets embedded and clustered. `post_narrative` still gets a row for every post (duplicates inherit their text's cluster with prob 1.0).
+- Embed with `BAAI/bge-small-en-v1.5`, batch 256, save float32 `corpus_embeddings.npy` plus `corpus_index.parquet` in the same order. Any re-embed must bump `model_version`.
+- UMAP (n_neighbors 15, min_dist 0.0, cosine) then HDBSCAN (min_cluster_size 150, then merge clusters under 1% of posts into their nearest centroid). If HDBSCAN returns outside 6-10 clusters after one parameter retry, fall back to k-means with k = 8 and note it in the report. Do not hand-tune past the second attempt; the clock matters more.
+- Naming: the LLM gets each cluster's top 20 posts by centrality plus top c-TF-IDF terms and returns `label`, `side`, `description`. Isaac approves or renames; renames are edited in `narratives.parquet` only, never by re-running the clusterer.
+- Hand labels: 200 posts sampled uniformly, labeled by Isaac in a CSV (`post_id, narrative_id, side`); accuracy and a confusion summary go in `eval/narratives/report.md`. The same CSV is the gold set WP-5's floor tuning must not train on.
+
+### WP-3 Bot model and coordination: build steps
+
+- Features: exactly the README list, computed in `src/bots/features.py`, one row per account, from `accounts` + `history_posts` + `posts`. Each feature function is pure and unit-tested on the sample accounts. Missing history (account pulled without history) yields nulls, and the model imputes medians recorded at train time; never drop accounts for missing features, every account gets a score.
+- Coordination first, because it is also a feature source: build traces (same URL within 60 s; repost of the same post within 60 s; near-duplicate text by MinHash LSH, Jaccard >= 0.8, computed on normalized text: lowercase, URLs and mentions stripped). Account-by-trace TF-IDF, cosine >= 0.6, connected components of size >= 2 become `coord_cluster_id`s; each cluster records its reasons (which trace types, counts) for the evidence views.
+- Model: gradient boosting (LightGBM if available, else sklearn `HistGradientBoostingClassifier`) on behavior features + coordination features (cluster size, share of traces shared, max cosine to another account). Positives: the 286 self-labeled bots; unlabeled treated as negatives with class weight noted as the PU caveat in the report. The label and any bio text are excluded from features.
+- Split: stratified 80/20 on labeled bots, seed 42. Report recall@50/100/200/500 on the held-out 20%, the same for behavior-only and coordination-only ablations, and the posts-per-day-only baseline (expected 0.046 at k=100). Kill test 1 reads these numbers directly.
+- Hand-check: the 50 highest-scored unlabeled accounts get a one-line human verdict each in `eval/bots/handcheck.csv` (`account_id, verdict, why`); precision on that sample goes in the report. No number from the hand-check is ever shown publicly per account.
+- Outputs: `bot_scores.parquet` (every account: `p_automated`, `coord_cluster_id`, top-3 `reasons` generated from the largest feature contributions mapped to plain phrases, e.g. "posts 40+ times a day", "created in the same week as 30 other high-scoring accounts", "reposted the same posts within a minute of 12 other accounts"), `bot_model.pkl`, and per-narrative shares at all four sensitivity thresholds written for the export (see `[contract]` item 1).
+
+### WP-4 Archetypes and thesis: build steps
+
+- Amplifiers and controls exactly per the README definitions and thresholds in `src/config.py`. Matching: nearest neighbor on (log posts/day, follower bucket, account-age bucket) within the same narrative and 6-hour window, without replacement; unmatched amplifiers are dropped from lift but counted in the report.
+- Features per the README list, standardized with a scaler saved as an artifact (the API's X-ray stretch reuses it). Cluster amplifiers + controls together, k-means k in 4..8 by silhouette; if silhouette < 0.05 for all k, use k = 4 and say so.
+- Lift per archetype with the shared bootstrap; the regression table from the README formula; both in `eval/thesis/report.md` and the export. Archetype labels are written from centroid summaries by the LLM, then Brian approves the wording. Labels describe behavior only ("new accounts that mostly repost market news"), never a trait.
+
+### WP-5 Retrieval and WP-7 evaluation: build steps
+
+- Corpus path: embed the claim with the bge query prefix from the architecture section, cosine against `corpus_embeddings.npy`, top 300, drop below the similarity floor, group survivors by `post_narrative` (weight by prob). Response time target < 2 s; the matrix multiply is the only heavy step, everything else is Parquet lookups.
+- WP-7 builds the floor: 50 hand-written claims in `eval/retrieval/claims.csv` (`claim, true_post_ids`) written from the posts, not from the narratives' labels; report recall@10/20/50 per floor candidate (0.55/0.65/0.75) and pick the floor with recall@20 >= 0.6 and the fewest sub-30-match claims. The chosen floor is a constant in `src/config.py` (`SIMILARITY_FLOOR`), changed only through WP-7's report.
+- Live path (stretch): claim -> LLM writes 2-3 search queries -> `searchPosts` up to 300 posts -> embed -> k-means k = min(5, max(2, posts // 40)) -> LLM names groups -> authors scored with the saved model (features computed from `getProfiles` + one `getAuthorFeed` page each). Same response shape as corpus mode with `scope: "live"`. Nothing about the live path may block the corpus path shipping.
+
+### WP-6 Analysis API: build steps
+
+- FastAPI app in `src/api/`, artifacts loaded once at startup from the manifest; a `/health` that returns `artifacts_loaded: false` (not a crash) when artifacts are absent, so hosting problems are diagnosable during judging.
+- `POST /claim` pipeline, in order, each step timed and the total returned as `seconds`:
+  1. Normalize the claim text (trim, collapse whitespace). `claim_id` = first 12 hex of sha256 of the normalized lowercase text + mode. Identical claims return the cached response from an in-memory dict; the dashboard's `GET /claim/{claim_id}` reads the same cache (and a JSON file per claim under `data/processed/claims/` so links survive an API restart).
+  2. Private-individual check: if the claim names a person who is not a public figure in the corpus (heuristic: a capitalized name that is not Jensen Huang, Nvidia, or a named public account in the matched posts), return the decline reply (template below) with `matched_posts: 0`. When unsure, do not decline; the reply rules are enforced again at wording time.
+  3. Retrieve (WP-5). If matched posts < `MIN_MATCHED_POSTS` in corpus mode and mode is `auto`, try the live path once (stretch only); if still < 30, return the insufficient-data reply with the true count. Never pad a small match into shares.
+  4. Per narrative: share of matches, bot post share at `BOT_SHARE_THRESHOLD`, interval from the shared bootstrap over the matched posts' accounts, baseline bot share across all matches, and up to 3 example posts (public accounts named; private accounts shown as text with `public_handle: null`, text truncated to 200 chars).
+  5. Bot commonalities: aggregate the top `reasons` and coordination clusters among likely-automated accounts in the matches: creation-week concentration, shared traces, posting-app mix. Observable signals only, each as `{signal, accounts}`.
+  6. Amplifiers: among human accounts (`p_automated < HUMAN_MAX`) who reposted/quoted/liked the matched likely-automated posts, the archetype mix and lift from WP-4's tables. Corpus mode only; live mode returns an empty mix with `n_humans: 0` rather than a guess.
+  7. Chart PNG: horizontal bars, one per narrative, share of matches as the bar, bot share as a darker overlay segment, narrative labels on the axis, no account names. Rendered with matplotlib to `data/processed/claims/<claim_id>.png`, served at `GET /claim/{claim_id}/chart.png`.
+  8. `reply_text` composed from the templates below by code, not by an LLM. The agent layer (WP-11) may route and select, but the numbers and wording come from this step, so the reply rules hold even if the agent misbehaves.
+- `/xray` (stretch) follows the same pattern: parse the post URL to a URI, pull audience (repostedBy, quotes, likes; cap 300, dedupe), score authors with the saved model and scaler, archetype by nearest centroid, coordination clusters among the audience from WP-3 traces, plus `evidence_posts` (see `[contract]` item 2). Hard timeout 25 s: on timeout, return the result for the audience actually scored so far, with `audience_size` set to that true scored count (the contract shape does not change).
+- Errors are JSON `{"error": "..."}` with a human sentence, never a stack trace; the messaging layer turns any error into the failure reply template.
+
+### Reply text templates (WP-6 composes, WP-8 sends verbatim)
+
+Checking (sent by WP-8 immediately): `Checking who is pushing that. About 20 seconds.`
+
+Main answer (placeholders from the response object; percentages rounded to whole numbers, intervals as `9% (6 to 12%)`):
+
+```
+I found {matched_posts} Bluesky posts making this claim ({window}).
+{narrative_lines}
+{commonality_line}
+{amplifier_line}
+I don't judge whether the claim is true. Full view: {dashboard_url}
+```
+
+Each narrative line: `{label}: {share}% of posts. Likely automated: {bot_share} ({lo} to {hi}%)` and, when a narrative's bot share is at least twice the baseline, append `, about {x}x the story's baseline.` Order narratives by share descending, at most 4 lines, then `+ {n} smaller narratives in the full view.`
+
+Commonality line (only when at least 5 likely-automated accounts match): `The likely automated accounts pushing {top_bot_narrative}: {signal_1}; {signal_2}.` Signals in plain words, e.g. `41 were created in the same two weeks`, `14 reposted the same posts within a minute of each other`.
+
+Amplifier line (only when `n_humans >= 10`): `The real accounts spreading their posts are mostly "{archetype_label}" ({lift}x more likely than similar accounts).`
+
+Insufficient data: `I found {n} Bluesky posts making this claim, which isn't enough to measure automation reliably (I need at least 30). Try a broader wording, or ask about the Jensen Huang story from Nov 5 to 13.`
+
+Decline (private individual): `I can't run checks on claims about a private person. I can check claims about public stories, like the Jensen Huang week.`
+
+Failure (any API or network error): `Something broke on my end and I couldn't finish that check. The team has a recording of a full check at the table.`
+
+Follow-ups (WP-8 state: last `claim_id` per sender):
+- `show the bots` -> coordination evidence for the last claim: top 3 clusters as text (`{size} accounts: {reason_1}; {reason_2}`), plus 3 example posts with the evidence rules applied.
+- `who shares it` -> the amplifier archetypes as text lines with lift.
+- `next` -> the next narrative's line and examples, cycling.
+- `help` -> `Text me a claim and I'll check who is pushing it on Bluesky. After an answer, try "show the bots" or "who shares it".`
+- Anything else is treated as a new claim.
+
+### WP-8 Messaging: build steps
+
+- Spectrum via `spectrum-ts` on a Spectrum Cloud number, per Photon's hackathon guidelines (read them before coding; use documented SDK calls only). Inbound text -> send checking template at once -> call the agent layer (WP-11), or `/claim` directly until WP-11 lands -> send `reply_text`, then the chart image, then nothing else (the link is inside `reply_text`).
+- Timeouts: if the API call passes 45 s, send `Still checking, the live search is slow on this one.` once; at 90 s send the failure template. Corpus claims should never reach either.
+- State: an in-memory map sender -> {claim_id, narrative_cursor} plus a JSON file backup every message, so a restart mid-judging loses at most the follow-up context, and `help` explains how to recover.
+- The QR code encodes a Messages deep link to the Spectrum number with `hi` prefilled; test it from a phone that has never messaged the number before recording any backup.
+
+### WP-9 Dashboard and export: build steps
+
+- `build_site_data.py` reads the Parquet tables and artifacts and writes exactly the README `site_data.json` shape plus `[contract]` item 1. It must run with any subset of tables present (missing table -> that section empty), because it runs at every Drive refresh, not just at the end.
+- Replay: posts bucketed by hour; the network view caps at the 3,000 highest-engagement accounts (say so on the method view), edges from `interactions` inside the cap; scrubber markers from `story.events`. Precompute per-hour cumulative node/edge sets in the export so the browser never filters the full graph per frame.
+- Evidence drawer: narrative bars, archetype cards and coordination clusters all read the same `evidence` arrays (post texts with `public_handle` or null, reasons, timestamps). One component, three call sites. Private accounts render as "a private account" with no handle, ever.
+- Threshold strip: renders `bot_post_share_by_threshold` per narrative as four dots on one line per narrative; the headline bar stays at 0.5. No recompute in the browser.
+- Claim view at `/claim/:id` fetches `GET /claim/{claim_id}` from the API base URL in `web/.env` (`VITE_API_BASE`), and renders the same narrative/evidence components from the response. If the API is unreachable it shows the reply rules text and a link back, not a blank page.
+
+### WP-10 and WP-11: build notes
+
+- WP-11's deepagent gets exactly the five tools named in the architecture section; each tool is a thin wrapper over one API call or table lookup and returns the API's JSON unchanged. The agent's system prompt contains the reply rules verbatim and one instruction that overrides everything else: never state a number that is not in a tool result. LangSmith tracing on from the first working version, and one full trace exported for the Devpost before the freeze.
+- WP-10's pitch script is written from the rehearsal claims only (the three claims the team has actually run end to end), and the Q&A card numbers are copied from the eval reports, not from memory.
+
+### End-to-end checks (all must pass before the 03:00 freeze)
+
+Rehearsal claims: (1) "Was Jensen Huang's mistress a Chinese spy?" (2) "Did bots defend Jensen Huang?" (3) one claim a teammate invents on the spot about the Huang week.
+
+1. Text claim 1 from a phone that has never used the number: checking message within 5 s, full answer with chart and link within 30 s, every number in the text matches the `/claim` JSON exactly.
+2. Open the link: the claim view shows the same narratives, shares and intervals as the text.
+3. `show the bots` and `who shares it` return evidence and archetypes for claim 1 without a new search.
+4. Dashboard on real data: replay scrubs Nov 5-13 with the three event markers; toggling bots off re-ranks the narrative bars; the threshold strip shows four values per narrative; every bar and card opens the evidence drawer; no private handle appears anywhere (check by grepping the built site data and page source for handles not in `public_accounts`).
+5. Kill switch test: with the API stopped, the dashboard still demos the floor from `site_data.json` alone, and the backup recordings play.
+6. Claim 3 (unrehearsed) completes through the corpus path or returns the insufficient-data reply; it never invents shares.
+
+### Failure fallbacks (decided now, not during judging)
+
+| Failure | Fallback |
+|---|---|
+| Photon/Spectrum down | Teammate's phone texts a teammate acting as the bot with the API open on the laptop; recordings if that fails too |
+| API host or tunnel down | API runs on David's laptop via `cloudflared` (kept warm and tested at rehearsal, not first tried during judging) |
+| Bluesky live path slow or 403 | Corpus claims unaffected; live claims return the insufficient/failure reply honestly |
+| Bot model fails kill test 1 | Coordination clusters become the headline signal; shares reported from coordination membership, model scores demoted to the method view |
+| Narratives fail kill test 2 | Demo narrows to the 3 largest hand-verified narratives and says so |
+| Spread test null | Headline becomes the null result, per the kill test 3 wording |
+
+### [contract] items in this pull request
+
+1. `site_data.json`, per narrative: add `bot_post_share_by_threshold` (`{"0.3": 0.0, "0.5": 0.0, "0.7": 0.0, "0.9": 0.0}`) and `evidence` (up to 5 objects `{"text": "", "public_handle": null, "reasons": [""], "created_at": ""}`), replacing the free-text `examples` list. Archetypes gain the same `evidence` array shape. `README.md`'s data contract is updated in this same pull request, as its rules require.
+2. `POST /xray` response: add `evidence_posts` (up to 5 objects, same shape as item 1's evidence) so the X-ray result opens the same evidence drawer as every other number.
+
 ## Proposals
 
 Teammates and their agents add new demo ideas here, one short paragraph each, with what it adds to the judging criteria and what it costs. Isaac decides; accepted ones move into the sections above in a `[demo]` pull request.
@@ -342,6 +502,8 @@ Teammates and their agents add new demo ideas here, one short paragraph each, wi
 - Append a line to the changelog for every merged change.
 
 ## Changelog
+
+- Sat 16:20: build specification added (global conventions, build order and gates, per-WP build steps, WP-6 pipeline and reply templates, end-to-end checks, failure fallbacks) plus two [contract] items: site_data evidence + threshold fields and /xray evidence_posts, with README updated in the same PR (Muse, for David).
 
 - Sat 16:15: MVP scope section added: the floor, in/out boundaries per component, the three merge-note grafts scoped (evidence drawer and precomputed threshold strip in the MVP, challenge mode as Plan B and post-pitch), stretch order, explicit out list, and 18:00 / 01:00 acceptance checks (Muse, for David).
 
