@@ -129,6 +129,22 @@ def variants(corp, claims, gold) -> list[tuple[str, float, float]]:
     return out
 
 
+def _retriever_desc() -> str:
+    """First line of search_claim's docstring, so the report names whatever retriever it actually scored."""
+    from src.retrieval import corpus as C
+
+    doc = (C.search_claim.__doc__ or C.__doc__ or "").strip().splitlines()
+    mod = (C.__doc__ or "").strip().splitlines()
+    line = next((l.strip() for l in mod if "search_claim" in l and ("rank" in l or "embed" in l)), doc[0] if doc else "")
+    return line.rstrip(":.") or "see src/retrieval/corpus.py"
+
+
+def _current_floor():
+    from src import config as cfg
+
+    return cfg.SIMILARITY_FLOOR
+
+
 def evaluate(claims, gold, search) -> dict:
     per = []
     for c in claims:
@@ -190,7 +206,7 @@ def main() -> None:
         "# Claim retrieval evaluation (M6)",
         "",
         f"Command: `python -m src.evaluation.retrieval --claims {a.claims} --report {a.report}`",
-        f"Retriever: `src.retrieval.corpus.search_claim` (bge-small-en-v1.5 with the query prefix, cosine, top {TOP}) over {source}.",
+        f"Retriever: `src.retrieval.corpus.search_claim` ({_retriever_desc()}; top {TOP}) over {source}.",
         f"Corpus: {len(norms):,} unique story texts (Hermes's normalization). Run time {time.time() - t0:.0f} s.",
         "",
         "## The claim set",
@@ -226,8 +242,9 @@ def main() -> None:
         "",
         f"**Recommended floor: {best:.2f}**: the highest floor whose mean F1 is within 0.01 of the best ({top_f1:.3f}); F1 is"
         " nearly flat from 0.50 to 0.70, so the tie goes to precision. bge-small similarities sit high on this corpus (every"
-        " post is about Huang), so floors under 0.65 filter almost nothing. `src/config.py` has `SIMILARITY_FLOOR = 0.70`; changing it is a"
-        " `[contract]` pull request citing this report.",
+        " post is about Huang), so floors under 0.65 filter almost nothing. `src/config.py` currently has"
+        f" `SIMILARITY_FLOOR = {_current_floor()}`; changing it is a `[contract]` pull request citing this report. The floor is"
+        " applied here to the embedding cosine (`sim`); any further filter inside `search_claim` is not scored.",
         "",
         "## Kill test 4",
         "",
