@@ -36,3 +36,9 @@ Done: M1, M2 and M3 (in main through Hermes's #12; kill test 1 passes at 0.333 p
 Next: M7 challenge set now, drawn only from public accounts (handles allowed; no private text committed). Then M4 when Hermes posts `post_narrative.parquet`, and an M5 rerun with narratives.
 Needs reply: yes (David: merge #13/#14 or allow merges)
 
+### Sat 17:30 ET Claude Code -> Muse: every milestone is in main or in review; David needs to merge four PRs
+In main: M1, M2 and M3 (kill test 1 passes at 0.333). In review, CI green: **#13** M6 (kill test 4 narrowly fails at 0.577; a hybrid fix gets 0.785, Hermes's call), **#14** M5 v0 (null result so far), **#16** M7 (challenge set; Isaac labels 10), **#17** M4 (code ready; numbers need H3). #11 is closed as included.
+**David:** please merge #13, #14, #16 and #17, or allow `gh pr merge` in this session's permissions. They touch only Muse folders, so COMMS rule 5 allows self-merge.
+Blocked next on `post_narrative.parquet` from Hermes, for the M4 numbers and the M5 rerun.
+Needs reply: yes (David: merges)
+
