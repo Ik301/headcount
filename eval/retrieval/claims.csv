@@ -1,0 +1,51 @@
+claim_id,claim,all_of
+c01,Jensen Huang had an affair with a Chinese spy,\b(affair|relationship|romance|romantic|mistress|lover|slept with|sleeping with)\b && \b(spy|spies|spying|espionage|honey ?trap|honeypot|intelligence (agent|operative|asset)|government agent)\b
+c02,Was Jensen Huang's mistress a Chinese spy?,\b(mistress|girlfriend|lover|paramour)\b && \b(spy|spies|spying|espionage|honey ?trap|agent)\b
+c03,Jensen Huang fell for a honey trap,\bhoney ?(trap|trapped|pot)\b|\bhoneypot\b
+c04,Jensen Huang resigned as CEO of Nvidia,\b(resign|resigns|resigned|resigning|resignation|steps down|stepped down|stepping down|step down)\b && \b(ceo|nvidia|huang|jensen|chief executive)\b
+c05,Colette Kress was named interim CEO of Nvidia,\b(kress|colette)\b && \b(interim|acting|ceo|chief executive|replace|named|appointed|takes over)\b
+c06,Nvidia's board opened an investigation into Huang,\bboard\b && \b(investigat\w*|probe|probing|inquiry|review)\b
+c07,Nvidia stock fell after the Huang news,\b(stock|stocks|shares|nvda|share price)\b && \b(fell|fall|falls|falling|drop|drops|dropped|dropping|plunge\w*|tank\w*|slid|slide|sank|sink\w*|tumbl\w*|lost|loses|down \d|-\d+(\.\d+)?%|selloff|sell-off)\b
+c08,Huang's divorce could cost him billions,\b(divorce|divorcing|prenup|prenuptial)\b
+c09,Trump knew about the spy relationship and did nothing,\btrump\b && \b(knew|was warned|were warned|was told|was reminded|was briefed|ignored|did nothing|chose not)\b
+c10,Trump defended Jensen Huang,\btrump\b && \b(defend\w*|honorable|fine man|good man|great guy|going through hell|stood by|standing by|supports?|praised|shouldn't worry|should not worry)\b
+c11,The FBI is investigating Jensen Huang,\bfbi\b
+c12,Jensen Huang will testify before Congress,\b(testify|testifying|testimony|subpoena\w*|appear before)\b && \b(huang|jensen|nvidia|ceo)\b
+c13,Shareholders are suing Nvidia over the affair,\b(lawsuits?|class action|sued|suing|sues|securities fraud|shareholder suit|litigation)\b
+c14,Nvidia was smuggling chips to China,\b(smuggl\w*|pass-through|diverted|diversion|illegally sold|export controls?|export ban|sanctions? (evasion|violation))\b
+c15,The Wall Street Journal reported Huang would be ousted,\b(wsj|wall street journal)\b && \b(oust\w*|push\w* out|forced out|fired|replace\w*|remov\w*|leave|step down|resign\w*|exit)\b
+c16,Huang also had an affair with an Nvidia employee,"\b(second|another|two|both|multiple)\b.{0,40}\b(affairs?|relationships?|women)\b|\b(affairs?|relationships?)\b.{0,80}\b(employee|subordinate|staffer|nvidia executive|co-?worker|executive who reported)\b"
+c17,Huang admitted the affair in an email to employees,\b(email|e-mail|memo|letter|note)\b && \b(employees|staff|workers|company)\b && \b(admit\w*|acknowledg\w*|apologi\w*|confess\w*)\b
+c18,Jensen Huang apologized to his wife and family,\bapologi\w*\b && \b(wife|family|lori)\b
+c19,Jensen Huang didn't know she was a spy,\b(didn'?t know|did not know|had no idea|no idea|was unaware|wasn'?t aware|not aware)\b && \b(spy|spies|spying|agent|operative|espionage)\b
+c20,China denies the spy allegations against Huang,\b(foreign ministry|state media|global times|xinhua|people's daily|(china|beijing|chinese government|chinese officials?) (denies|denied|rejects|rejected|dismisses|dismissed|calls|called))\b
+c21,The spy story is a smear campaign against Huang,\b(smear|hit job|hit piece|witch ?hunt|(was|been|got) set up|framed|politically motivated|character assassination)\b
+c22,Bots are defending Jensen Huang online,\b(bots|sock ?puppet\w*|troll farms?|astroturf\w*|fake (accounts|comments|supporters|profiles)|inauthentic|bot (campaign|network|accounts?)|online campaign)\b && \b(defend\w*|support\w*|campaign|praise\w*|rally\w*)\b
+c23,Elon Musk offered Jensen Huang a job,\bmusk\b && \b(give him a job|hire him|hiring him|delighted|offer\w* (him )?a job|work (for|at) (tesla|spacex|xai)|love to have|join (tesla|spacex|xai))\b
+c24,Elon Musk and other tech leaders defended Huang,\b(musk|altman|zuckerberg|bezos|tech leaders|billionaires|moguls|tech bros|silicon valley)\b && \b(defend\w*|support\w*|stood by|standing by|rally\w* (around|behind)|leave him alone|rush to)\b
+c25,Nvidia employees petitioned to bring Huang back,\b(petition\w*|employees want him back|bring (him|jensen|huang) back|reinstate (him|jensen|huang))\b
+c26,Huang's leather jacket is now a joke,\bleather jackets?\b
+c27,Jensen Huang will start a new company,\b(new (company|startup|start-up|venture|firm)|start(ing)? (a|his own) (new )?(company|startup|start-up)|found(ing)? a (new )?(company|startup))\b
+c28,Jensen Huang could return as Nvidia CEO,\b(return\w*|come back|comeback|reinstat\w*|bring (him )?back|rehire\w*|back as ceo)\b && \b(ceo|nvidia|board|company)\b
+c29,Jensen Huang's net worth dropped by billions,\b(net worth|personal fortune|his fortune|richest|billionaires index|wealth index)\b && \b(fell|drop\w*|lost|losing|wiped|shed|plung\w*|tumbl\w*|slid|shrank)\b
+c30,AMD and Broadcom gained as Nvidia fell,\b(amd|broadcom|intel|rivals)\b && \b(rose|rise|gain\w*|jump\w*|rall\w*|up \d|\+\d|surge\w*|cashed in|benefit\w*)\b
+c31,Nvidia lost hundreds of billions in market value,\b(market (cap|value|capitalization)|valuation)\b && \b(lost|wiped|shed|fell|drop\w*|erased|billion|billions|trillion)\b
+c32,Huang flew to Beijing on Air Force One,\bair force one\b
+c33,The scandal hangs over the Trump-Xi trade talks,\b(xi|xi jinping)\b && \b(summit|meet|meeting|trade|truce|talks|deal)\b
+c34,Huang's affair is a national security threat,\bnational security\b|\bsecurity (risk|threat|breach|concern)s?\b
+c35,The spy got access to Nvidia's secrets,\b(secrets?|classified|sensitive|confidential|intellectual property|technology|tech|chip designs?)\b && \b(stole|steal\w*|leak\w*|access\w*|obtain\w*|passed|handed|shar(e|ed|ing)|compromis\w*)\b && \b(spy|spies|china|chinese|beijing|ccp)\b
+c36,Jensen Huang was being blackmailed,\b(blackmail\w*|kompromat|extort\w*|leverage over (him|huang)|(was|being|been|is) compromised)\b
+c37,Megaspeed was at the center of the chip smuggling case,\bmega ?speed\b
+c38,Nvidia named Harvey Jones its first independent chair,\b(harvey|jones)\b && \b(chair|chairman|chairwoman|board)\b
+c39,Trump was briefed on the spy before the Beijing trip,\b(briefed|warned|reminded|was told|told aboard)\b && \b(beijing|china trip|air force one|trip to china|flight to china|en route)\b
+c40,The Huang scandal will hurt AI stocks,"\bai\b.{0,20}\b(bubble|stocks|trade|sector|rally|market|boom|chips?)\b && \b(hurt|burst|rattl\w*|shake\w*|shook|crash\w*|fall\w*|selloff|sell-off|slump\w*|jitters|wobble\w*|pop\w*)\b"
+c41,Jensen Huang was fired,\b(fired|ousted|ouster|forced out|pushed out|sacked|kicked out|let go|canned)\b
+c42,Jensen Huang abused his power and mistreated people,\b(humiliat\w*|abus\w* (his|of) power|abused|toxic|bull(y|ied|ying)|berat\w*|cruel\w*|public(ly)? shaming)\b
+c43,Rubio and Vance knew about the Huang spy intelligence,\b(rubio|vance)\b
+c44,Huang will get a huge payout for leaving,\b(severance|golden parachute|payout|exit package|pay ?package)\b && \b(huang|jensen|his|he'?s|ceo)\b
+c45,There should be a movie about the Huang scandal,\b(movie|film|netflix|biopic|miniseries|tv series|screenplay|cast|casting|hbo|thriller)\b
+c46,Investors should short or buy the dip in Nvidia,\b(short(ing)? (the shit out of )?(nvda|nvidia|the stock)|puts on|buy(ing)? the dip|buy nvda|buying nvda|load(ing)? up)\b
+c47,The spy was working for the CCP's Ministry of State Security,\b(ccp|chinese communist party|communist party|ministry of state security|mss|united front)\b
+c48,Nvidia shares bounced back after the drop,\b(nvidia|nvda)\b && \b(shares|stock)\b && \b(rebound\w*|bounc\w* back|recover\w*|pared losses)\b
+c49,The New York Times reported the spy relationship,\b(new york times|nytimes|nyt)\b && \b(spy|spies|spying|affair|relationship|intelligence|espionage)\b
+c50,The Washington Post reported on the Nvidia board probe,\b(washington post|wapo|washingtonpost)\b && \b(board|probe|investigat\w*|resign\w*|spy|affair)\b
