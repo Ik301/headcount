@@ -1,6 +1,6 @@
 # socialnet-bot-tracker
 
-HackPrinceton Fall 2026. Main track: Science and Discovery. Special track: Arlequin AI Track 2, Social Media Analysis (combining content and connectivity).
+HackPrinceton Fall 2026. Main track: Entertainment and Media (media literacy). Special tracks: see `docs/DEMO.md`; the core one is Arlequin AI Track 2, Social Media Analysis (combining content and connectivity).
 
 We follow one story through a social network, find the narratives people push about it, measure how much of each narrative comes from automated accounts, and find out what kinds of real people amplify the automated accounts.
 
