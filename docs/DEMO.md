@@ -283,6 +283,130 @@ Cut order if behind: Reddit, voice line, live path for other topics, public acco
 3. Spread (22:00): the most automated narrative's likely automated share at least twice the least automated one's, holding across the four cutoffs. If not, the headline is "automation is spread evenly, and the bots-defending-Huang claim does not show on Bluesky".
 4. Retrieval (23:00): recall@20 of at least 0.6 on Muse's claim set.
 
+## Build specification (how each milestone gets built, end to end)
+
+Written for the two agents. It elaborates the milestones and interfaces above without changing them: signatures, contracts and done-criteria stay exactly as written in the sections above and in `README.md`. Where a step here and a milestone disagree, the milestone wins for *done when* and this section wins for *how*.
+
+### Global conventions (both agents)
+
+- IDs and hashing per `README.md` (`account_id = sha256(SALT + did)[:16]`). Code runs with the dev salt `dev-salt` and a printed warning when `.env` is missing, so Muse's local runs and Hermes's VM runs produce comparable tables.
+- Time is UTC everywhere, ISO 8601 in JSON. Story window 2026-11-05T00:00:00Z to 2026-11-14T00:00:00Z.
+- Thresholds live in `src/config.py` only: headline share threshold 0.5; sensitivity strip 0.3 / 0.5 / 0.7 / 0.9; amplifier definition human `p_automated < 0.3`, likely automated `p_automated >= 0.7`; minimum 30 matched posts before any share is reported.
+- Intervals: one shared bootstrap (`src/stats.py`, over accounts, 1,000 resamples, seed 42) used by M4, M5, H4 and H8, so the texts, the API and the dashboard can never quote different intervals for the same number.
+- Bridged accounts (labels `bridged-from-bridgy-fed-*`) are reported separately in bot-share denominators (Hermes's kickoff note in COMMS); the export carries both denominators and the dashboard shows the unbridged one.
+- Every batch entry point is idempotent, writes to a temp file then renames, and bumps `model_version` in `data/processed/artifacts/manifest.json`. `/health` reports the manifest's bot model version (`stub` until M2 lands), which is how H9 knows what is running.
+- A milestone is `v0` when its smoke test passes on sample or stub data, `done` when its DEMO done-criteria are met on the full data. Status lives in COMMS's board, not in this file.
+
+### Integration gates (in order; a gate is a check, not a time)
+
+1. H1 (done Sat 16:13) -> Muse starts M1 unblocked. Hermes's stubs in `src/stubs/` carry Muse's signatures from the start, so H4/H8 never wait for M2/M5.
+2. M2 v0 (score.py returning sane scores on the local pull) -> Hermes swaps the stub behind the same signature on the VM and posts the swap in COMMS.
+3. H3 (`post_narrative.parquet` announced in COMMS) -> M4 and the dashboard river unblock.
+4. M3 -> M5's amplifier definition uses coordination-folded scores; M5 does not start its final run on M2-only scores.
+5. H4 + H7 end to end on stubs -> the text line is demoable before any real model lands; models then swap in behind the interfaces.
+6. Freeze 03:00: after it, only fixes for a failing end-to-end check below.
+
+### M1 Local data: notes
+
+- Run `make data` exactly as in README "Reproduce the data". Verify the three raw files exist and `python -m src.model.tables` builds every Parquet table with zero schema errors before touching M2; a schema mismatch is a COMMS post to Hermes, not a local patch to `src/model/`.
+- Keep the local pull: M6's evaluation and M7's challenge set are built from it, and every M2 experiment must be reproducible from it plus a seed.
+
+### M2 Bot model v1: build steps
+
+- Implement against the interface in this file: `src/bots/score.py` (`load_model`, `score_accounts`), `python -m src.bots.train`, `python -m src.bots.score_corpus`. Inputs are the raw-shaped records the interface specifies (getProfiles records, compact history items, story posts), not Parquet tables; Hermes adapts VM data to those shapes.
+- Features, computed per account from the three inputs: posts per day over its history; regularity of posting gaps (coefficient of variation of inter-post times; scheduled accounts are very regular); repost, reply and link shares; duplicate rate (share of its posts that are near duplicates of its own or others' posts, MinHash Jaccard >= 0.8 on normalized text: lowercase, URLs and mentions stripped); account age at first story post; follower/follow ratio; has avatar; bio length (length only, never bio words); hour-of-day spread; distinct domains linked. The self-label and any text feature derived from the bio are excluded, per the kickoff note.
+- Training: positives are the 285 self-labeled bots; unlabeled accounts are treated as negatives with the positive-unlabeled caveat stated in the report. Gradient boosting (sklearn `HistGradientBoostingClassifier` is enough) or regularized logistic regression; pick by held-out recall@100, not by accuracy. Stratified 80/20 split on labeled bots, seed 42.
+- Reasons: top 3 per account, generated from the largest feature contributions mapped to plain phrases ("posts 40+ times a day", "created in the same week as 30 other high-scoring accounts", "most posts are reposts of market news"). Reasons must be computable for a single account at API time, because the live path and `/xray` call `score_accounts` directly.
+- Report (`eval/bots/report.md`): recall@50/100/200/500 on held-out labeled bots, the posts-per-day baseline beside them (0.046 at k=100), class counts, feature list actually used, and the PU caveat. Kill test 1 reads this file.
+- Hand-check protocol (feeds M7): the 50 highest-scored unlabeled accounts get a one-line verdict each in `eval/bots/handcheck.csv`; precision on that sample goes in the report. Verdicts never ship per-account in any output.
+
+### M3 Coordination: build steps
+
+- Implement `find_clusters(posts, window_s=60)` exactly as interfaced: traces are the same URL within 60 s, a repost of the same post within 60 s, or near-duplicate text (MinHash, Jaccard >= 0.8). Account-by-trace TF-IDF, cosine similarity, threshold 0.6 to start (tune once on the labeled bots' co-traces, then freeze it and record it in the report), connected components of size >= 2.
+- Every cluster returns `reasons` and `evidence` (post_uri, t, trace) in the interface shape; the evidence drawer and the `show the bots` follow-up render these verbatim, so reasons are plain language at creation time, not codes.
+- Fold into the score as features (cluster size, share of the account's traces that are shared, max cosine to another account), retrain, and add the ablation table to `eval/bots/report.md`: behavior only, coordination only, both. The Arlequin case rests on this table.
+
+### M4 Narrative bot shares: build steps
+
+- `src/bots/narrative_shares.py`, called by H8's export: per narrative, post share and distinct-account share at each strip threshold, expected count (sum of `p_automated`) so the headline does not hinge on the 0.5 line, and bootstrap intervals from the shared function. Output shape is the `threshold_strip` field in the API contracts section.
+- Runs on whatever `bot_scores` and `post_narrative` exist; with stub scores it must still produce the full shape (H8 builds against it before M2 lands).
+
+### M5 Archetypes and thesis: build steps
+
+- Implement `src/archetypes/assign.py` (`load_archetypes`, `assign`) and `python -m src.archetypes.build` per the interfaces. Amplifiers: humans who reposted, quoted or liked a likely automated post (thresholds from `src/config.py`). Matched controls per the scope table: same narrative, same 6-hour window, similar reach of the post they engaged, matched on activity and follower bucket, without replacement; unmatched amplifiers are dropped from lift and counted in the report.
+- Features from history only (the M2 feature set plus topic mix from the account's history posts assigned to narrative centroids, and active-hours pattern). Standardize; the scaler ships inside the archetype artifact because `assign` runs at API time.
+- K-means k in 4..8 by silhouette; if every silhouette is under 0.05, use k = 4 and say so in the report. Labels are written from centroid summaries in plain behavioral words; no trait or demographic language.
+- Report (`eval/thesis/report.md`): lift per archetype with bootstrap intervals, the logistic regression table (`amplified_bot ~ archetype + log(followers) + posts_per_day + narrative + hour`), match rate, and the null-result wording if no interval excludes 1.
+
+### M6 Retrieval evaluation: build steps
+
+- `eval/retrieval/claims.csv`: 50 claims written from the story posts (not from narrative labels), each with the post IDs that truly match; LLM-assisted candidate lists are allowed, every claimed match is human- or rule-checked before it enters the set. This set is the referee for H5's retriever, so whoever builds the retriever does not edit the set afterward; corrections go through COMMS.
+- The scoring script takes any function with the `search_claim` signature and reports recall@10/20/50 per similarity floor (try 0.55 / 0.65 / 0.75); the chosen floor becomes a constant in `src/config.py` via a `[contract]` pull request citing `eval/retrieval/report.md`. Kill test 4 reads this report.
+
+### M7 Challenge set: build steps
+
+- 20 accounts spanning the score range (5 clearly automated including at least 2 self-labeled, 5 clearly human, 10 from the uncertain middle), each with 3-5 posts and the model's reasons as evidence. Isaac hand-labels the middle 10; disagreements between his labels and the model are the interesting ones and stay in the set, flagged.
+- `data/sample/challenge.json` in the shape given in the API contracts section (`challenge` array). Public accounts by handle; private accounts as hashed refs with posts' text only. This file is committed, so the README privacy rule applies to it in full.
+
+### H4 API: build steps (Hermes owns; specified here so both halves agree)
+
+- `/claim` pipeline, in order, each step timed into `seconds`: (1) normalize the claim, `claim_id` = first 12 hex of sha256 of the normalized lowercase text plus mode; identical claims serve from cache, and each response is also written to `data/processed/claims/<claim_id>.json` so dashboard links survive a restart. (2) Private-individual check: a claim naming a person who is not a public figure in the corpus gets the decline reply with `matched_posts: 0`; when unsure, do not decline. (3) Retrieve; under 30 matched posts, return the insufficient-data reply with the true count, never padded shares. (4) Per narrative: share of matches, bot post share, interval, baseline, `example_posts` plus `evidence`. (5) `bot_commonalities` from observable signals only (creation-week concentration, shared traces, posting-app mix). (6) Amplifiers from M5's tables in corpus mode; live mode returns an empty mix rather than a guess. (7) Chart PNG per the contract. (8) `reply_text` composed from the templates below by code, never by an LLM; the deepagent (H6) routes and selects, but wording and numbers come from this step so the reply rules hold even if the agent misbehaves.
+- Errors return `{"error": "<one human sentence>"}`; H7 turns any error into the failure template.
+
+### Reply text templates (H4 composes, H7 sends verbatim)
+
+Checking (sent by H7 immediately): `Checking who is pushing that. About 20 seconds.`
+
+Main answer (percentages whole numbers, intervals as `9% (6 to 12%)`):
+
+```
+I found {matched_posts} Bluesky posts making this claim ({window}).
+{narrative_lines}
+{commonality_line}
+{amplifier_line}
+I don't judge whether the claim is true. Full view: {dashboard_url}
+```
+
+Narrative line: `{label}: {share}% of posts. Likely automated: {bot_share} ({lo} to {hi}%)`, appending `, about {x}x the story's baseline` when a narrative's bot share is at least twice the baseline. At most 4 narratives by share, then `+ {n} smaller narratives in the full view.`
+
+Commonality line (only with at least 5 likely-automated accounts): `The likely automated accounts pushing {top_bot_narrative}: {signal_1}; {signal_2}.` Amplifier line (only when `n_humans >= 10`): `The real accounts spreading their posts are mostly "{archetype_label}" ({lift}x more likely than similar accounts).`
+
+Insufficient data: `I found {n} Bluesky posts making this claim, which isn't enough to measure automation reliably (I need at least 30). Try a broader wording, or ask about the Jensen Huang story from Nov 5 to 13.`
+
+Decline: `I can't run checks on claims about a private person. I can check claims about public stories, like the Jensen Huang week.`
+
+Failure: `Something broke on my end and I couldn't finish that check. The team has a recording of a full check at the table.`
+
+Follow-ups (per-sender state: last `claim_id`, narrative cursor): `show the bots` -> top 3 coordination clusters as text with reasons, plus 3 evidence posts; `who shares it` -> archetype lines with lift; `next` -> the next narrative's line and evidence, cycling; `help` -> `Text me a claim and I'll check who is pushing it on Bluesky. After an answer, try "show the bots" or "who shares it".` Anything else is a new claim.
+
+### H7 Messaging and H8 Dashboard: build steps
+
+- H7: send the checking template at once, then call H6 (or H4 directly until H6 lands). If the call passes 45 s, send `Still checking, the live search is slow on this one.` once; at 90 s, the failure template. State (sender -> claim_id, cursor) is in memory plus a JSON file rewritten on every message, so a restart loses at most follow-up context. Test the QR code from a phone that has never messaged the number before recording backups.
+- H8: the export writes the full `site_data.json` shape with any subset of tables present (missing table -> empty section, never a crash), because it runs at every refresh. Replay precomputes per-hour cumulative node and edge sets in the export (cap: the 3,000 highest-engagement accounts, stated on the method view) so the browser never filters the full graph per frame. The evidence drawer is one component fed by the `evidence` arrays on narratives, archetypes and clusters; private accounts render as "a private account" with no handle. The threshold strip renders `threshold_strip` as four dots per narrative; the headline bar stays at 0.5 and nothing recomputes in the browser. The claim view shows the rules text and a link back when the API is unreachable, never a blank page.
+
+### End-to-end checks (all must pass before the 03:00 freeze)
+
+Rehearsal claims: (1) "Was Jensen Huang's mistress a Chinese spy?" (2) "Did bots defend Jensen Huang?" (3) one claim invented on the spot about the Huang week.
+
+1. Text claim 1 from a phone that has never used the number: checking message within 5 s; full answer with chart and link within 30 s; every number in the text matches the `/claim` JSON exactly.
+2. The link opens the claim view with the same narratives, shares and intervals as the text.
+3. `show the bots` and `who shares it` answer for claim 1 without a new search.
+4. Dashboard on real data: replay scrubs Nov 5-13 with the three event markers; the bots-off toggle re-ranks the bars; the strip shows four values per narrative; every bar and card opens the evidence drawer; challenge mode runs its 20 accounts. Privacy sweep: grep the built site data and the page source for any handle not in `public_accounts`; the count must be zero.
+5. Kill-switch test: with the API stopped, the floor still demos from `site_data.json` alone and the recordings play.
+6. Claim 3 (unrehearsed) completes through the corpus path or returns the insufficient-data reply; it never invents shares.
+7. `/health` reports the real bot model version, not `stub`, and COMMS has the matching model-swap message from Hermes.
+
+### Failure fallbacks (decided now, not during judging)
+
+| Failure | Fallback |
+|---|---|
+| Photon or Spectrum down | A teammate sends the texts and a teammate with the API open answers as the bot; recordings if that fails too |
+| API host or tunnel down | API runs on David's laptop via `cloudflared`, kept warm and tested at rehearsal, not first tried during judging |
+| Live path slow or 403 | Corpus claims unaffected; live claims return the insufficient or failure reply honestly |
+| Kill test 1 fails | Coordination becomes the headline signal; shares are reported from cluster membership and model scores move to the method view |
+| Kill test 2 fails | The demo narrows to the 3 largest hand-verified narratives and says so |
+| Spread test null | The headline is the null result, in kill test 3's wording |
+
 ## Proposals
 
 New ideas go here, one paragraph each, with what they add to the judging and what they cost. Isaac decides.
@@ -296,6 +420,8 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 - Append a line to the changelog for every merged change.
 
 ## Changelog
+
+- Sat 16:30: build specification added, adapted to the two-agent plan: global conventions, integration gates, build steps for M1-M7 and H4/H7/H8, reply text templates, end-to-end checks, failure fallbacks; README site_data aligned with the evidence / threshold_strip / challenge fields defined above (Muse, for David).
 
 - Sat 16:40: Muse's MVP scope section (PR #5) folded in, mapped to H/M milestones; Peri item dropped with the track (Hermes).
 - Sat 16:20: rewritten as the two-agent plan (Hermes and Muse), tracks cut to Arlequin, Photon, LangChain and ChatOverflow; Muse's three grafts from `merge-note-interactive-grafts.md` folded in (evidence drawer, threshold strip, challenge mode as first fallback); module interfaces added (Hermes, for Isaac).
