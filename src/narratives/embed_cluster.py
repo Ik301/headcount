@@ -4,7 +4,7 @@ Usage:
     python -m src.narratives.embed_cluster --posts data/raw/bsky_jensen_nov5_13.jsonl --outdir data/processed/narratives
 
 Steps: dedupe exact repeats, embed with BAAI/bge-small-en-v1.5 (CPU), UMAP to 10 dims, HDBSCAN.
-Writes embeddings.npy, posts_clusters.parquet (uri, cluster, text, created_at, author_did) and
+Writes embeddings.npy with embed_index.parquet (row order: eidx, norm, text), posts_clusters.parquet (uri, cluster, text, created_at, author_did) and
 clusters.md (size, top terms, sample posts per cluster) for a person to name.
 """
 import argparse
@@ -29,6 +29,7 @@ def main() -> None:
     ap.add_argument("--posts", required=True)
     ap.add_argument("--outdir", required=True)
     ap.add_argument("--min-cluster", type=int, default=150)
+    ap.add_argument("--embed-only", action="store_true", help="write embeddings and embed_index.parquet, skip clustering")
     a = ap.parse_args()
     out = Path(a.outdir)
     out.mkdir(parents=True, exist_ok=True)
@@ -43,9 +44,10 @@ def main() -> None:
         rows.append({"uri": d["uri"], "author_did": d["author"]["did"], "created_at": rec.get("createdAt"), "text": text})
     df = pl.DataFrame(rows)
     df = df.with_columns(pl.col("text").str.replace_all(r"https?://\S+", "").str.to_lowercase().str.strip_chars().alias("norm"))
-    uniq = df.unique(subset="norm", keep="first")
+    uniq = df.unique(subset="norm", keep="first", maintain_order=True)
     print(f"{len(df)} posts, {len(uniq)} unique texts", flush=True)
 
+    uniq.select("norm", "text").with_row_index("eidx").write_parquet(out / "embed_index.parquet")
     from sentence_transformers import SentenceTransformer
 
     t0 = time.time()
@@ -53,6 +55,8 @@ def main() -> None:
     emb = model.encode(uniq["text"].to_list(), batch_size=128, normalize_embeddings=True, show_progress_bar=False)
     np.save(out / "embeddings.npy", emb)
     print(f"embedded in {time.time() - t0:.0f}s", flush=True)
+    if a.embed_only:
+        return
 
     import umap
     from sklearn.cluster import HDBSCAN

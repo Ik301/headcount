@@ -87,7 +87,7 @@ Not entered: Amazon, Peri, CoStar, Capital One Nessie, Best Hardware, Physical A
 
 ## The 2-minute demo
 
-Table setup: laptop with the dashboard, a monitor facing the judge if we can get one, and a printed QR code that opens Messages to our Photon number with "hi" filled in.
+Table setup: laptop with the dashboard, a monitor facing the judge if we can get one, and a printed QR code that opens our `/join` page, where the judge enters their iMessage number and gets the agent's number to text (Photon shared lines only accept registered senders).
 
 1. Opening (10 s). "Jensen Huang resigned on November 12. Bluesky had 46,656 posts about it from 20,495 accounts. How much of that was real?"
 2. Replay (30 s), dashboard. The network grows hour by hour from Nov 5 to Nov 13. Each dot is an account; lines are reposts, quotes, replies and likes. Likely automated accounts glow red. A real account turns its archetype's color the first time it amplifies a red one. Markers: WSJ ouster report (Nov 11, 22:43 UTC), resignation (Nov 12, 13:55 UTC), the Post's bots report (Nov 12, 20:15 UTC). The narrative river runs underneath, each band shaded by its bot share.
@@ -142,7 +142,7 @@ Judge's phone -> Photon Spectrum -> messaging service (TS) -> deepagent -> analy
 3. Claim retrieval (`src/retrieval/`). Embeds the claim with `BAAI/bge-small-en-v1.5` using its query prefix (`Represent this sentence for searching relevant passages: `), cosine top 300 over the corpus embeddings, a similarity floor tuned on the eval set, grouped by narrative.
 4. Live path (`src/retrieval/live.py`). For claims outside the corpus: an LLM writes two or three search queries, `app.bsky.feed.searchPosts` pulls up to 300 recent posts, they are embedded and grouped (k-means, k up to 5, an LLM names the groups), and their authors are scored live (`getProfiles` 25 per call, `getAuthorFeed` limit 30; about 45 accounts a second measured). Target under 60 seconds.
 5. Agent layer (`src/agent/`). A LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence`. Decides corpus or live search, runs the tools, handles follow-ups. LangSmith tracing on.
-6. Messaging service (`src/messaging/`, TypeScript). Photon 2.0 through Spectrum (`spectrum-ts`, a Spectrum Cloud number). Receives a text, sends the "checking" message at once, calls the agent, then sends the reply, the chart image and the dashboard link. Per-sender state for follow-ups. Read Photon's hackathon guidelines first: https://somethingreat.notion.site/Hackathon-Guidelines-for-Photon-2-0-3f8e443f36bb81f9893fed0d08a4c01d (beta and $100 free credits at photon.codes/beta). Eligibility needs the project built on Photon 2.0 and live on at least one Photon channel. A shared iMessage line can't text first, so the judge starts from the QR code. Use only documented SDK calls.
+6. Messaging service (`src/messaging/`, Python). Photon 2.0 (Beta), which is the version the Photon prize names: the `photonhq-api` client against `https://api.photon.codes/v1` with a project API key (`pho_sk_...`) and project ID (`pho_prj_...`), not the older Spectrum SDK. `photon_service.py` polls `list_messages` every 2 s, sends the "checking" text, calls `POST /agent`, then sends the reply and the chart as an uploaded attachment, reusing the incoming space and agent IDs with one idempotency key per incoming message. Beta iMessage carries text and images only. On the free plan iMessage runs on shared lines, and a shared line only accepts texts from a registered sender (25 per project), so the table QR code opens `GET /join` on the API: the judge enters their iMessage number, the API creates their assignment (`projects.platforms.imessage.assignments.create`) and shows the number to text.
 7. Dashboard (`web/`, Vite, React, TypeScript, sigma.js, graphology). Reads `web/public/site_data.json` (shape in `README.md`, plus the `evidence` and `threshold_strip` fields below). Views: replay, narrative river, story without bots with the threshold strip, archetype cards, claim view at `/claim/:id`, public account pages, method and validation, challenge mode. Every view gets the evidence drawer.
 
 ### Module interfaces between the two halves
@@ -421,6 +421,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 16:45: messaging is Photon 2.0 Beta in Python (`photonhq-api`), not Spectrum; judge onboarding through `/join` because shared lines need registered senders; `src/config.py` and `src/stats.py` added per Muse's build spec (Hermes).
 - Sat 16:30: build specification added, adapted to the two-agent plan: global conventions, integration gates, build steps for M1-M7 and H4/H7/H8, reply text templates, end-to-end checks, failure fallbacks; README site_data aligned with the evidence / threshold_strip / challenge fields defined above (Muse, for David).
 
 - Sat 16:40: Muse's MVP scope section (PR #5) folded in, mapped to H/M milestones; Peri item dropped with the track (Hermes).
