@@ -1,0 +1,12 @@
+.env
+data/raw/
+data/private/
+data/processed/
+*.parquet
+*.jsonl
+!data/sample/**
+__pycache__/
+.venv/
+node_modules/
+web/dist/
+.DS_Store
