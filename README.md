@@ -1,10 +1,10 @@
 # socialnet-bot-tracker
 
-HackPrinceton Fall 2026. Main track: Entertainment and Media (media literacy). Special tracks: see `docs/DEMO.md`; the core one is Arlequin AI Track 2, Social Media Analysis (combining content and connectivity).
+HackPrinceton Fall 2026. Main track: Entertainment and Media (media literacy). Special tracks: Arlequin AI Track 2 (Social Media Analysis: combining content and connectivity), Photon, LangChain deepagents, ChatOverflow. Details in `docs/DEMO.md`.
 
 We follow one story through a social network, find the narratives people push about it, measure how much of each narrative comes from automated accounts, and find out what kinds of real people amplify the automated accounts.
 
-This README holds the research question, data sources, rules, pipeline and table schemas. The demo, the system architecture, the API contracts and the work packages live in one master file, [`docs/DEMO.md`](docs/DEMO.md). Every teammate's coding agent reads both before writing code. If you change a table schema or a file path, change this README in the same pull request.
+This README holds the research question, data sources, rules, pipeline and table schemas. The demo, the system architecture, the module interfaces and the work split live in one master file, [`docs/DEMO.md`](docs/DEMO.md). The agents talk in [`docs/COMMS.md`](docs/COMMS.md). Every coding agent reads all three before writing code. If you change a table schema or a file path, change this README in the same pull request.
 
 ## The question
 
@@ -43,7 +43,17 @@ Measured on Sat Nov 14, before this repo had code:
 - Unauthenticated `api.bsky.app` calls to `getProfiles`, `getAuthorFeed`, `getFollows` and `getFollowers` all return 200 with no login.
 - Profiles for all 20,482 story accounts came back in 20 seconds (4 workers, 25 per call). The last 50 posts of every account (about 1.0 million posts) took 7 minutes at about 45 accounts a second.
 
-Isaac has the 46,656-post file (`bsky_jensen_nov5_13.jsonl`, 120 MB) and will share it privately. WP-1's search script must be able to re-pull it, because HackPrinceton requires the code to be written during the event.
+## Reproduce the data
+
+Every agent can rebuild the data locally from Bluesky's public API in about 15 minutes:
+
+```
+uv venv --python 3.11 && source .venv/bin/activate
+uv pip install --index-strategy unsafe-best-match --extra-index-url https://download.pytorch.org/whl/cpu -r pyproject.toml
+make data
+```
+
+`make data` runs `src.ingest.bluesky_search` (story posts, sliding `until` because cursor paging returns 403), `src.ingest.bluesky_profiles` (25 profiles per call), `src.ingest.bluesky_history` (last 50 posts per account, compact fields), then `src.model.tables`, which writes `data/processed/accounts.parquet`, `posts.parquet` and `history_posts.parquet`. Measured on the VM: 46,656 posts, 20,482 profiles (287 self-labeled bots, 724 bridged accounts), 1,007,723 history posts. A fresh search pull can differ slightly as posts are deleted.
 
 ## Rules
 
@@ -150,14 +160,14 @@ Build against `data/sample/site_data.sample.json` from the first hour. Don't wai
 
 All tables live in `data/processed/<table>.parquet`.
 
-`account_id = sha256(SALT + did)[:16]`, with `SALT` in `.env`, shared privately inside the team. The DID-to-handle map for public accounts lives only in `data/private/public_accounts.parquet`.
+Local tables use the Bluesky DID as `account_id`; `data/processed/` never leaves the machine. Anything that does leave (site_data.json, API replies, committed samples) goes through `src.model.schema.public_ref`: public accounts keep their handle, private accounts become `sha256(SALT + did)[:16]`, with `SALT` in `.env`, shared privately inside the team.
 
 | Table | Columns |
 |---|---|
-| `accounts` | account_id, platform, is_public, handle_public (null unless public), display_name_public, created_at, followers, follows, posts_count, has_avatar, bio_len, self_label_bot |
+| `accounts` | account_id, platform, handle, display_name, is_public, created_at, followers, follows, posts_count, has_avatar, bio, bio_len, labels, self_label_bot, bridged |
 | `posts` | post_id, platform, account_id, created_at, text, lang, parent_post_id, root_post_id, quoted_post_id, urls (list), domains (list), like_count, repost_count, reply_count, quote_count, in_story |
 | `interactions` | src_account_id, dst_account_id, type (`repost`, `like`, `quote`, `reply`, `follow`), post_id, created_at (nullable), platform |
-| `history_posts` | same columns as `posts`, for accounts' recent history outside the story |
+| `history_posts` | account_id, post_id, author_id, t, kind (`post`, `reply`, `quote`, `repost`), text, reply_parent, quote, urls, n_like, n_repost, n_reply, n_quote |
 | `narratives` | narrative_id, label, side, description, top_terms (list) |
 | `post_narrative` | post_id, narrative_id, prob |
 | `bot_scores` | account_id, p_automated, coord_cluster_id, reasons (list), model_version |
