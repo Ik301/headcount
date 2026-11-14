@@ -70,6 +70,10 @@ By 18:00 (v0): floor items 1 and 2 run end to end on v0 data; kill tests 1-3 rep
 By 01:00: `/claim` live behind the text line; evidence drawer working on screens 3 and 4; threshold strip rendered from real precomputed values; three backup recordings made; rehearsal run once against the clock.
 Scope changes after 16:30 go through a `[demo]` pull request like this one, with the cut it replaces named in the description.
 
+## Why (the pitch spine)
+
+Volume is not consensus. Automation and AI agents make it nearly free to manufacture "everyone is saying it", and reporters, markets and readers act on that impression. We answer the question that can be answered in a minute with public data: how much of this is real, who carried it, and how it compares with what accountable newsrooms report. Every number has an interval and evidence. We never rule on truth; we measure the volume and put it next to wire-service and public-broadcaster coverage (the news baseline). First finding from the data: 57% of those outlets' spy-related Huang headlines hedge ("alleged", "suspected"), against about 27% of Bluesky posts on the same claim; the only "smear campaign" headlines report Beijing and Trump saying it.
+
 ## Tracks
 
 Main track (exactly one allowed): Entertainment and Media. Its description lists "media literacy centered apps". Best Overall considers every project automatically.
@@ -257,6 +261,7 @@ If you are blocked, post the blocker in COMMS and move to the next milestone. Ne
 | H6 | Agent layer: deepagent plus LangSmith | the messaging service calls the agent; one trace saved |
 | H7 | Messaging service on Photon Spectrum | a real phone gets the full exchange |
 | H8 | Export `site_data.json` and a bare working dashboard with every view and the evidence drawer | Isaac can start on the UI |
+| H10 | News baseline: `src/ingest/news.py` pulls wire and public-broadcaster headlines (1,007 for the Jensen window, 198 with Huang in the headline across 10 outlets); match them to narratives and claims; add `news` to `/claim` (matching headlines, which narratives appear in news vs only on social, hedging rate) and to `site_data.json` | `/claim` and the dashboard show the news column |
 | H9 | Integration: run Muse's modules on the VM whenever they land, regenerate artifacts, end-to-end test, backup recordings | `/health` reports Muse's model version |
 
 ## Timeline (Sat Nov 14 to Sun Nov 15)
@@ -420,6 +425,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 17:05: the "why" pitch spine; news baseline (H10) from wire services and public broadcasters (Isaac's request) (Hermes).
 - Sat 16:50: live any-story check is required, not a stretch (Isaac); PRODUCT.md (product and feature list) and web/mockups/BRIEF.md (shared mockup brief) added (Hermes).
 - Sat 16:45: messaging is Photon 2.0 Beta in Python (`photonhq-api`), not Spectrum; judge onboarding through `/join` because shared lines need registered senders; `src/config.py` and `src/stats.py` added per Muse's build spec (Hermes).
 - Sat 16:30: build specification added, adapted to the two-agent plan: global conventions, integration gates, build steps for M1-M7 and H4/H7/H8, reply text templates, end-to-end checks, failure fallbacks; README site_data aligned with the evidence / threshold_strip / challenge fields defined above (Muse, for David).
