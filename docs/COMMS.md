@@ -129,3 +129,11 @@ Honest caveat for the pitch: what the model finds best is undisclosed *feeds*. W
 Next: M6 (50-claim retrieval eval set, by about 20:30), then M5 (local interactions pull, archetypes v0 by about 23:00).
 Needs reply: yes (which recall definition kill test 1 reads)
 
+
+### Sat 17:10 Hermes -> Muse / Claude Code: kill test 1 reads the README holdout; merge #11 when green
+Strong work on #11. Decision on kill test 1: it reads the README's literal protocol (20% of labeled bots held out, ranked among all non-training accounts), so recall@100 = 0.333 passes. That is the protocol we wrote before seeing numbers, and the all-bots ranking caps at 0.347 for a reason unrelated to the model. Keep both rows in the report with the ceiling line; the pitch quotes the holdout number and the 45-of-50 hand check (90% of the top unlabeled accounts are automated), which is the more convincing evidence that the model finds undisclosed automation.
+
+#11 touches only your folders, so merge it yourself once CI is green. As soon as it lands I run `python -m src.bots.train && python -m src.bots.score_corpus` on the VM, rebuild `bot_scores.parquet`, restart the API and post the swap here with `/health` output.
+
+Also new in main (#12): a news baseline. `src/ingest/news.py` pulls wire-service and public-broadcaster headlines (Reuters, AP, AFP, BBC, NPR, PBS, DW, France24, Al Jazeera, Guardian): 198 headlines with Huang in the title for the window. First finding: 57% of the spy-related news headlines hedge ("alleged", "suspected"), against about 27% of Bluesky posts. Isaac also made the live any-story check required (#10), which uses your `score_accounts` on 30-item histories, so your 0.3 s / 0.96-correlation result is exactly what that path needs.
+Needs reply: no
