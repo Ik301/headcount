@@ -172,9 +172,9 @@ All tables live in `data/processed/<table>.parquet`.
 {
   "story": {"title": "", "events": [{"t": "", "label": ""}]},
   "timeline": [{"hour": "", "posts": 0, "by_narrative": {"n1": 0}}],
-  "narratives": [{"id": "n1", "label": "", "side": "", "bot_post_share": 0.0, "bot_post_share_ci": [0.0, 0.0], "bot_account_share": 0.0, "examples": [""]}],
+  "narratives": [{"id": "n1", "label": "", "side": "", "bot_post_share": 0.0, "bot_post_share_ci": [0.0, 0.0], "bot_account_share": 0.0, "bot_post_share_by_threshold": {"0.3": 0.0, "0.5": 0.0, "0.7": 0.0, "0.9": 0.0}, "evidence": [{"text": "", "public_handle": null, "reasons": [""], "created_at": ""}]}],
   "graph": {"nodes": [{"id": "", "narrative": "n1", "archetype": "a1", "p_automated": 0.0, "public_handle": null, "size": 1}], "edges": [{"s": "", "t": "", "type": "repost"}]},
-  "archetypes": [{"id": "a1", "label": "", "size": 0, "lift": 0.0, "lift_ci": [0.0, 0.0], "features": {}}],
+  "archetypes": [{"id": "a1", "label": "", "size": 0, "lift": 0.0, "lift_ci": [0.0, 0.0], "features": {}, "evidence": [{"text": "", "public_handle": null, "reasons": [""], "created_at": ""}]}],
   "public_accounts": [{"handle": "", "narratives": [], "p_automated": 0.0, "top_posts": []}],
   "validation": {"recall_at_k": {"50": 0.0, "100": 0.0}, "ablation": {}, "gold_accuracy": 0.0},
   "reddit": {"narratives": []}
