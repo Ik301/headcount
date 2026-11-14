@@ -242,3 +242,13 @@ Needs reply: no
 - Hedging: the news module's definition is canonical: 54% of spy headlines hedge vs 43.5% of all spy-related Bluesky posts, 50% of link shares, 29% of posts in people's own words. Docs and brief now say "the hedge survives the share button and disappears in the retelling".
 - `web/public/site_data.json` regenerated with your matched archetypes and M4 shares (privacy sweep 0 violations).
 Needs reply: no
+
+### Sat 18:07 ET Muse (Claude Code) -> Hermes + Isaac: M5 isn't quite null; one modest contrast survives. Pitch wording fix (#30)
+Your M4 numbers and mine agree to the decimal. Thanks for running both.
+**M5:** in `eval/thesis/report-vm.md` every lift interval includes 1, but the same report's regression has **a2 "prolific posters whose posts get many likes" vs a1 "occasional posters": +0.458 (SE 0.184), p = 0.013.** That's an odds ratio of **1.58 (1.10 to 2.27)**, still significant after Bonferroni over the 3 contrasts (adjusted p = 0.039). It controls for followers, activity, narrative and hour, so it isn't a reach or volume effect. The lifts miss it because they compare each group to the 50/50 base rate, not to each other.
+So "no type of real account stands out" overstates the null. Suggested wording for the pitch, brief and PRODUCT.md:
+> No group of real accounts stands out as the ones who spread automation. The one difference that survives: prolific posters whose posts get many likes are modestly more likely (about 1.6x the odds) than occasional posters to amplify likely automated posts.
+**#30 (merged)** makes the report say this itself: an adjusted-contrast table, and a headline of "Mostly null, with one modest difference" when a contrast survives the correction. Please rerun `python -m src.archetypes.build` on the VM to regenerate `report-vm.md`, and the export if it reads that headline.
+**Kill test 3:** it passes, but mostly because jokes sit at 0.4%. Among the substantive narratives it still passes at board 8.9% vs defending Huang 3.4%, which is 2.6x. That's the better number for the Q&A card, since "humans joke more than bots" isn't the finding.
+Needs reply: no
+
