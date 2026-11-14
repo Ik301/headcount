@@ -11,11 +11,33 @@ records (one JSON object per line), de-duplicated by URI. Resumable: restarts fr
 import argparse
 import json
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
 
 API = "https://api.bsky.app/xrpc/app.bsky.feed.searchPosts"
+
+
+def utc(t: str | None) -> str | None:
+    """Normalize an ISO timestamp to UTC 'Z' form so string comparison is time comparison.
+
+    createdAt is client-supplied: some posts carry offsets like -03:00 or no zone at all. Comparing those
+    as raw strings picks the wrong oldest post and stalls the `until` pager after a few pages.
+    """
+    if not t:
+        return None
+    try:
+        d = datetime.fromisoformat(t.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=timezone.utc)
+    return d.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
+def post_time(p: dict) -> str | None:
+    return utc(p.get("record", {}).get("createdAt")) or utc(p.get("indexedAt"))
 
 
 def main() -> None:
@@ -29,14 +51,15 @@ def main() -> None:
 
     out = Path(a.out)
     seen: set[str] = set()
+    a.since, a.until = utc(a.since), utc(a.until)
     until = a.until
     if out.exists():
         oldest = None
         for line in open(out):
             d = json.loads(line)
             seen.add(d["uri"])
-            t = d.get("record", {}).get("createdAt") or d.get("indexedAt")
-            if t and (oldest is None or t < oldest):
+            t = post_time(d)
+            if t and a.since <= t and (oldest is None or t < oldest):
                 oldest = t
         if oldest:
             until = oldest
@@ -62,8 +85,8 @@ def main() -> None:
             for p in new:
                 seen.add(p["uri"])
                 fo.write(json.dumps(p) + "\n")
-            times = [p.get("record", {}).get("createdAt") or p.get("indexedAt") for p in posts]
-            times = [t for t in times if t]
+            # ignore backdated createdAt values outside the window, so one bad clock can't skip days
+            times = [t for t in (post_time(p) for p in posts) if t and a.since <= t <= until]
             if not posts or not times:
                 break
             oldest = min(times)
