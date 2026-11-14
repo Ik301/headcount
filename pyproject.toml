@@ -23,6 +23,7 @@ dependencies = [
     "langchain-openai>=0.3",
     "langsmith>=0.3",
     "photonhq-api",
+    "defusedxml>=0.7",
     "pytest>=8",
 ]
 

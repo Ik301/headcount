@@ -8,6 +8,16 @@ You give it a claim ("Was Jensen Huang's mistress a Chinese spy?") or a story ("
 
 Every number opens to its evidence: the posts, the timestamps, the reasons an account looks automated.
 
+## Why this matters
+
+Online, volume passes for consensus. When thousands of accounts repeat a claim, it looks like "everyone is saying it", and that impression is what reporters quote, what markets react to, and what readers believe. In 2026 it costs almost nothing to manufacture volume: AI agents post, reply and repost at scale, and on the Jensen Huang story the Washington Post reported "online bots" defending him within hours of his resignation.
+
+The fact-check asks "is this true?", which is slow and often unanswerable in the first hours. We ask a question that can be answered in a minute with public data: how many independent, real people are behind this, and who carried it to them? That turns "a lot of people are saying" into a number with an interval and evidence anyone can check.
+
+The news baseline makes the gap visible. Wire services and public broadcasters (Reuters, AP, AFP, BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian) are not neutral and are not the truth, but they are accountable, edited and comparable. Putting their coverage next to the social conversation shows which narratives exist only on social media, and whether careful wording survives the trip: in the Jensen story, 57% of these outlets' spy-related headlines hedge ("alleged", "suspected", "claims"), against about 27% of Bluesky posts on the same claim. The only "smear campaign" headlines in that coverage report Beijing and Trump making the claim.
+
+One line for the pitch: volume is not consensus. We show how much of the volume is real, who carried it, and how it compares with what accountable newsrooms report.
+
 ## What it never does
 
 - Rule on whether a claim is true.
@@ -39,6 +49,7 @@ Every number opens to its evidence: the posts, the timestamps, the reasons an ac
 - Narratives with a side (defends Huang, attacks Huang, neutral news, humor). Fixed taxonomy for the demo story: spy plot and national security; the affairs as personal misconduct; Trump and politics; board, resignation and succession; stock, market and lawsuits; defending Huang; jokes and memes.
 - Likely-automated share per narrative with a 95% interval, a baseline, and a sensitivity strip at four score cutoffs (0.3, 0.5, 0.7, 0.9).
 - "Story without the bots": the narrative ranking recomputed with likely automated accounts and their engagement removed.
+- News baseline: headlines from wire services and public broadcasters (Reuters, AP, AFP via Google News RSS search; BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian via their own feeds and the same search), each labeled with its funding. Shows which narratives appear in accountable coverage and which exist only on social media, and compares hedging ("alleged") between the two. Framed as "what these newsrooms report", never as "the truth".
 - Coordination clusters: groups of accounts posting the same text or the same link within seconds, with reasons.
 - Amplifier archetypes with lift over matched comparable accounts.
 - Evidence drawer on every number.
