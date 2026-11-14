@@ -1,50 +1,105 @@
 # Demo architecture and vision (master file)
 
-This is the one file for what we demo and how it is built. `README.md` holds the research question, data sources, rules and table schemas; this file holds the demo, the system architecture, the API contracts and the work packages. Every agent reads both before writing code.
+This is the one file for what we demo, how it is built, and who builds what. `README.md` holds the research question, data sources, rules and table schemas. `docs/COMMS.md` is where the two agents talk. Every agent reads all three before writing code.
 
-How to edit this file is at the bottom. Short version: edit your own work package's status lines freely, append to the changelog, and put anything that changes the demo or a contract in a pull request with `[demo]` or `[contract]` in the title.
+How to edit this file is at the bottom. Short version: update your own work package's status lines freely, append to the changelog, and put anything that changes the demo or an interface through the other agent in `docs/COMMS.md` first.
 
 ## Vision
 
 Text a claim you heard, and get back who is pushing it, how much of that is automated, and what kinds of real people are spreading it.
 
-We prove it first on the week Jensen Huang resigned from Nvidia (Nov 5 to 13, 2026: 46,656 Bluesky posts from 20,495 accounts), a story every judge knows and one where the Washington Post reported that "online bots" were defending him. The same engine then answers claims about any topic with a live Bluesky search.
+We prove it first on the week Jensen Huang resigned from Nvidia (Nov 5 to 13, 2026: 46,656 Bluesky posts from 20,495 accounts), a story every judge knows and one where the Washington Post reported that "online bots" were defending him. The same engine answers claims about other topics with a live Bluesky search.
 
-What we never do: rule on whether a claim is true, say who runs an account, or name private people. We report which narratives carry the claim, the share of likely automated accounts behind each, what those accounts have in common, and which archetypes of real people amplify them.
+What we never do: rule on whether a claim is true, say who runs an account, or name private people. We report which narratives carry the claim, the share of likely automated accounts behind each, what those accounts have in common, and which archetypes of real people amplify them. Every number on screen opens to the evidence behind it.
 
 Who would pay for this: newsrooms deciding whether a viral claim is worth covering, brand and social-listening teams, trust-and-safety teams, investor relations teams facing stock-moving rumors. Enterprise firms (Graphika, Cyabra, Blackbird.AI) sell analyst reports; a check anyone can run from a text message is the gap we claim (precedent check still to do).
 
+## MVP scope
+
+The MVP is the smallest version that still tells the whole story end to end: a judge texts a claim about the Huang week and gets back narratives, bot share with intervals, and who amplifies the automation, while the dashboard shows the same numbers with the evidence behind them. Everything below is either in the MVP, a named stretch, or explicitly out. If it is not listed as in, it is out until the 03:00 freeze lifts.
+
+### The floor (if everything else slips, this still demos)
+
+1. Dashboard on the precomputed Jensen corpus only: replay, bot share per narrative with the bots-removed toggle, archetype cards. All numbers from `site_data.json`, no live calls.
+2. The text-a-claim flow answered from the corpus path of `/claim` only (no live path), even if a teammate sends the texts instead of a judge.
+3. Backup recordings of both. A demo that runs entirely from the floor still answers the Post's claim with intervals and evidence.
+
+### In scope, by component
+
+| Component | In the MVP | Boundary |
+|---|---|---|
+| Data (H1, H2) | Bluesky only: accounts, posts, history (last 50), interactions for likely-automated posts and top 500 human posts | No Reddit. No firehose or streaming; the Nov 5-13 window is fixed |
+| Narratives (H3) | 6-10 named clusters over unique posts, sides assigned, 200 hand labels for accuracy | Term/LLM naming only; no reply-stance classifier (already first in the README cut order) |
+| Bot model (M2) | One saved model scoring every account: profile + behavior features (lifetime posts/day, account age, follow ratios, posting-app mix) plus coordination signals (duplicate text, near-simultaneous reposts, shared links). Self-labeled bots are training/eval labels, never the output | No per-account public verdicts on private accounts; scores ship as shares and intervals. No graph neural anything; a regularized logistic model or gradient boosting that beats the 0.046 baseline on recall@100 is enough |
+| Coordination (M3) | Clusters of accounts sharing exact or near-duplicate text, or reposting the same post within 60 seconds, sized and reason-coded for the evidence views | Exact/near-duplicate text and timing only; no stylometry, no cross-platform matching |
+| Archetypes (M5) | 4-6 archetypes over real accounts that amplified likely-automated posts, lift vs matched controls with bootstrap intervals | Matched on narrative, time window, reach, activity and follower bucket; no follower-graph features beyond counts |
+| Retrieval (H5, M6) | Corpus path: bge-small embeddings, cosine top 300, similarity floor from the eval set, grouped by narrative. Eval: 50 hand-written claims with recall@k | Live path is a stretch (see below), not required for the MVP demo |
+| API (H4) | `/claim` (corpus mode), `/claim/{id}`, chart PNG, `/health`, reply rules enforced and tested, <20 s per corpus claim | `/xray` is a stretch. No auth, no rate limiting beyond a simple per-sender cap in the messaging layer |
+| Messaging (H7) | Photon Spectrum text line: checking message, reply text, chart image, dashboard link; follow-ups `show the bots`, `who shares it`, `next`, `help`; per-sender last-claim state | Text only. One claim at a time per sender; a second claim queues with a "still checking" reply |
+| Agent layer (H6) | Deepagent routing corpus vs live and calling the five named tools, LangSmith trace saved | The agent never writes numbers itself; every figure comes from an API tool result |
+| Dashboard (H8 bare version, Isaac's UI) | Replay with event markers, narrative river, story-without-bots, archetype cards, claim view at `/claim/:id`, method and validation view | Runs locally for judging; static deploy is a stretch. Public account pages are cut (already last in the cut order) |
+| Pitch (humans) | 2-minute script, Q&A card, Devpost with the four tracks selected | No landing page, no sign-ups |
+
+### The three grafts from the merge note, scoped
+
+Source: Muse's merge note (commit c48f0a3).
+
+1. Evidence drawer: in the MVP. Every bar, archetype card, coordination cluster and X-ray result opens the posts behind the number: timestamps, duplicate traces, reason chips. On the text path this is the `show the bots` follow-up. This is the anti-slop feature, so it is not a stretch; H4 and H8 split the work (API includes example/evidence post IDs in `/claim` and `/xray` responses; dashboard renders them).
+2. Threshold sensitivity strip: in the MVP, precomputed only. Screen 3 shows bot share per narrative at thresholds 0.3 / 0.5 / 0.7 / 0.9 from precomputed values in `site_data.json`, so a judge asking "is that just your cutoff?" gets an answer in one glance. A live slider that recomputes is a stretch, only after the floor is safe.
+3. Challenge mode: Plan B and post-pitch, not in the 2 minutes. If the live text flow fails twice in rehearsal, the demo's live moment becomes challenge mode on the laptop (the judge labels 3 of the 20 frozen accounts, then sees the model's call and the evidence). After the pitch, a QR at the table runs the same mode; disagreements join the hand-label queue. Recordings of the text flow become Plan C.
+
+### Stretch, in order (start only when the floor is verified working)
+
+1. `/xray` endpoint and dashboard view (contract already in this file).
+2. Live path for claims outside the Jensen corpus (<60 s target).
+3. Live threshold slider on screen 3.
+4. Static deploy of the dashboard.
+5. Voice line, only after 01:00 and only if the text flow is stable.
+
+### Explicitly out
+
+- Reddit data in any form (first cut, stays cut).
+- Any verdict on whether a claim is true, and any claim about who operates an account.
+- Naming or linking private accounts anywhere: dashboard, texts, chart images, Devpost, or the pitch.
+- Reply-stance classification, sentiment scoring, follower-graph analysis.
+- Accounts, logins, persistence beyond per-sender last-claim state, or a public launch. This is a judging demo on a fixed corpus, not a product release.
+- New tracks beyond the table above; a stretch feature that is not working by 03:00 does not get entered.
+
+### Acceptance checks
+
+By 18:00 (v0): floor items 1 and 2 run end to end on v0 data; kill tests 1-3 reported with real numbers, pass or fail; the example text exchange reproduced with computed (not placeholder) numbers for one claim.
+By 01:00: `/claim` live behind the text line; evidence drawer working on screens 3 and 4; threshold strip rendered from real precomputed values; three backup recordings made; rehearsal run once against the clock.
+Scope changes after 16:30 go through a `[demo]` pull request like this one, with the cut it replaces named in the description.
+
 ## Tracks
 
-Main track (exactly one allowed): Entertainment and Media. Its description lists "media literacy centered apps", which is what this is. Best Overall considers every project automatically.
+Main track (exactly one allowed): Entertainment and Media. Its description lists "media literacy centered apps". Best Overall considers every project automatically.
 
-Special tracks, entered only where the feature is real (each one adds a judge visit):
+| Track | Prize | What qualifies us |
+|---|---|---|
+| Arlequin AI Track 2 | AirPods for winners | content plus connectivity in every number; recall@k on bot detection and on claim retrieval |
+| Photon: Build a Messaging Agent using Photon 2.0 | winner $400 cash, $300 credits, fast-track to Photon's final interview round; runner-up $200 | the text-a-claim line, live on a Photon Spectrum channel |
+| LangChain: Best use of deepagents | Switch 2 for winners | the agent behind the text line is a deepagent; LangSmith traces as evidence |
+| ChatOverflow Agent Leaderboard | $500, $250, $150, $100 raffle | every teammate's coding agent connected; no submission needed |
+| Photon: Best Voice Agent (stretch, cut first) | $300 cash, $100 credits | the judge calls and says the claim; voice runs on an SMS number, not iMessage |
 
-| Track | Prize | What qualifies us | Owner |
-|---|---|---|---|
-| Arlequin AI Track 2 | AirPods for winners | content plus connectivity in every number; recall@k on bot detection and claim retrieval | everyone |
-| Photon: Build a Messaging Agent using Photon 2.0 | winner $400 cash, $300 credits and a fast-track to Photon's final interview round; runner-up $200 | the text-a-claim line, live on a Photon Spectrum channel | WP-8 |
-| LangChain: Best use of deepagents | Switch 2 for winners | the agent behind the text line is a deepagent; LangSmith traces as evidence | WP-11 |
-| Amazon: Best Practical AI Innovation | Amazon gift cards, up to $125 per person | an agent that plans and acts, real users, simple interface; needs working demo, use case, docs, pitch | WP-10 |
-| Peri: Forward Deployed Challenge | introductions to hiring teams at Cognition, Edra, Ephemeral, Sea12, Arca, Poetic | consult a real business or student organization during the event (for example a Daily Princetonian editor) and submit their name, role and one piece of evidence | WP-10 |
-| ChatOverflow Agent Leaderboard | $500, $250, $150, $100 raffle | every teammate connects their coding agent; no submission needed | everyone |
-| Photon: Best Voice Agent (stretch) | $300 cash and $100 credits | the judge calls and says the claim; voice runs on an SMS number, not iMessage | WP-12 |
-
-Not entered: CoStar (no honest use of its data), Capital One Nessie (no banking use), Best Hardware and Physical AI (no hardware), Best Rookie (not eligible).
+Not entered: Amazon, Peri, CoStar, Capital One Nessie, Best Hardware, Physical AI, Rookie.
 
 ## The 2-minute demo
 
 Table setup: laptop with the dashboard, a monitor facing the judge if we can get one, and a printed QR code that opens Messages to our Photon number with "hi" filled in.
 
 1. Opening (10 s). "Jensen Huang resigned on November 12. Bluesky had 46,656 posts about it from 20,495 accounts. How much of that was real?"
-2. Replay (30 s), dashboard. The network grows hour by hour from Nov 5 to Nov 13. Each dot is an account; lines are reposts, quotes, replies and likes. Likely automated accounts glow red. A real account turns its archetype's color the first time it amplifies a red one. Markers on the scrubber: WSJ ouster report (Nov 11, 22:43 UTC), resignation (Nov 12, 13:55 UTC), the Post's bots report (Nov 12, 20:15 UTC). The narrative river runs underneath, each band shaded by its bot share.
-3. The story without the bots (20 s), dashboard. Bars per narrative with bot share and interval. A toggle removes likely automated accounts and their engagement, and the bars re-rank. The line we hope to say: "take out the automation and narrative X falls from second to fifth." If the ranking doesn't move, the bot share per narrative still answers the Post's claim.
+2. Replay (30 s), dashboard. The network grows hour by hour from Nov 5 to Nov 13. Each dot is an account; lines are reposts, quotes, replies and likes. Likely automated accounts glow red. A real account turns its archetype's color the first time it amplifies a red one. Markers: WSJ ouster report (Nov 11, 22:43 UTC), resignation (Nov 12, 13:55 UTC), the Post's bots report (Nov 12, 20:15 UTC). The narrative river runs underneath, each band shaded by its bot share.
+3. The story without the bots (20 s), dashboard. Bars per narrative with bot share and interval, plus a strip showing the share at four score cutoffs (0.3, 0.5, 0.7, 0.9), so the result visibly doesn't depend on where we drew the line. A toggle removes likely automated accounts and their engagement, and the bars re-rank. The line we hope to say: "take out the automation and narrative X falls from second to fifth." If the ranking doesn't move, the bot share per narrative still answers the Post's claim.
 4. Who carries the bots (20 s), dashboard. Archetype cards: plain label, size, lift over matched accounts with an interval, three defining features, public example accounts only.
-5. The judge texts a claim (40 s), judge's own phone. They scan the QR code and text something like "Was Jensen Huang's mistress a Chinese spy?" Within about 20 seconds they get a text answer, a chart image and a link that opens that claim's view on our dashboard. If they ask about another topic, the live path answers in under a minute while we talk.
+5. The judge texts a claim (40 s), judge's own phone. They scan the QR code and text something like "Was Jensen Huang's mistress a Chinese spy?" Within about 20 seconds they get a text answer, a chart image and a link that opens that claim's view on the dashboard.
+
+Every bar, card and cluster opens an evidence drawer: the posts, timestamps to the second, the coordination traces and reasons, the source and pull time.
 
 Q&A card, not in the 2 minutes: bot model recall@k and ablation, claim retrieval recall@k, narrative accuracy on hand labels, data sources, privacy rules.
 
-Backups: recordings of three full text exchanges and of the replay, in case Wi-Fi, Photon or Bluesky fails during judging.
+Fallbacks, in order: (1) challenge mode, a precomputed round where the viewer labels 20 frozen accounts "likely automated or not" and sees the model's score and reasons; it also runs as a table activity after the pitch, and judges' disagreements feed the hand-check queue; (2) recordings of three full text exchanges and of the replay.
 
 ### Example text exchange (numbers are placeholders)
 
@@ -56,47 +111,70 @@ Backups: recordings of three full text exchanges and of the replay, in case Wi-F
 > 1. National security / spy plot: 62% of posts. Likely automated: 9% (6 to 12%), about 2x the story's baseline.
 > 2. Defending Huang (smear campaign): 21%. Likely automated: 18% (13 to 24%).
 > 3. Jokes and memes: 17%. Likely automated: 3%.
-> The likely automated accounts pushing narrative 2: 41 of them were created in the same two weeks, and 14 reposted the same posts within a minute of each other.
+> The likely automated accounts pushing narrative 2: 41 were created in the same two weeks, and 14 reposted the same posts within a minute of each other.
 > The real accounts spreading their posts are mostly "new accounts that mostly repost market news" (2.7x more likely than similar accounts).
 > I don't judge whether the claim is true. Full view: <dashboard link>
 >
 > Bot: [chart image]
 
-Follow-ups the bot understands: "show the bots" (coordination evidence), "who shares it" (archetype cards as text), "next" (the next narrative), "help".
+Follow-ups the bot understands: "show the bots" (coordination evidence), "who shares it" (archetypes as text), "next" (next narrative), "help".
 
 ## Architecture
 
 ```
-                 batch (runs once, refreshed at milestones)
-Bluesky AppView ─> ingest ─> narratives ─> bot scores ─> amplification + archetypes ─> export
-                                                                                   │
-                     artifacts: corpus embeddings, narrative centroids,            │
-                     bot model, archetype centroids, bot_scores, site_data.json    │
-                                                                                   v
-Judge's phone ─> Photon (Spectrum) ─> messaging service (TS) ─> analysis API (Python, FastAPI)
-                                              │                     │  /claim  /xray
-                                              │                     ├─ retrieval over corpus embeddings
-                                              │                     ├─ live Bluesky search (other topics)
-                                              │                     ├─ scoring with saved models
-                                              │                     └─ chart PNG + reply text
-                                              v
-                                     dashboard (Vite + React, static, reads site_data.json,
-                                     claim view fetches /claim/{id})
+            batch (Hermes runs it on the VM; Muse's modules plug in as code)
+Bluesky AppView -> ingest -> narratives -> bot scores -> amplification + archetypes -> export
+                    (Hermes)   (Hermes)     (Muse)          (Muse)                  (Hermes)
+                                                                                       |
+            artifacts: corpus embeddings, narrative centroids, bot model,              |
+            archetype centroids, bot_scores, site_data.json                            v
+Judge's phone -> Photon Spectrum -> messaging service (TS) -> deepagent -> analysis API (FastAPI)
+                                        (Hermes)               (Hermes)     /claim, chart, /health
+                                                                               |
+                                    dashboard (Vite + React, reads site_data.json and /claim/{id})
+                                    Hermes ships a bare working version; Isaac designs the UI
 ```
 
 ### Components
 
-1. Batch pipeline (Python). Stages and tables are in `README.md`. Besides the Parquet tables it saves the artifacts the API loads at startup into `data/processed/artifacts/`: `corpus_embeddings.npy` plus `corpus_index.parquet` (post_id, account_id, narrative_id, created_at), `narrative_centroids.npy`, `bot_model.pkl`, `archetype_centroids.npy` with the feature scaler, and `bot_scores.parquet`.
-2. Analysis API (Python, FastAPI, `src/api/`). Loads the artifacts once. Endpoints below. It writes the reply text itself, so the privacy and wording rules are enforced in one place.
-3. Claim retrieval (`src/retrieval/`). Embeds the claim with `BAAI/bge-small-en-v1.5` using its query prefix (`Represent this sentence for searching relevant passages: `), takes cosine top 300 over the corpus embeddings (a 40k by 384 matrix in numpy, milliseconds), keeps matches above a similarity floor tuned on the eval set, and groups them by narrative.
-4. Live path (`src/retrieval/live.py`). For claims outside the Jensen corpus: an LLM turns the claim into two or three search queries, `app.bsky.feed.searchPosts` pulls up to 300 recent posts, they are embedded, grouped (k-means, k up to 5, an LLM names the groups), and their authors are scored live (`getProfiles` 25 per call, `getAuthorFeed` limit 30; measured about 45 accounts a second). Target under 60 seconds.
-5. Messaging service (TypeScript, `src/messaging/`). Photon 2.0 through Spectrum (`spectrum-ts`, a Spectrum Cloud number, no Mac needed). Receives a text, sends the "checking" message at once, calls `/claim`, then sends `reply_text`, the chart image and the dashboard link. Keeps per-sender state (last `claim_id`) for follow-ups. Read Photon's hackathon guidelines before writing code: https://somethingreat.notion.site/Hackathon-Guidelines-for-Photon-2-0-3f8e443f36bb81f9893fed0d08a4c01d (beta and $100 free credits at photon.codes/beta). Prize eligibility needs the project built on Photon 2.0 and live on at least one Photon channel. A shared iMessage line can't text first, so the judge starts the conversation from the QR code. Use the SDK's documented calls only; don't guess method names.
-6. Agent layer (required, WP-11, for the deepagents prize). The logic between the messaging service and the API (decide corpus or live, call tools, handle follow-ups) becomes a LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence`. The API endpoints above stay the tools' backend either way.
-7. Dashboard (`web/`, Vite, React, TypeScript, sigma.js, graphology). Reads `web/public/site_data.json` (shape in `README.md`). Views: replay, narrative river, story without bots, archetype cards, claim view at `/claim/:id`, public account pages, method and validation.
+1. Batch pipeline (Python). Stages and tables are in `README.md`. Besides the Parquet tables it saves what the API loads at startup into `data/processed/artifacts/`: `corpus_embeddings.npy` with `corpus_index.parquet` (post_id, account_id, narrative_id, created_at), `narrative_centroids.npy`, the bot model, archetype centroids with the feature scaler, and `bot_scores.parquet`.
+2. Analysis API (`src/api/`, FastAPI). Loads the artifacts once. Writes the reply text itself, so the privacy and wording rules are enforced in one place.
+3. Claim retrieval (`src/retrieval/`). Embeds the claim with `BAAI/bge-small-en-v1.5` using its query prefix (`Represent this sentence for searching relevant passages: `), cosine top 300 over the corpus embeddings, a similarity floor tuned on the eval set, grouped by narrative.
+4. Live path (`src/retrieval/live.py`). For claims outside the corpus: an LLM writes two or three search queries, `app.bsky.feed.searchPosts` pulls up to 300 recent posts, they are embedded and grouped (k-means, k up to 5, an LLM names the groups), and their authors are scored live (`getProfiles` 25 per call, `getAuthorFeed` limit 30; about 45 accounts a second measured). Target under 60 seconds.
+5. Agent layer (`src/agent/`). A LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence`. Decides corpus or live search, runs the tools, handles follow-ups. LangSmith tracing on.
+6. Messaging service (`src/messaging/`, TypeScript). Photon 2.0 through Spectrum (`spectrum-ts`, a Spectrum Cloud number). Receives a text, sends the "checking" message at once, calls the agent, then sends the reply, the chart image and the dashboard link. Per-sender state for follow-ups. Read Photon's hackathon guidelines first: https://somethingreat.notion.site/Hackathon-Guidelines-for-Photon-2-0-3f8e443f36bb81f9893fed0d08a4c01d (beta and $100 free credits at photon.codes/beta). Eligibility needs the project built on Photon 2.0 and live on at least one Photon channel. A shared iMessage line can't text first, so the judge starts from the QR code. Use only documented SDK calls.
+7. Dashboard (`web/`, Vite, React, TypeScript, sigma.js, graphology). Reads `web/public/site_data.json` (shape in `README.md`, plus the `evidence` and `threshold_strip` fields below). Views: replay, narrative river, story without bots with the threshold strip, archetype cards, claim view at `/claim/:id`, public account pages, method and validation, challenge mode. Every view gets the evidence drawer.
+
+### Module interfaces between the two halves
+
+Muse's half plugs into Hermes's half as Python code, not as data files, because the data lives on the VM and Muse is not always online. Muse develops against its own local copy of the data (pulled with the repo's scripts) and pushes code plus evaluation reports. Hermes runs that code on the VM to produce the artifacts the API and dashboard use.
+
+```python
+# src/bots/score.py  (owned by Muse; Hermes ships a heuristic stub with the same signature first)
+def load_model(path: str = "data/processed/artifacts/bot_model.joblib") -> object: ...
+def score_accounts(model, profiles: list[dict], histories: dict[str, list[dict]],
+                   story_posts: dict[str, list[dict]] | None = None) -> list[dict]:
+    """profiles: getProfiles records. histories: did -> compact history items (src/ingest/bluesky_history.py format).
+    story_posts: did -> that account's story posts (raw searchPosts records), when available.
+    Returns one dict per account: {"did", "p_automated" (0..1), "reasons": [plain-language strings, top 3]}."""
+
+# src/bots/coordination.py  (Muse)
+def find_clusters(posts: list[dict], window_s: int = 60) -> list[dict]:
+    """Returns [{"cluster_id", "dids": [...], "reasons": [...], "evidence": [{"post_uri", "t", "trace"}]}]."""
+
+# src/archetypes/assign.py  (Muse)
+def load_archetypes(path: str = "data/processed/artifacts/archetypes.joblib") -> object: ...
+def assign(arch, profiles: list[dict], histories: dict[str, list[dict]]) -> list[dict]:
+    """Returns [{"did", "archetype_id", "label"}]."""
+```
+
+Batch entry points Muse also provides, run by Hermes on the VM: `python -m src.bots.train` (writes the model and `eval/bots/report.md`), `python -m src.bots.score_corpus` (writes `bot_scores.parquet`), `python -m src.archetypes.build` (writes `archetypes.parquet`, `user_archetype.parquet`, the archetype artifact and `eval/thesis/report.md`).
+
+Until Muse's versions land, Hermes's API uses `src/stubs/` with the same signatures, so integration never waits.
 
 ### API contracts
 
-`POST /claim`, body `{"text": "...", "mode": "auto"}` (`mode` is `auto`, `corpus` or `live`; `auto` uses the corpus when the best match clears the floor and live search otherwise). Response:
+`POST /claim`, body `{"text": "...", "mode": "auto"}` (`auto`, `corpus` or `live`). Response:
 
 ```json
 {
@@ -114,7 +192,8 @@ Judge's phone ─> Photon (Spectrum) ─> messaging service (TS) ─> analysis A
       "bot_post_share": 0.0,
       "bot_post_share_ci": [0.0, 0.0],
       "baseline_bot_share": 0.0,
-      "example_posts": [{"text": "", "public_handle": null}]
+      "example_posts": [{"text": "", "public_handle": null}],
+      "evidence": [{"post_uri": "", "t": "", "note": ""}]
     }
   ],
   "bot_commonalities": [{"signal": "", "accounts": 0}],
@@ -126,165 +205,99 @@ Judge's phone ─> Photon (Spectrum) ─> messaging service (TS) ─> analysis A
 }
 ```
 
-`GET /claim/{claim_id}` returns the same object, for the dashboard's claim view.
+`GET /claim/{claim_id}` returns the same object. `GET /claim/{claim_id}/chart.png` returns the chart (one bar per narrative: share of matches, likely automated share overlaid). `GET /health` returns `{"ok": true, "artifacts_loaded": true, "bot_model": "stub" | "v<n>"}`.
 
-`GET /claim/{claim_id}/chart.png` returns the chart: one horizontal bar per narrative showing its share of matches, with the likely automated share overlaid.
-
-`POST /xray`, body `{"post_url": "https://bsky.app/profile/<handle>/post/<rkey>"}` (stretch, after `/claim` works). Pulls up to 300 audience accounts with `getRepostedBy`, `getQuotes` and `getLikes` and returns:
-
-```json
-{
-  "post": {"uri": "", "text": "", "author_public_handle": null},
-  "audience_size": 0,
-  "share_likely_automated": 0.0,
-  "share_ci": [0.0, 0.0],
-  "archetype_mix": [{"id": "a1", "label": "", "share": 0.0}],
-  "coordination_clusters": [{"size": 0, "reasons": [""]}],
-  "public_accounts": [{"handle": "", "p_automated": 0.0}],
-  "seconds": 0.0
-}
-```
-
-`GET /health` returns `{"ok": true, "artifacts_loaded": true}`.
+`site_data.json` additions to the README shape: every narrative, archetype and coordination cluster gets `"evidence": [{"post_uri", "t", "note"}]`; every narrative gets `"threshold_strip": {"0.3": 0.0, "0.5": 0.0, "0.7": 0.0, "0.9": 0.0}`; a top-level `"challenge": [{"account_ref", "posts": [], "p_automated", "reasons": [], "hand_label"}]` with 20 frozen, hand-checked accounts (public accounts by handle, private ones as hashed refs with no handle).
 
 ### Reply rules (enforced in the API)
 
 - Never name an account unless it is public under the README's rule (5,000+ followers, verified, a news organization, or self-labeled bot). Private accounts are counted only.
 - "Likely automated", with a share and an interval, never "bots" for undisclosed accounts.
 - No statement about who operates any account. "What they have in common" lists observable signals only: creation dates, posting app, shared links, reposting within seconds.
-- No verdict on whether the claim is true. Say so in every reply.
-- If fewer than 30 posts match, say there isn't enough data instead of reporting shares.
+- No verdict on whether the claim is true, and say so in every reply.
+- Fewer than 30 matching posts: say there isn't enough data instead of reporting shares.
 - Decline claims that target a private individual by name.
 
 ### Hosting
 
-The API runs on Isaac's VM, where the data and artifacts already are, exposed through a tunnel once Isaac approves it; David's laptop with `cloudflared` is the fallback. The messaging service runs wherever Spectrum's guidelines say (Spectrum Cloud or a teammate laptop). The dashboard runs locally for judging, with a static deploy as a stretch.
+The API runs on Isaac's VM, where the data is, exposed through a tunnel once Isaac approves it. The messaging service runs where Spectrum's guidelines say. The dashboard runs locally for judging.
 
-## Work packages
+## Work split
 
-Give your agent: "Read README.md and docs/DEMO.md, then do WP-<n>. Update its status lines in docs/DEMO.md as you go."
+Two agents build the backend and integration. Isaac designs the UI once the features are working.
 
-Status values: `todo`, `doing`, `v0` (works end to end, rough), `done`, `cut`.
+- Hermes: Isaac's agent on his VM. Holds the data, runs the batch pipeline, owns integration: API, agent, messaging, export, bare dashboard. Checks `docs/COMMS.md` every 20 minutes through the night.
+- Muse: Isaac's teammate's agent. Not always online, so its half is the analysis modules that can be built and tested alone against a local copy of the data: the bot model, coordination, archetypes, and the independent evaluations. Its goal is below.
+- Isaac: names the narrative clusters, hand-labels 200 posts and the 20 challenge accounts, signs up for Photon and LangSmith, and designs the UI on top of the bare dashboard.
 
-### WP-1 Data pulls
-- Owner: Hermes (Isaac's VM agent)
-- Depends on: nothing
-- Outputs: `accounts`, `posts`, `history_posts`, `interactions` tables; refreshed in the shared Drive folder at 16:30, 18:00, 22:00, 01:00
-- Done when: interactions with timestamps exist for every likely automated post with engagement and for the top 500 human posts
-- Status: doing. Profiles for all 20,482 accounts pulled in 20 s. Last 50 posts of every account pulled (about 1.0 million posts, 7 minutes). Interactions next.
+### Muse's long-term goal
 
-### WP-2 Narratives
-- Owner: Hermes; Isaac names the clusters and hand-labels 200 posts
-- Depends on: WP-1 posts
-- Outputs: `narratives`, `post_narrative`, `corpus_embeddings.npy`, `narrative_centroids.npy`, `eval/narratives/report.md`
-- Done when: 6 to 10 named narratives with sides, accuracy on 200 hand labels reported
-- Status: doing. Embedding 40,197 unique posts.
+Build and validate the "who is automated, and who amplifies them" half of the analysis as importable modules (interfaces above), so that Hermes can run them on the full data and the demo can state, with measured accuracy, the likely automated share of each narrative and which archetypes of real people amplify those accounts. Work through the milestones in order; each one is useful on its own if the night ends early. Post in `docs/COMMS.md` when you start a session, when a milestone lands, and when you need something.
 
-### WP-3 Bot model and coordination
-- Owner: David
-- Depends on: WP-1 accounts and history
-- Outputs: `bot_scores`, `bot_model.pkl`, coordination clusters, `eval/bots/report.md` (recall@k, ablation)
-- Done when: recall@100 on held-out labeled bots of at least 0.3 (lifetime posts per day alone: 0.046), ablation shows behavior plus coordination beats each alone
-- Status: todo
+| # | Milestone | Done when |
+|---|---|---|
+| M1 | Local data: run `make data` (or the commands in README "Reproduce the data") to pull the story posts, profiles and histories, about 15 minutes | the three raw files exist locally and `python -m src.model.tables` builds the Parquet tables |
+| M2 | Bot model v1: features from profiles, histories and story posts (posts per day, regularity of gaps, repost, reply and link shares, duplicate rate, account age, follower ratio, hour spread); positive-unlabeled training on the 285 self-labeled bots without the label or bio words as features; `src/bots/score.py`, `train.py`, `score_corpus.py` | `eval/bots/report.md` shows recall@50, 100, 200, 500 on held-out labeled bots; recall@100 of at least 0.3 (lifetime posts per day alone: 0.046) |
+| M3 | Coordination: same URL within 60 s, repost of the same post within 60 s, near-duplicate text (MinHash, Jaccard 0.8 or more), TF-IDF weighted, cosine projection, threshold, components; reasons and evidence per cluster; fold into the score | ablation table (behavior only, coordination only, both) in the report; `find_clusters` returns evidence |
+| M4 | Threshold strip and narrative bot shares: once Hermes posts `post_narrative.parquet` in COMMS, compute each narrative's likely automated share at 0.3, 0.5, 0.7 and 0.9 with bootstrap intervals | a function `src/bots/narrative_shares.py` that the export calls |
+| M5 | Archetypes and the thesis test: amplifiers (humans who reposted, quoted or liked a likely automated post), matched controls (same narrative, 6-hour window, similar reach, activity and follower bucket), features from history, k-means k 4 to 8 by silhouette, plain labels, lift with bootstrap intervals, logistic regression; `src/archetypes/build.py` and `assign.py` | `eval/thesis/report.md` with lift per archetype and the regression table |
+| M6 | Retrieval evaluation, kept independent of the builder: 50 claims about the story with the post IDs that truly match each (LLM-assisted candidates, then checked) in `eval/retrieval/claims.csv`; a script that scores any retriever with the `search_claim` signature | recall@10, 20, 50 and the best similarity floor reported in `eval/retrieval/report.md` |
+| M7 | Challenge set: pick 20 accounts spanning the score range, write their evidence, mark which need Isaac's hand label | `data/sample/challenge.json` committed (no private handles) |
 
-### WP-4 Archetypes and thesis statistics
-- Owner: Brian
-- Depends on: WP-3 v0, WP-1 interactions
-- Outputs: `user_features`, `archetypes`, `user_archetype`, `amplification`, `archetype_centroids.npy`, `eval/thesis/report.md`
-- Done when: archetypes with lift and bootstrap intervals over matched controls, regression table
-- Status: todo
+If you are blocked, post the blocker in COMMS and move to the next milestone. Never wait on Hermes.
 
-### WP-5 Claim retrieval
-- Owner: Hermes
-- Depends on: WP-2 embeddings
-- Outputs: `src/retrieval/` (corpus search, grouping by narrative, live path)
-- Done when: corpus search answers in under 2 s; live path answers in under 60 s
-- Status: todo
+### Hermes's work
 
-### WP-6 Analysis API
-- Owner: David
-- Depends on: WP-3 v0, WP-5
-- Outputs: `src/api/` with `/claim`, `/claim/{id}`, chart PNG, `/health`; `/xray` as a stretch
-- Done when: `/claim` returns the contract above in under 20 s for corpus claims, with reply rules enforced and tested
-- Status: todo
-
-### WP-7 Retrieval evaluation
-- Owner: Brian
-- Depends on: WP-2 posts
-- Outputs: `eval/retrieval/claims.csv` (50 hand-written claims with the post IDs that truly match), `eval/retrieval/report.md`
-- Done when: recall@k at k = 10, 20, 50 and the similarity floor that WP-5 should use
-- Status: todo
-
-### WP-8 Messaging service (Photon)
-- Owner: Isaac's coding agents
-- Depends on: WP-6 contract (build against a stub that returns the example JSON until WP-6 is live)
-- Outputs: `src/messaging/`, the Spectrum number, the QR code
-- Done when: a judge's text gets the checking message, the reply, the chart and the link; follow-ups work; three backup recordings made
-- Status: todo
-
-### WP-9 Dashboard and replay
-- Owner: Isaac's coding agents
-- Depends on: `data/sample/site_data.sample.json` first, then WP-1 to WP-4 exports
-- Outputs: `web/`, `src/export/build_site_data.py`
-- Done when: all views run on real data, the claim view opens from the text link, replay recorded as a backup
-- Status: todo
-
-### WP-10 Pitch, Devpost, users
-- Owner: Jeremy
-- Depends on: nothing at first
-- Outputs: `docs/pitch.md` (2-minute script, Q&A card), Devpost text with every track above selected, video
-- First tasks: by 17:00 talk to Arlequin's people (what would impress them; does a text-a-claim check matter to their customers) and to Photon's booth (anything in the guidelines that affects eligibility; image attachments on the Spectrum number). Today: the Peri consultation. Ask a Daily Princetonian editor (or another campus news organization) whether they would text viral claims to this before covering them, what answer they'd need, and get their name, role, a quote and a photo.
-- Status: todo
-
-### WP-11 Agent layer (deepagents)
-- Owner: Hermes
-- Depends on: WP-5, WP-6 contract
-- Outputs: `src/agent/`: a LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence` that decides corpus or live search and handles follow-ups; LangSmith tracing on
-- Done when: the messaging service calls the agent instead of `/claim` directly, the reply rules still hold, and a trace of one full exchange is saved for the Devpost
-- Status: todo
-
-### WP-12 Voice line (stretch)
-- Owner: unassigned; start only after the text flow works end to end (01:00)
-- Outputs: a Photon SMS number that takes a spoken claim and answers out loud with the same reply
-- Status: todo
+| # | Milestone | Done when |
+|---|---|---|
+| H1 | Reproducible data: search re-pull, profile and history pullers, `src/model/tables.py`, `pyproject.toml`, `make data` | pushed before Muse's first session |
+| H2 | Interactions: likers, reposters and quoters for every story post with engagement | `interactions.parquet` on the VM |
+| H3 | Narratives: embeddings, clusters for Isaac to name, `post_narrative`, centroids, hourly river | Isaac has named them; `post_narrative.parquet` announced in COMMS |
+| H4 | Stubs with Muse's signatures, then the API: `/claim`, chart, `/health`, reply rules with tests | `/claim` answers a corpus claim in under 20 s |
+| H5 | Claim retrieval, corpus then live path | corpus under 2 s; live under 60 s |
+| H6 | Agent layer: deepagent plus LangSmith | the messaging service calls the agent; one trace saved |
+| H7 | Messaging service on Photon Spectrum | a real phone gets the full exchange |
+| H8 | Export `site_data.json` and a bare working dashboard with every view and the evidence drawer | Isaac can start on the UI |
+| H9 | Integration: run Muse's modules on the VM whenever they land, regenerate artifacts, end-to-end test, backup recordings | `/health` reports Muse's model version |
 
 ## Timeline (Sat Nov 14 to Sun Nov 15)
 
 | Time | Milestone |
 |---|---|
-| 16:30 | idea locked, owners confirmed; `accounts` and `posts` tables on Drive; sample `site_data.json` committed |
-| 18:00 | every component running end to end on stubs or v0 data; kill tests 1 to 3 reported |
-| 21:00 | retrieval eval set done (kill test 4); messaging service answering from the stub |
-| 22:00 | interactions on Drive; archetypes v0; dashboard on real data |
-| 01:00 | `/claim` live behind the text line; bot scores and narratives final |
-| 03:00 | thesis numbers final; feature freeze |
-| 03:00 to 05:00 | polish, rehearsal, backup recordings |
-| 06:30 | video recorded, Devpost written |
+| 16:45 | H1 pushed; Muse can start M1 |
+| 18:00 | API and bare dashboard running on stubs; narratives ready for Isaac to name |
+| 21:00 | Muse M2 (bot model v1) merged and running on the VM; text line answering from the API |
+| 23:00 | M3 coordination; dashboard on real data; Isaac starts the UI |
+| 01:00 | M5 archetypes; agent layer live; everything feature-complete |
+| 03:00 | feature freeze; Isaac's UI pass; evaluations final |
+| 03:00 to 05:00 | rehearsal, challenge mode check, backup recordings |
+| 06:30 | video, Devpost |
 | 07:00 | submit (hard stop 08:00) |
 
-Cut order if behind: Reddit, then the voice line, then `/xray`, then the live path for other topics, then public account pages. The replay, bot share per narrative, archetype cards and the text-a-claim flow on the Jensen corpus stay.
+Cut order if behind: Reddit, voice line, live path for other topics, public account pages, challenge mode. The replay, bot share per narrative, archetype cards, evidence drawer and the text-a-claim flow on the Jensen corpus stay.
 
 ## Kill tests
 
-1. Bot model (18:00): recall@100 on held-out labeled bots of at least 0.3. If not, coordination becomes the main signal.
+1. Bot model (21:00): recall@100 on held-out labeled bots of at least 0.3. If not, coordination becomes the main signal.
 2. Narratives (18:00): 6 to 10 nameable clusters and at least 70% agreement with the first 50 hand labels.
-3. Spread (18:00): bot post share in the most automated narrative at least twice that of the least automated one. If not, the headline is "automation is spread evenly, and the bots-defending-Huang claim does not show on Bluesky".
-4. Retrieval (21:00): recall@20 of at least 0.6 on the first 20 hand-written claims.
+3. Spread (22:00): the most automated narrative's likely automated share at least twice the least automated one's, holding across the four cutoffs. If not, the headline is "automation is spread evenly, and the bots-defending-Huang claim does not show on Bluesky".
+4. Retrieval (23:00): recall@20 of at least 0.6 on Muse's claim set.
 
 ## Proposals
 
-Teammates and their agents add new demo ideas here, one short paragraph each, with what it adds to the judging criteria and what it costs. Isaac decides; accepted ones move into the sections above in a `[demo]` pull request.
+New ideas go here, one paragraph each, with what they add to the judging and what they cost. Isaac decides.
 
 ## How to edit this file
 
-- One master file. Don't create a second demo document; add to this one.
-- Edit freely: your own work package's Status line and a Notes line under it.
-- Pull request with `[demo]` in the title: anything in Vision, the demo script, components or the timeline.
-- Pull request with `[contract]` in the title: any API shape, artifact path or table change. Update `README.md` in the same pull request if a table changes, and tell the team chat.
+- One master file. Don't create another demo or plan document; add to this one or post in `docs/COMMS.md`.
+- Edit freely: your own milestones' status in COMMS's status board, and a Notes line here if needed.
+- Anything that changes the demo, an interface or a contract: propose it in COMMS, wait for the other agent's acknowledgment (or 2 hours of silence), then change this file in a pull request with `[demo]` or `[contract]` in the title.
 - Never delete someone else's content. Mark it `cut` with a one-line reason.
 - Append a line to the changelog for every merged change.
 
 ## Changelog
 
-- Sat 16:10: tracks section (main track switched to Entertainment and Media; six special tracks), agent layer required as WP-11, Peri consultation in WP-10, voice line as WP-12 stretch (Hermes, for Isaac).
-- Sat 16:05: file created from the README demo plan and the MVP walkthrough; Photon text-a-claim flow added as the live demo moment (Hermes, for Isaac).
+- Sat 16:40: Muse's MVP scope section (PR #5) folded in, mapped to H/M milestones; Peri item dropped with the track (Hermes).
+- Sat 16:20: rewritten as the two-agent plan (Hermes and Muse), tracks cut to Arlequin, Photon, LangChain and ChatOverflow; Muse's three grafts from `merge-note-interactive-grafts.md` folded in (evidence drawer, threshold strip, challenge mode as first fallback); module interfaces added (Hermes, for Isaac).
+- Sat 16:10: tracks section added.
+- Sat 16:05: file created from the README demo plan and the MVP walkthrough; Photon text-a-claim flow added.
