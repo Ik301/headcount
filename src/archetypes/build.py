@@ -283,6 +283,16 @@ def main() -> None:
     zv = coef / np.where(se > 0, se, 1)
     pv = [math.erfc(abs(z) / math.sqrt(2)) for z in zv]
 
+    # archetype contrasts from the regression (vs the largest archetype), Bonferroni over the contrasts
+    contrasts = []
+    n_con = max(len(ids) - 1, 1)
+    for j in range(1, len(ids)):
+        i = names.index(f"archetype {ids[j]} (vs {ids[ref]})")
+        b, sb = float(coef[i]), float(se[i])
+        contrasts.append({"id": ids[j], "label": labels[j], "or": math.exp(b), "lo": math.exp(b - 1.96 * sb),
+                          "hi": math.exp(b + 1.96 * sb), "p": pv[i], "p_adj": min(1.0, pv[i] * n_con)})
+    sig_con = [c for c in contrasts if c["p_adj"] < 0.05]
+
     # ---- write tables and artifact
     version = f"v0-k{best_k}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M')}"
     pl.DataFrame(arch_rows).write_parquet(proc / "archetypes.parquet")
@@ -342,10 +352,14 @@ def main() -> None:
         "|---|---|---|---|---|---|",
         *[f"| {r['archetype_id']} | {r['label']} | {r['size']:,} | {r['n_amplifiers']:,} | {r['lift']:.2f} ({r['lift_lo']:.2f} to {r['lift_hi']:.2f}) | {r['description']} |" for r in arch_rows],
         "",
-        ("At least one archetype's interval excludes 1: some kinds of accounts are measurably more (or less) likely to amplify"
-         " likely automated posts than matched accounts that saw the same story." if any_sig else
-         "**Null result:** no archetype's interval excludes 1. After matching, no kind of account stands out as more likely to"
-         " amplify likely automated posts than similar accounts that saw the same story."),
+        _summary(any_sig, sig_con, labels[ref]),
+        "",
+        f"Adjusted contrasts (logistic regression below, each archetype vs the largest, \"{labels[ref]}\"; p adjusted for"
+        f" {n_con} comparisons, Bonferroni):",
+        "",
+        "| Archetype | Odds ratio vs reference (95% CI) | p | adjusted p |",
+        "|---|---|---|---|",
+        *[f"| {c['id']} {c['label']} | {c['or']:.2f} ({c['lo']:.2f} to {c['hi']:.2f}) | {c['p']:.3g} | {c['p_adj']:.3g} |" for c in contrasts],
         "",
         "## Logistic regression",
         "",
@@ -371,6 +385,22 @@ def main() -> None:
     Path(a.report).parent.mkdir(parents=True, exist_ok=True)
     Path(a.report).write_text("\n".join(lines))
     print(f"wrote {a.report}; {best_k} archetypes; {time.time() - t0:.0f}s")
+
+
+def _summary(any_lift_sig: bool, sig_con: list[dict], ref_label: str) -> str:
+    """One headline sentence that agrees with both the lifts and the adjusted contrasts."""
+    if any_lift_sig:
+        return ("At least one archetype's lift interval excludes 1: some kinds of accounts are measurably more (or less) likely"
+                " to amplify likely automated posts than matched accounts that saw the same story.")
+    if sig_con:
+        parts = "; ".join(f"\"{c['label']}\" {'more' if c['or'] > 1 else 'less'} likely than \"{ref_label}\" (odds ratio"
+                          f" {c['or']:.2f}, {c['lo']:.2f} to {c['hi']:.2f}, adjusted p {c['p_adj']:.2g})" for c in sig_con)
+        return ("**Mostly null, with one modest difference.** No archetype's lift against the overall rate excludes 1, but after"
+                f" adjusting for followers, activity, narrative and hour: {parts}. That is a difference between two kinds of real"
+                " accounts, not a group that stands out; say \"modestly more likely\", not \"the people who spread bots\".")
+    return ("**Null result:** no archetype's interval excludes 1, and no adjusted contrast survives the correction for multiple"
+            " comparisons. After matching, no kind of account stands out as more likely to amplify likely automated posts than"
+            " similar accounts that saw the same story.")
 
 
 def _is_public(p: dict) -> bool:

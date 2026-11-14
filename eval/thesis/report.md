@@ -1,7 +1,7 @@
 # Archetypes and the thesis test (M5)
 
 Command: `python -m src.archetypes.pull_audience && python -m src.archetypes.build`
-Version `v0-k4-202611142218`; run time 17 s. Platform: Bluesky only.
+Version `v0-k4-202611142305`; run time 17 s. Platform: Bluesky only.
 
 ## Who counts
 
@@ -35,7 +35,15 @@ Base amplifier rate in the matched sample: 0.50, so a lift of 1 means "as likely
 | a3 | Mostly reposting others, rarely replying | 314 | 141 | 0.90 (0.80 to 1.01) | 84% reposts; 6% replies |
 | a4 | New accounts, with small followings | 58 | 33 | 1.14 (0.90 to 1.38) | median account age 40 days; 72 followers |
 
-**Null result:** no archetype's interval excludes 1. After matching, no kind of account stands out as more likely to amplify likely automated posts than similar accounts that saw the same story.
+**Null result:** no archetype's interval excludes 1, and no adjusted contrast survives the correction for multiple comparisons. After matching, no kind of account stands out as more likely to amplify likely automated posts than similar accounts that saw the same story.
+
+Adjusted contrasts (logistic regression below, each archetype vs the largest, "Posting little this week, occasional posters"; p adjusted for 3 comparisons, Bonferroni):
+
+| Archetype | Odds ratio vs reference (95% CI) | p | adjusted p |
+|---|---|---|---|
+| a2 Very prolific posters, whose posts get many likes | 0.98 (0.68 to 1.40) | 0.893 | 1 |
+| a3 Mostly reposting others, rarely replying | 0.79 (0.57 to 1.09) | 0.158 | 0.474 |
+| a4 New accounts, with small followings | 1.18 (0.64 to 2.16) | 0.591 | 1 |
 
 ## Logistic regression
 
