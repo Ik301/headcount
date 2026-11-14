@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Jensen Huang leaving Nvidia · Analyst dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5F0; --card:#FFFFFF; --ink:#16181D; --ink-2:#4A4F5A; --ink-3:#8A8F99; --rule:#E3DFD6;
+  --signal:#D9472B; --signal-wash:#FBE6E0; --human:#2F6F8F; --human-wash:#E3EEF3;
+  --n-spy:#6B5CA5; --n-affairs:#B0675A; --n-politics:#3E7C6A; --n-board:#8C7A3D; --n-market:#4F6FA8; --n-defend:#A0527F; --n-jokes:#8A8F99;
+  --panel:#F1EEE7;
+  --serif:"Newsreader", Georgia, serif;
+  --sans:"IBM Plex Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  --ease:cubic-bezier(.2,.75,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font:14px/1.45 var(--sans);font-variant-numeric:tabular-nums;min-width:1440px;overflow:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--human-wash);color:var(--ink)}
+:focus-visible{outline:2px solid var(--human);outline-offset:2px;border-radius:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--rule);border-radius:5px;border:2px solid var(--card)}
+::-webkit-scrollbar-track{background:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+.mono{font-family:var(--mono);font-feature-settings:"tnum"}
+h1,h2,h3{margin:0;font-weight:500}
+
+/* ---------- header ---------- */
+.top{height:92px;padding:14px 24px 0;border-bottom:1px solid var(--rule);background:var(--paper);display:grid;grid-template-columns:1fr auto;grid-template-rows:38px 40px;column-gap:24px}
+.title{display:flex;align-items:baseline;gap:14px}
+.title h1{font-family:var(--serif);font-size:26px;letter-spacing:-.01em;line-height:1.1}
+.title .range{font:13px var(--mono);color:var(--ink-2)}
+.sample{align-self:center;justify-self:end;font-size:12px;color:var(--ink-2)}
+.meta{display:flex;align-items:center;gap:22px;white-space:nowrap;font-size:13px;color:var(--ink-2)}
+.meta b{font:500 13px var(--mono);color:var(--ink);margin-right:5px}
+.tabs{display:flex;gap:2px;align-self:end}
+.tab{border:0;background:none;padding:9px 14px 11px;font-size:14px;color:var(--ink-2);border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--ink);border-bottom-color:var(--rule)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:500;border-bottom-color:var(--ink)}
+
+/* ---------- shell ---------- */
+main{height:calc(100vh - 92px);padding:18px 24px 20px;position:relative}
+.view{display:none;height:100%}
+.view.on{display:grid}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:6px}
+.ph{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:12px 16px 0}
+.ph h2{font-family:var(--serif);font-size:19px;letter-spacing:-.005em}
+.ph .note{font-size:12.5px;color:var(--ink-2)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 11px;border:1px solid var(--rule);background:var(--card);border-radius:4px;font-size:13px;color:var(--ink);transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--ink-3);background:var(--paper)}
+.btn:active{background:var(--panel)}
+.btn svg{width:12px;height:12px}
+.btn.icon{width:30px;padding:0;justify-content:center}
+
+/* ---------- finding (quotable lead) ---------- */
+.finding{grid-column:1 / -1;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:2px 0 2px}
+.ftext{margin:0;font-family:var(--serif);font-size:21px;line-height:1.3;letter-spacing:-.005em;max-width:88ch;text-wrap:balance}
+.fside{display:flex;align-items:center;gap:8px}
+.fsrc{font-size:12.5px;color:var(--ink-2);margin-right:6px;white-space:nowrap}
+.btn.done{border-color:var(--human);color:var(--human)}
+.howto{margin:0;padding:0;list-style:none}
+.howto li{position:relative;padding:5px 0 5px 16px;font-size:13.5px;color:var(--ink-2)}
+.howto li::before{content:"";position:absolute;left:2px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--ink-3)}
+.howto b{font-weight:600;color:var(--ink)}
+.howto .mono{font-size:12.5px;color:var(--ink)}
+.links{display:flex;gap:18px;margin-top:8px !important}
+.sample .mono{color:var(--ink-2)}
+
+/* ---------- replay ---------- */
+#v-replay{grid-template-columns:1fr 360px;grid-template-rows:auto 366px 1fr;gap:12px}
+.graphp{position:relative;padding-bottom:16px;overflow:hidden}
+.graphp svg#graph{display:block;width:100%;height:300px;margin-top:2px}
+.side{padding:12px 18px;display:flex;flex-direction:column}
+.side .now{font-family:var(--serif);font-size:24px;line-height:1.1}
+.side .now small{font:13px var(--mono);color:var(--ink-2);margin-left:6px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0 10px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.stat .v{font-family:var(--serif);font-size:22px;line-height:1.1}
+.stat .v.sig{color:var(--signal)}
+.stat .l{font-size:12px;color:var(--ink-2);line-height:1.3;margin-top:2px}
+table{border-collapse:collapse;width:100%}
+.ntab th{font-weight:400;font-size:12px;color:var(--ink-2);text-align:right;padding:0 0 5px}
+.ntab th:first-child{text-align:left}
+.ntab td{padding:3px 0;font-size:13px;white-space:nowrap;border-top:1px solid #EFECE5}
+.ntab td.num{text-align:right;font:12.5px var(--mono);color:var(--ink-2);width:52px;white-space:nowrap}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:8px;vertical-align:0}
+.key{position:absolute;left:16px;bottom:14px;display:flex;gap:18px;font-size:12.5px;color:var(--ink-2);background:rgba(255,255,255,.9);padding:2px 0}
+.key span{display:flex;align-items:center;gap:7px}
+.key svg{width:14px;height:14px;flex:none}
+
+.timep{grid-column:1 / -1;display:flex;flex-direction:column;padding-bottom:16px}
+.tbar{display:flex;align-items:center;gap:10px;padding:10px 16px 0}
+.tbar h2{font-family:var(--serif);font-size:19px;margin-right:6px}
+.tbar .sp{flex:1}
+.tbar .lbl{font-size:12.5px;color:var(--ink-2)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);padding:6px 16px 0;flex-wrap:wrap}
+.legend span{display:flex;align-items:center}
+#river{display:block;width:100%;flex:1;cursor:ew-resize;touch-action:none}
+#river:focus-visible{outline-offset:-2px}
+
+.node{transition:opacity .25s var(--ease)}
+.node.off{opacity:0;pointer-events:none}
+.edge.off{opacity:0}
+.edge{transition:opacity .25s}
+.clabel{font:500 12px var(--sans);fill:var(--ink-2);pointer-events:none}
+.plabel{font:11px var(--mono);fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.hit{cursor:pointer}
+.tip{position:fixed;z-index:30;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;padding:6px 9px;border-radius:4px;box-shadow:0 4px 14px rgba(22,24,29,.18);opacity:0;transition:opacity .12s;max-width:260px}
+.tip.on{opacity:1}
+.tip .mono{color:#C9CDD4}
+
+/* ---------- no automated ---------- */
+#v-nobots{grid-template-columns:1fr 400px;grid-template-rows:auto 1fr;gap:12px}
+.nbhead{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 20px 12px;border-bottom:1px solid var(--rule)}
+.nbhead h2{font-family:var(--serif);font-size:20px}
+.nbhead p{margin:4px 0 0;color:var(--ink-2);font-size:13.5px}
+.nbhead p .mono{color:var(--ink)}
+.switch{display:flex;align-items:center;gap:10px;white-space:nowrap;flex:none;border:1px solid var(--rule);background:var(--card);border-radius:5px;padding:7px 12px 7px 8px;font-size:13.5px;transition:border-color .15s,background .15s}
+.switch:hover{border-color:var(--ink-3)}
+.switch .tr{width:34px;height:20px;border-radius:10px;background:var(--rule);position:relative;transition:background .2s}
+.switch .tr::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(22,24,29,.25);transition:transform .25s var(--ease)}
+.switch[aria-checked="true"] .tr{background:var(--ink)}
+.switch[aria-checked="true"] .tr::after{transform:translateX(14px)}
+.colh{display:grid;grid-template-columns:28px 1fr 330px;gap:20px;padding:12px 20px 6px;font-size:12px;color:var(--ink-2)}
+.rows{position:relative;height:492px;margin:0 20px}
+.row{position:absolute;left:0;right:0;height:164px;display:grid;grid-template-columns:28px 1fr 330px;gap:20px;padding:16px 0 12px;border-top:1px solid var(--rule);transition:transform .55s var(--ease);cursor:pointer}
+.row:hover .bt{background:#EEEBE4}
+.row:hover .nname{text-decoration:underline;text-decoration-color:var(--ink-3);text-underline-offset:3px}
+.rank{font-family:var(--serif);font-size:20px;color:var(--ink-2);padding-top:2px}
+.nname{font-size:15px;font-weight:500;display:flex;align-items:center}
+.nname .cnt{font:12.5px var(--mono);color:var(--ink-2);font-weight:400;margin-left:10px}
+.barline{display:flex;align-items:center;gap:14px;margin-top:11px}
+.bt{flex:1;height:30px;background:var(--panel);border-radius:3px;position:relative;overflow:hidden;transition:background .15s}
+.bf{position:absolute;left:0;top:0;bottom:0;border-radius:3px 0 0 3px;transition:width .55s var(--ease)}
+.ba{position:absolute;top:0;bottom:0;background:var(--signal);transition:width .55s var(--ease),left .55s var(--ease)}
+.bval{font-family:var(--serif);font-size:34px;width:74px;text-align:right;line-height:1}
+.delta{font:12px var(--mono);color:var(--ink-2);width:84px}
+.strip{display:flex;align-items:center;gap:6px;margin-top:14px;transition:opacity .3s}
+.strip .sl{font-size:12px;color:var(--ink-2);width:96px}
+.cut{width:86px;border:1px solid var(--rule);border-radius:3px;padding:3px 7px 4px;background:var(--card)}
+.cut .t{display:flex;justify-content:space-between;font:11.5px var(--mono);color:var(--ink-2)}
+.cut .t b{font-weight:500;color:var(--ink)}
+.cut .m{height:3px;background:var(--panel);margin-top:3px;border-radius:2px;overflow:hidden}
+.cut .m i{display:block;height:100%;background:var(--signal)}
+.cut.def{border-color:var(--ink-2)}
+.cut.def .t{color:var(--ink-2)}
+.auto{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-content:start;transition:opacity .3s}
+.auto .big{font-family:var(--serif);font-size:38px;line-height:1;color:var(--signal);grid-row:span 2}
+.auto .ci{font:13px var(--mono);color:var(--ink-2);padding-top:3px}
+.auto .ci2{font-size:12px;color:var(--ink-2)}
+.auto svg{grid-column:1 / -1;width:100%;height:44px;margin-top:12px}
+.row.gone .auto,.row.gone .strip{opacity:.38}
+.row.gone .auto .big{color:var(--ink-2);text-decoration:line-through;text-decoration-thickness:1px}
+.nbfoot{padding:10px 20px 14px;font-size:12.5px;color:var(--ink-2);border-top:1px solid var(--rule);margin:0 20px}
+
+.aside{padding:16px 20px;display:flex;flex-direction:column;gap:0;overflow:auto}
+.aside section{padding:0 0 14px;margin-bottom:14px;border-bottom:1px solid var(--rule)}
+.aside section:last-child{border-bottom:0;margin-bottom:0}
+.aside h3{font-family:var(--serif);font-size:18px;margin-bottom:8px;line-height:1.25}
+.aside p{margin:0;color:var(--ink-2);font-size:13.5px}
+.chg{font-size:14px;color:var(--ink)}
+.chg .mono{font-size:13.5px}
+.facts{list-style:none;margin:0;padding:0}
+.facts li{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:6px 0;border-top:1px solid #EFECE5;font-size:13.5px;color:var(--ink-2)}
+.facts li:first-child{border-top:0}
+.facts .n{font-family:var(--serif);font-size:24px;color:var(--signal);line-height:1}
+.linkbtn{border:0;background:none;padding:0;color:var(--human);font-size:13.5px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(47,111,143,.4)}
+.linkbtn:hover{text-decoration-color:var(--human)}
+
+/* ---------- archetypes ---------- */
+#v-arch{grid-template-rows:auto auto 1fr;gap:12px}
+.forest{padding:0 0 14px}
+.forest .ph p{margin:0;font-size:13px;color:var(--ink-2)}
+.forest svg{display:block;width:100%;height:164px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.acard{text-align:left;border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .2s}
+.acard:hover{border-color:var(--ink-3);box-shadow:0 6px 18px -8px rgba(22,24,29,.18)}
+.acard .share{display:flex;align-items:baseline;gap:8px}
+.acard .share b{font-family:var(--serif);font-weight:500;font-size:34px;line-height:1}
+.acard .share span{font-size:12.5px;color:var(--ink-2)}
+.acard h3{font-family:var(--serif);font-size:18px;line-height:1.2;margin:8px 0 8px;min-height:44px}
+.lift{display:flex;align-items:baseline;gap:8px;padding:10px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.lift b{font-family:var(--serif);font-weight:500;font-size:26px;color:var(--human)}
+.lift b.low{color:var(--ink-2)}
+.lift span{font:12.5px var(--mono);color:var(--ink-2)}
+.lift em{font-style:normal;font-size:12px;color:var(--ink-2);margin-left:auto}
+.feat{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:5px}
+.feat li{font-size:13.5px;color:var(--ink-2);display:grid;grid-template-columns:62px 1fr;gap:8px}
+.feat .mono{color:var(--ink);font-size:13px}
+.mix{margin-top:12px;padding-top:10px;border-top:1px solid #EFECE5}
+.mix .mt{font-size:12.5px;color:var(--ink-2);margin-bottom:7px}
+.mix .mb{display:flex;height:10px;border-radius:2px;overflow:hidden;gap:2px}
+.mix .mb i{display:block;background:var(--human)}
+.mix .ml{display:flex;gap:12px;margin-top:7px;font-size:12.5px;color:var(--ink-2)}
+.mix .ml span{display:flex;align-items:center;gap:5px}
+.mix .ml span i{width:8px;height:8px;border-radius:2px;background:var(--human)}
+.mix .ml b,.mix .md b{font-weight:500;color:var(--ink)}
+.mix .md{margin-top:10px;font-size:12.5px;color:var(--ink-2);display:flex;justify-content:space-between}
+.pub{margin-top:auto;padding-top:12px;border-top:1px solid #EFECE5;font-size:12.5px;color:var(--ink-2)}
+.pub .mono{color:var(--ink)}
+.acard .open{margin-top:10px;font-size:12.5px;color:var(--human)}
+
+/* ---------- method ---------- */
+#v-method{grid-template-rows:auto auto 1fr;gap:12px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr)}
+.metric{padding:14px 22px 16px;border-left:1px solid var(--rule)}
+.metric:first-child{border-left:0}
+.metric .v{font-family:var(--serif);font-size:46px;line-height:1;letter-spacing:-.01em}
+.metric .k{font:13px var(--mono);color:var(--ink-2);margin-top:6px}
+.metric p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2);max-width:46ch}
+.curve{display:block;width:100%;height:96px;margin-top:8px}
+.agree{margin-top:10px;display:grid;grid-template-columns:auto 1fr 40px;gap:2px 10px;align-items:center;font-size:12px;color:var(--ink-2)}
+.agree .ab{height:6px;background:var(--panel);border-radius:3px;overflow:hidden}
+.agree .ab i{display:block;height:100%}
+.agree .mono{text-align:right;color:var(--ink)}
+.meter{height:6px;background:var(--panel);border-radius:3px;margin-top:14px;position:relative}
+.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ink)}
+.meter span{position:absolute;top:10px;font:11px var(--mono);color:var(--ink-2)}
+.mcols{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;min-height:0}
+.mcols .panel{padding:16px 20px;overflow:auto}
+.mcols h3{font-family:var(--serif);font-size:19px;margin-bottom:10px}
+dl{margin:0;display:grid;grid-template-columns:138px 1fr;gap:0}
+dt,dd{padding:6px 0;border-top:1px solid #EFECE5;font-size:13.5px;margin:0}
+dt{color:var(--ink-2)}
+dd{color:var(--ink)}
+dd .mono{font-size:12.5px}
+.rules{margin:0;padding:0;list-style:none}
+.rules li{padding:8px 0 8px 22px;border-top:1px solid #EFECE5;font-size:13.5px;color:var(--ink);position:relative}
+.rules li:first-child,dl dt:first-of-type,dl dt:first-of-type+dd{border-top:0}
+.rules li svg{position:absolute;left:0;top:11px;width:13px;height:13px}
+.rules li > span{display:block;color:var(--ink-2);font-size:12.5px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(22,24,29,.16);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:620px;background:var(--card);border-left:1px solid var(--rule);box-shadow:-12px 0 32px -12px rgba(22,24,29,.22);transform:translateX(102%);transition:transform .3s var(--ease);z-index:41;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer:focus{outline:none}
+.dh{padding:16px 24px 12px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:4px 16px}
+.dh .from{font-size:12.5px;color:var(--ink-2);grid-column:1}
+.dh h2{font-family:var(--serif);font-size:23px;line-height:1.2;grid-column:1}
+.dh .x{grid-column:2;grid-row:1 / span 2;align-self:start}
+.db{padding:14px 24px 16px;overflow:auto;flex:1}
+.cite{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--rule)}
+.cmeta{grid-template-columns:72px 1fr}
+.cmeta dt,.cmeta dd{padding:2px 0;border:0;font-size:12.5px}
+.cmeta dd.mono{font-size:12px;color:var(--ink)}
+.cbtns{display:flex;flex-direction:column;gap:6px}
+.quote{font-family:var(--serif);font-size:19px;line-height:1.35;margin:0 0 4px;padding:10px 14px;background:var(--paper);border-radius:4px}
+.qmeta{font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+.burst{width:100%;height:54px;display:block}
+.dsec{font-family:var(--serif);font-size:17px;margin:8px 0 4px}
+.reasons{list-style:none;margin:0;padding:0}
+.reasons li{display:grid;grid-template-columns:76px 1fr;gap:10px;padding:3px 0;border-top:1px solid #EFECE5;font-size:13.5px;color:var(--ink-2)}
+.reasons li:first-child{border-top:0}
+.reasons b{font:500 13px var(--mono);color:var(--ink)}
+.acct th{font-weight:400;font-size:12px;color:var(--ink-2);text-align:left;padding:4px 0;border-bottom:1px solid var(--rule)}
+.acct th.r,.acct td.r{text-align:right}
+.acct td{font:12.5px var(--mono);padding:2px 0;border-bottom:1px solid #EFECE5;color:var(--ink-2)}
+.acct td:first-child{color:var(--ink)}
+.acct .sc{color:var(--ink);font-weight:500}
+.df{padding:12px 24px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--ink-2)}
+.df p{margin:0;flex:1}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="title"><h1>Jensen Huang leaving Nvidia</h1><span class="range">Bluesky · Nov 5 to 13, 2026 (UTC)</span></div>
+  <div class="sample"><span class="mono">Check JH-1112</span> · data through Nov 13, 23:59 UTC · Mockup with sample data.</div>
+  <div class="meta">
+    <span><b>46,656</b>posts</span>
+    <span><b>20,482</b>accounts</span>
+    <span><b>380,164</b>likes, reposts and quotes</span>
+    <span><b>4.1%</b>likely automated (story baseline)</span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" data-view="replay">Replay</button>
+    <button class="tab" role="tab" data-view="nobots">Without likely automated</button>
+    <button class="tab" role="tab" data-view="archetypes">Amplifier archetypes</button>
+    <button class="tab" role="tab" data-view="evidence">Evidence</button>
+    <button class="tab" role="tab" data-view="method">Method</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ REPLAY ============ -->
+  <section class="view" id="v-replay" aria-label="Replay">
+    <div class="finding"><p class="ftext">Across the week, 4.1% of 46,656 posts came from likely automated accounts. The biggest burst was in posts defending Huang on Nov 12, starting 16 minutes after the Washington Post’s “online bots” report.</p><div class="fside"><span class="fsrc">Story-wide, score cutoff 0.5</span><button class="btn copyf" data-copy="finding"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>Copy finding</span></button><button class="btn copyl" data-copy="link" data-view="replay"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M5 7l2-2M4.2 5.6L3 6.8a1.8 1.8 0 0 0 2.5 2.5l1.2-1.2M7.8 6.4L9 5.2a1.8 1.8 0 0 0-2.5-2.5L5.3 3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Copy link</span></button></div></div>
+    <div class="panel graphp">
+      <div class="ph"><h2>Who posted, hour by hour</h2><span class="note" id="gcount">Each dot is an account from a 250-account sample, sized by followers. Click a cluster for evidence.</span></div>
+      <svg id="graph" viewBox="0 0 1040 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Account network clustered by narrative"></svg>
+      <div class="key">
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#D9472B"/></svg>Likely automated</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#2F6F8F" stroke="#fff" stroke-width="1.5"/></svg>Real account amplifying them</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#16181D" stroke-width="1.5"/></svg>Public account, named</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#8A8F99" stroke-width="1.5" stroke-dasharray="2 1.6"/></svg>Self-labeled bot</span>
+      </div>
+
+    </div>
+    <aside class="panel side" aria-live="polite">
+      <div class="now" id="now">Nov 12, 22:30<small>UTC</small></div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="s-posts">0</div><div class="l">posts so far</div></div>
+        <div class="stat"><div class="v" id="s-accts">0</div><div class="l">accounts so far</div></div>
+        <div class="stat"><div class="v sig" id="s-auto">0%</div><div class="l">likely automated, last 6 h</div></div>
+      </div>
+      <table class="ntab"><thead><tr><th>Narrative</th><th>Posts</th><th>Auto.</th></tr></thead><tbody id="ntbody"></tbody></table>
+    </aside>
+    <div class="panel timep">
+      <div class="tbar">
+        <button class="btn icon" id="play" aria-label="Play replay"><svg viewBox="0 0 12 12" id="playic"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg></button>
+        <h2>Narrative river</h2>
+        <span class="lbl">Posts per hour by narrative; the likely automated part of each band sits at its base.</span>
+        <span class="sp"></span>
+        <span class="lbl">Jump to</span>
+        <button class="btn" data-jump="166.72">WSJ ouster report</button>
+        <button class="btn" data-jump="181.92">Resignation</button>
+        <button class="btn" data-jump="188.25">WaPo “online bots” report</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <svg id="river" tabindex="0" role="slider" aria-label="Replay time" aria-valuemin="0" aria-valuemax="216"></svg>
+    </div>
+  </section>
+
+  <!-- ============ WITHOUT LIKELY AUTOMATED ============ -->
+  <section class="view" id="v-nobots" aria-label="Without likely automated accounts">
+    <div class="finding"><p class="ftext">About 1 in 5 posts defending Huang (18%, 95% interval 13 to 24%) came from likely automated accounts, 4.4 times the story’s baseline. Without them, that narrative falls from second to third.</p><div class="fside"><span class="fsrc">Claim check, 1,240 posts, cutoff 0.5</span><button class="btn copyf" data-copy="finding"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>Copy finding</span></button><button class="btn copyl" data-copy="link" data-view="nobots"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M5 7l2-2M4.2 5.6L3 6.8a1.8 1.8 0 0 0 2.5 2.5l1.2-1.2M7.8 6.4L9 5.2a1.8 1.8 0 0 0-2.5-2.5L5.3 3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Copy link</span></button></div></div>
+    <div class="panel">
+      <div class="nbhead">
+        <div>
+          <h2>“Was Jensen Huang's mistress a Chinese spy?”</h2>
+          <p><span class="mono">1,240</span> matching posts in 3 narratives. Bars show share of matching posts; the red segment is posts from likely automated accounts.</p>
+        </div>
+        <button class="switch" id="tog" role="switch" aria-checked="false"><span class="tr"></span>Remove likely automated accounts</button>
+      </div>
+      <div class="colh"><span></span><span>Narrative · share of matching posts</span><span>Likely automated · 95% interval</span></div>
+      <div class="rows" id="rows"></div>
+      <div class="nbfoot">Score cutoff 0.5 is the default. The strip under each bar shows the same share at stricter and looser cutoffs. Click any row for its evidence.</div>
+    </div>
+    <aside class="panel aside">
+      <section class="report">
+        <h3>How to report this</h3>
+        <ul class="howto">
+          <li>Say <b>“likely automated accounts”</b>, not “bots”. These accounts have not labeled themselves.</li>
+          <li>Cite the interval: <b>18% (95% interval 13 to 24%)</b>, at the default score cutoff of 0.5.</li>
+          <li>Do not attribute. We do not know who runs these accounts, and this is no ruling on whether the claim is true.</li>
+        </ul>
+        <p class="links"><a class="linkbtn" href="#view=method">Method and validation</a><button class="linkbtn" data-copy="link" data-view="nobots">Copy link to this view</button></p>
+      </section>
+      <section>
+        <h3>What the likely automated accounts pushing Defending Huang have in common</h3>
+        <ul class="facts">
+          <li><span class="n">41</span><span>created within the same two weeks, <span style="white-space:nowrap">Oct 20 to Nov 2</span></span></li>
+          <li><span class="n">14</span><span>reposted the same 6 posts within 60 seconds of each other</span></li>
+          <li><span class="n">22</span><span>post more than 60 times a day</span></li>
+        </ul>
+        <p style="margin-top:4px"><button class="linkbtn" data-evidence="Defending Huang · shared traits">Open the coordination cluster</button></p>
+      </section>
+      <section>
+        <h3>How to read the interval</h3>
+        <p>Dot: estimate at cutoff 0.5. Line: 95% interval. Dashed line: the story baseline, 4.1% across all 46,656 posts.</p>
+      </section>
+    </aside>
+  </section>
+
+  <!-- ============ ARCHETYPES ============ -->
+  <section class="view" id="v-arch" aria-label="Amplifier archetypes">
+    <div class="finding"><p class="ftext">New accounts that mostly repost market news were 2.7 times as likely as similar accounts to amplify likely automated posts (95% interval 2.1 to 3.4).</p><div class="fside"><span class="fsrc">2,316 real accounts, matched comparison</span><button class="btn copyf" data-copy="finding"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>Copy finding</span></button><button class="btn copyl" data-copy="link" data-view="archetypes"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M5 7l2-2M4.2 5.6L3 6.8a1.8 1.8 0 0 0 2.5 2.5l1.2-1.2M7.8 6.4L9 5.2a1.8 1.8 0 0 0-2.5-2.5L5.3 3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Copy link</span></button></div></div>
+    <div class="panel forest">
+      <div class="ph"><h2>2,316 real accounts reposted, quoted or liked posts from likely automated accounts</h2><span class="note">Lift: how much more likely than matched similar accounts. 1.0x means no difference.</span></div>
+      <svg id="forest" viewBox="0 0 1390 164" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="view" id="v-method" aria-label="Method and validation">
+    <div class="finding"><p class="ftext">Scores are evidence, not verdicts. The model ranks 58% of held-out hand-labeled bots in its top 100, so it misses some automated accounts; narrative labels match hand labels 84% of the time.</p><div class="fside"><span class="fsrc">Validation on held-out labeled data</span><button class="btn copyf" data-copy="finding"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>Copy finding</span></button><button class="btn copyl" data-copy="link" data-view="method"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M5 7l2-2M4.2 5.6L3 6.8a1.8 1.8 0 0 0 2.5 2.5l1.2-1.2M7.8 6.4L9 5.2a1.8 1.8 0 0 0-2.5-2.5L5.3 3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Copy link</span></button></div></div>
+    <div class="panel metrics">
+      <div class="metric"><div class="v">0.58</div><div class="k">bot model recall@100</div>
+        <p>Of held-out accounts hand-labeled as bots, 58% rank in the model's top 100 most likely automated. The rest score lower and go uncounted at the default cutoff.</p>
+        <svg class="curve" data-k="10,25,50,100,200,500" data-v="0.12,0.27,0.41,0.58,0.71,0.86" data-hi="3" data-lab="recall@k, k = accounts reviewed"></svg></div>
+      <div class="metric"><div class="v">0.71</div><div class="k">claim retrieval recall@20</div>
+        <p>For hand-checked claims, 71% of relevant posts appear in the first 20 results the search step returns, before narrative grouping.</p>
+        <svg class="curve" data-k="5,10,20,50,100" data-v="0.38,0.55,0.71,0.84,0.90" data-hi="2" data-lab="recall@k, k = results returned"></svg></div>
+      <div class="metric"><div class="v">84%</div><div class="k">narrative label agreement</div>
+        <p>Narrative labels agree with hand labels 84% of the time on a held-out set of posts from this story.</p>
+        <div class="agree" id="agree"></div></div>
+    </div>
+    <div class="mcols">
+      <div class="panel">
+        <h3>How a score becomes a number</h3>
+        <dl>
+          <dt>Score</dt><dd>0 to 1 per account, from posting rhythm, account age, text reuse, repost timing and follow ratios.</dd>
+          <dt>Default cutoff</dt><dd>0.5. Every share is also shown at 0.3, 0.7 and 0.9.</dd>
+          <dt>Interval</dt><dd>95%, bootstrap over accounts, 1,000 resamples.</dd>
+          <dt>Baseline</dt><dd>4.1% of all posts in the story come from likely automated accounts.</dd>
+          <dt>Lift</dt><dd>Amplifier rate against accounts matched on age, follower count and posting volume.</dd>
+          <dt>Clusters</dt><dd>Same text or same link from 5+ accounts within 60 seconds.</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>Data sources</h3>
+        <dl>
+          <dt>Platform</dt><dd>Bluesky public API, no login, no private data.</dd>
+          <dt>Window</dt><dd class="mono">2026-11-05 00:00 to 11-13 23:59 UTC</dd>
+          <dt>Posts</dt><dd><span class="mono">46,656</span> from keyword and link search</dd>
+          <dt>Accounts</dt><dd><span class="mono">20,482</span> authors and engagers</dd>
+          <dt>Engagement</dt><dd><span class="mono">380,164</span> likes, reposts and quotes</dd>
+          <dt>Self-labels</dt><dd><span class="mono">287</span> accounts carry a bot label; counted apart from model scores</dd>
+          <dt>Events</dt><dd>Times from WSJ, the Nvidia filing and the Washington Post</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>Privacy rules</h3>
+        <ul class="rules">
+          <li><svg viewBox="0 0 13 13"><path d="M2 6.8l3 3L11 3" fill="none" stroke="#2F6F8F" stroke-width="1.6"/></svg>Public accounts only, by handle<span>5,000+ followers, verified, news organizations, self-labeled bots.</span></li>
+          <li><svg viewBox="0 0 13 13"><path d="M2 6.8l3 3L11 3" fill="none" stroke="#2F6F8F" stroke-width="1.6"/></svg>Everyone else is counted, never listed<span>Evidence shows a hashed ref such as <span class="mono">acct·3f9a</span>.</span></li>
+          <li><svg viewBox="0 0 13 13"><path d="M2 6.8l3 3L11 3" fill="none" stroke="#2F6F8F" stroke-width="1.6"/></svg>“Likely automated”, never “bot”<span>For any account that has not labeled itself.</span></li>
+          <li><svg viewBox="0 0 13 13"><path d="M2 6.8l3 3L11 3" fill="none" stroke="#2F6F8F" stroke-width="1.6"/></svg>No ruling on truth, no attribution<span>We do not say whether a claim is true or who runs an account.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dtitle" aria-hidden="true">
+  <div class="dh">
+    <div class="from" id="dfrom">Opened from: Defending Huang</div>
+    <h2 id="dtitle">14 accounts, identical text, 54 seconds</h2>
+    <button class="btn icon x" id="dclose" aria-label="Close evidence"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.5"/></svg></button>
+  </div>
+  <div class="db">
+    <div class="cite">
+      <dl class="cmeta"><dt>Check</dt><dd class="mono">JH-1112 · cluster C-07</dd><dt>Window</dt><dd class="mono">2026-11-12T20:31:04Z to 20:31:58Z</dd><dt>Retrieved</dt><dd class="mono">2026-11-13T23:59Z · Bluesky public API</dd></dl>
+      <div class="cbtns"><button class="btn" data-copy="link" data-view="evidence"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M5 7l2-2M4.2 5.6L3 6.8a1.8 1.8 0 0 0 2.5 2.5l1.2-1.2M7.8 6.4L9 5.2a1.8 1.8 0 0 0-2.5-2.5L5.3 3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Copy link</span></button><button class="btn" data-copy="cite"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>Copy citation</span></button></div>
+    </div>
+    <p class="quote">“The smear campaign against Jensen is a gift to Beijing. Wake up.”</p>
+    <div class="qmeta">Defending Huang. Posted 14 times, 16 minutes after the Washington Post report (20:15 UTC).</div>
+    <svg class="burst" id="burst" viewBox="0 0 572 58"></svg>
+    <div class="dsec">Why these accounts look automated</div>
+    <ul class="reasons">
+      <li><b>14 of 14</b><span>posted the identical text within 54 seconds</span></li>
+      <li><b>11 of 14</b><span>were created between Oct 20 and Nov 2</span></li>
+      <li><b>12 of 14</b><span>reposted the same 6 posts within 60 seconds of each other</span></li>
+      <li><b>9 of 14</b><span>post more than 60 times a day</span></li>
+    </ul>
+    <div class="dsec">Accounts</div>
+    <table class="acct"><thead><tr><th>Account</th><th>Posted (UTC, to the second)</th><th class="r">Score</th><th class="r">Created</th><th class="r">Posts / day</th></tr></thead><tbody id="atbody"></tbody></table>
+  </div>
+  <div class="df"><p>All 14 are private accounts, shown as hashed refs. Signs of automation, not proof; we do not say who runs them.</p><button class="btn">Export CSV</button></div>
+</aside>
+<div class="tip" id="tip"></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = rng(20261112);
+const gauss = () => { let u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+const fmt = n => Math.round(n).toLocaleString('en-US');
+
+/* ---------------- time + river data ---------------- */
+const H = 216; // Nov 5 00:00 to Nov 14 00:00 UTC
+const EV = { brief: 15, affair: 88, wsj: 166.72, resign: 181.92, wapo: 188.25 };
+const shape = (h, t0, d) => h < t0 ? 0 : Math.exp(-(h - t0) / d) * (1 - Math.exp(-(h - t0) / 0.9));
+const N = [
+  { k: 'defend',   name: 'Defending Huang',                      c: '#A0527F', base: 4,  b: [[EV.affair, 18, 16], [EV.wsj, 26, 8], [EV.resign, 48, 9], [EV.wapo, 150, 6]], af: h => .05 + .27 * shape(h, EV.wapo + .2, 7) + .05 * shape(h, EV.resign, 10) },
+  { k: 'spy',      name: 'Spy plot and national security',        c: '#6B5CA5', base: 9,  b: [[EV.brief, 30, 14], [EV.affair, 62, 20], [EV.wsj, 40, 10], [EV.resign, 36, 10]], af: h => .03 + .07 * shape(h, EV.affair + 3, 22) },
+  { k: 'affairs',  name: 'The affairs as personal misconduct',    c: '#B0675A', base: 6,  b: [[EV.affair, 96, 18], [EV.wsj, 22, 10], [EV.resign, 34, 10]], af: () => .022 },
+  { k: 'politics', name: 'Trump and politics',                    c: '#3E7C6A', base: 7,  b: [[EV.brief, 24, 12], [EV.affair, 20, 14], [EV.resign, 44, 10], [EV.wapo, 28, 8]], af: () => .03 },
+  { k: 'board',    name: 'Board, resignation and succession',     c: '#8C7A3D', base: 3,  b: [[EV.affair, 22, 16], [EV.wsj, 120, 9], [EV.resign, 160, 11]], af: () => .02 },
+  { k: 'market',   name: 'Stock, market and lawsuits',            c: '#4F6FA8', base: 5,  b: [[EV.affair, 18, 12], [EV.wsj, 70, 9], [EV.resign, 140, 10]], af: h => .03 + .05 * shape(h, EV.resign, 10) },
+  { k: 'jokes',    name: 'Jokes and memes',                       c: '#8A8F99', base: 3,  b: [[EV.affair, 40, 12], [EV.wsj, 28, 8], [EV.resign, 50, 8], [EV.wapo, 22, 6]], af: () => .015 },
+];
+const diurnal = h => .62 + .38 * Math.max(0, Math.sin((h % 24 - 9) / 24 * 2 * Math.PI));
+let total = 0;
+N.forEach(n => { n.p = []; for (let h = 0; h < H; h++) { let v = n.base * diurnal(h); n.b.forEach(([t0, a, d]) => v += a * shape(h + .5, t0, d)); n.p.push(v); total += v; } });
+const scale = 46656 / total;
+N.forEach(n => { n.p = n.p.map(v => v * scale); n.a = n.p.map((v, h) => v * n.af(h)); });
+const smooth = arr => arr.map((v, i) => (arr[Math.max(0, i - 1)] + v * 2 + arr[Math.min(arr.length - 1, i + 1)]) / 4);
+N.forEach(n => { n.ps = smooth(n.p); n.as = smooth(n.a); });
+const cum = (arr, t) => { let s = 0; const f = Math.floor(t); for (let i = 0; i < f && i < arr.length; i++) s += arr[i]; if (f < arr.length) s += arr[f] * (t - f); return s; };
+
+/* ---------------- graph ---------------- */
+const G = $('#graph');
+const centers = { spy: [190, 190, 51], politics: [415, 92, 27], affairs: [410, 262, 33], board: [632, 96, 39], defend: [660, 252, 34], market: [872, 116, 36], jokes: [890, 266, 26] };
+const nodes = [];
+const invCdf = (n) => { const u = R() * n.p.reduce((a, b) => a + b, 0); let s = 0; for (let h = 0; h < H; h++) { s += n.p[h]; if (s >= u) return h + R(); } return H - 1; };
+N.forEach(n => {
+  const [cx, cy, cnt] = centers[n.k]; const r = Math.sqrt(cnt) * 12.5; n.cx = cx; n.cy = cy; n.r = r;
+  for (let i = 0; i < cnt; i++) {
+    const a = R() * Math.PI * 2, d = Math.min(1, Math.abs(gauss()) * .5) * r;
+    nodes.push({ n: n.k, x: cx + Math.cos(a) * d, y: cy + Math.sin(a) * d * .9, r: 2.9 + Math.min(4.6, Math.exp(gauss() * .5) * 1.8), t: invCdf(n), type: 'gen' });
+  }
+});
+const pickFrom = (k, m, f) => { const pool = nodes.filter(x => x.n === k && x.type === 'gen'); for (let i = 0; i < m; i++) f(pool[Math.floor(R() * pool.length)]); };
+// likely automated: 8 defend (coordinated, tight), 2 spy, 2 market
+const auto = [];
+pickFrom('defend', 8, o => { if (o.type !== 'gen') return; o.type = 'auto'; o.r = 5; o.x = 684 + gauss() * 12; o.y = 246 + gauss() * 11; o.t = EV.wapo + .2 + R() * .9; auto.push(o); });
+while (auto.length < 8) pickFrom('defend', 1, o => { if (o.type === 'gen') { o.type = 'auto'; o.r = 5; o.x = 684 + gauss() * 12; o.y = 246 + gauss() * 11; o.t = EV.wapo + .3 + R() * .8; auto.push(o); } });
+const autoCo = auto.slice();
+[['spy', EV.affair + 4], ['market', EV.resign + 1]].forEach(([k, t]) => { let c = 0; while (c < 2) pickFrom(k, 1, o => { if (o.type === 'gen') { o.type = 'auto'; o.r = 5; o.t = t + R() * 8; auto.push(o); c++; } }); });
+// amplifiers
+const amps = [];
+[['market', 8], ['politics', 6], ['defend', 6], ['spy', 5], ['board', 1]].forEach(([k, m]) => { let c = 0; while (c < m) pickFrom(k, 1, o => { if (o.type === 'gen') { o.type = 'amp'; o.r = 5.2; amps.push(o); c++; } }); });
+// public accounts
+const pubs = [['board', '@wsj.com', EV.wsj, 'pub', -30, -8, 'end'], ['board', '@reuters.com', EV.wsj + .4, 'pub', 28, 10, 'start'], ['affairs', '@nytimes.com', EV.affair + 1.2, 'pub', -26, 14, 'end'], ['market', '@nowbreezing.ntw.app', 20, 'self', 30, -12, 'start']];
+pubs.forEach(([k, h, t, ty, dx, dy, side]) => { const [cx, cy] = centers[k]; nodes.push({ n: k, x: cx + dx, y: cy + dy, r: ty === 'self' ? 6.5 : 9.5, t, type: ty, handle: h, side }); });
+// collision relaxation
+for (let it = 0; it < 90; it++) {
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+    const a = nodes[i], b = nodes[j]; const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01, m = a.r + b.r + 1.6;
+    if (d < m) { const s = (m - d) / d * .5; a.x -= dx * s; a.y -= dy * s; b.x += dx * s; b.y += dy * s; }
+  }
+  nodes.forEach(o => { const c = centers[o.n]; o.x += (c[0] - o.x) * .012; o.y += (c[1] - o.y) * .012; o.x = Math.max(10, Math.min(1030, o.x)); o.y = Math.max(28, Math.min(304, o.y)); });
+}
+// amplifier timing follows the automated account they amplify
+const edges = [];
+amps.forEach(o => { const k = 1 + Math.floor(R() * 2); for (let i = 0; i < k; i++) { const tgt = o.n === 'defend' || R() < .55 ? autoCo[Math.floor(R() * autoCo.length)] : auto[8 + Math.floor(R() * 4)]; edges.push({ a: o, b: tgt, kind: 'amp' }); o.t = Math.max(o.t || 0, tgt.t + .2 + R() * 4); } o.t = Math.min(o.t, H - 1); });
+for (let i = 0; i < autoCo.length; i++) for (let j = i + 1; j < autoCo.length; j++) if (R() < .45 || j === i + 1) edges.push({ a: autoCo[i], b: autoCo[j], kind: 'co' });
+nodes.forEach(o => { if (o.type === 'auto' && o.n === 'defend') return; let best = null, bd = 1e9; nodes.forEach(p => { if (p === o || p.n !== o.n) return; const d = Math.hypot(p.x - o.x, p.y - o.y); if (d < bd) { bd = d; best = p; } }); if (best) edges.push({ a: o, b: best, kind: 'gen' }); });
+
+const gE = el('g', {}, G), gN = el('g', {}, G), gL = el('g', {}, G);
+edges.forEach(e => { e.el = el('line', { class: 'edge', x1: e.a.x.toFixed(1), y1: e.a.y.toFixed(1), x2: e.b.x.toFixed(1), y2: e.b.y.toFixed(1), stroke: e.kind === 'co' ? '#D9472B' : e.kind === 'amp' ? '#2F6F8F' : '#CFCAC0', 'stroke-width': e.kind === 'gen' ? .8 : 1, 'stroke-opacity': e.kind === 'gen' ? .9 : e.kind === 'amp' ? .42 : .55 }, gE); });
+const ncol = Object.fromEntries(N.map(n => [n.k, n.c]));
+const nname = Object.fromEntries(N.map(n => [n.k, n.name]));
+const hex = () => Math.floor(R() * 65536).toString(16).padStart(4, '0');
+const order = { gen: 0, amp: 1, auto: 2, self: 3, pub: 3 };
+nodes.slice().sort((a, b) => order[a.type] - order[b.type]).forEach(o => {
+  let a = { class: 'node', cx: o.x.toFixed(1), cy: o.y.toFixed(1), r: o.r.toFixed(1) };
+  if (o.type === 'gen') Object.assign(a, { fill: ncol[o.n], 'fill-opacity': .78 });
+  if (o.type === 'auto') Object.assign(a, { fill: '#D9472B' });
+  if (o.type === 'amp') Object.assign(a, { fill: '#2F6F8F', stroke: '#fff', 'stroke-width': 1.4 });
+  if (o.type === 'pub') Object.assign(a, { fill: '#fff', stroke: '#16181D', 'stroke-width': 1.6 });
+  if (o.type === 'self') Object.assign(a, { fill: '#fff', stroke: '#8A8F99', 'stroke-width': 1.6, 'stroke-dasharray': '2.4 1.8' });
+  o.ref = 'acct·' + hex(); o.score = o.type === 'auto' ? (.78 + R() * .2) : (R() * .32);
+  o.el = el('circle', a, gN);
+  if (o.handle) { const L2 = o.side === 'end'; o.lab = el('text', { class: 'plabel', x: (L2 ? o.x - o.r - 4 : o.x + o.r + 4).toFixed(1), y: (o.y + 4).toFixed(1), 'text-anchor': L2 ? 'end' : 'start' }, gL); o.lab.textContent = o.handle; }
+});
+N.forEach(n => {
+  const mine = nodes.filter(o => o.n === n.k); const minY = Math.min(...mine.map(o => o.y - o.r)); const mx = mine.reduce((a, o) => a + o.x, 0) / mine.length;
+  const t = el('text', { class: 'clabel', x: mx.toFixed(0), y: Math.max(12, minY - 7).toFixed(0), 'text-anchor': 'middle' }, gL); t.textContent = n.name;
+  const hit = el('circle', { class: 'hit', cx: n.cx, cy: n.cy, r: (n.r + 8).toFixed(0), fill: 'transparent' }, G);
+  hit.addEventListener('click', () => openDrawer(n.k === 'defend' ? 'Defending Huang cluster, replay' : n.name + ' cluster, replay. Showing the story\'s largest coordination cluster'));
+  hit.addEventListener('mousemove', ev => tipAt(ev, `<b>${n.name}</b><br>Click to open evidence`));
+  hit.addEventListener('mouseleave', hideTip);
+});
+// node hover sits above the cluster hit areas
+const gHover = el('g', {}, G);
+nodes.forEach(o => {
+  if (o.type === 'gen') return;
+  const h = el('circle', { cx: o.x.toFixed(1), cy: o.y.toFixed(1), r: (o.r + 3).toFixed(1), fill: 'transparent', class: 'hit' }, gHover); o.hit = h;
+  const label = o.type === 'auto' ? `<b>Likely automated</b> · score <span class="mono">${o.score.toFixed(2)}</span><br><span class="mono">${o.ref}</span> · ${nname[o.n]}`
+    : o.type === 'amp' ? `<b>Real account</b> amplifying likely automated posts<br><span class="mono">${o.ref}</span> · private, not named`
+    : o.type === 'self' ? `<b class="mono">${o.handle}</b><br>Self-labeled trend bot` : `<b class="mono">${o.handle}</b><br>News organization · public`;
+  h.addEventListener('mousemove', ev => tipAt(ev, label)); h.addEventListener('mouseleave', hideTip);
+  h.addEventListener('click', () => openDrawer(o.type === 'auto' ? `Likely automated account ${o.ref}` : nname[o.n] + ' cluster, replay'));
+});
+const tip = $('#tip');
+function tipAt(ev, html) { tip.innerHTML = html; tip.classList.add('on'); tip.style.left = (ev.clientX + 14) + 'px'; tip.style.top = (ev.clientY + 14) + 'px'; }
+function hideTip() { tip.classList.remove('on'); }
+
+/* ---------------- legend + table ---------------- */
+$('#legend').innerHTML = N.map(n => `<span><i class="sw" style="background:${n.c}"></i>${n.name}</span>`).join('') + `<span><i class="sw" style="background:#D9472B"></i>Likely automated</span>`;
+$('#ntbody').innerHTML = N.map(n => `<tr><td><i class="sw" style="background:${n.c}"></i>${n.name}</td><td class="num" id="np-${n.k}"></td><td class="num" id="na-${n.k}"></td></tr>`).join('');
+
+/* ---------------- river ---------------- */
+const RV = $('#river');
+let W = 1390, HH = 250; const L = 46, Rr = 14, top = 58, bot = 26;
+let xs, ys, playX;
+function drawRiver() {
+  const bb = RV.getBoundingClientRect(); W = bb.width; HH = bb.height; RV.setAttribute('viewBox', `0 0 ${W} ${HH}`); RV.innerHTML = '';
+  const iw = W - L - Rr, ih = HH - top - bot;
+  const tot = []; for (let h = 0; h < H; h++) tot.push(N.reduce((s, n) => s + n.ps[h], 0));
+  const ymax = Math.ceil(Math.max(...tot) / 200) * 200;
+  xs = h => L + h / H * iw; ys = v => top + ih - v / ymax * ih;
+  const defs = el('defs', {}, RV);
+  // grid
+  for (let v = 0; v <= ymax; v += ymax / 4) { el('line', { x1: L, x2: W - Rr, y1: ys(v), y2: ys(v), stroke: '#EFECE5' }, RV); const t = el('text', { x: L - 8, y: ys(v) + 4, 'text-anchor': 'end', style: 'font:11px var(--mono);fill:#4A4F5A' }, RV); t.textContent = fmt(v); }
+  const yl = el('text', { x: 4, y: top - 8, 'text-anchor': 'start', style: 'font:11px var(--sans);fill:#4A4F5A' }, RV); yl.textContent = 'posts / h';
+  // stacked layers
+  const base = new Array(H).fill(0);
+  const pathFor = (lo, hi) => { let d = ''; for (let h = 0; h < H; h++) d += (h ? 'L' : 'M') + xs(h + .5).toFixed(1) + ',' + ys(hi[h]).toFixed(1); for (let h = H - 1; h >= 0; h--) d += 'L' + xs(h + .5).toFixed(1) + ',' + ys(lo[h]).toFixed(1); return d + 'Z'; };
+  const gR = el('g', {}, RV);
+  N.forEach(n => {
+    const lo = base.slice(), mid = base.map((b, h) => b + n.as[h]), hi = base.map((b, h) => b + n.ps[h]);
+    el('path', { d: pathFor(mid, hi), fill: n.c, 'fill-opacity': .82 }, gR);
+    el('path', { d: pathFor(lo, mid), fill: '#D9472B' }, gR);
+    el('path', { d: (() => { let d = ''; for (let h = 0; h < H; h++) d += (h ? 'L' : 'M') + xs(h + .5).toFixed(1) + ',' + ys(hi[h]).toFixed(1); return d; })(), fill: 'none', stroke: '#fff', 'stroke-width': .6 }, gR);
+    for (let h = 0; h < H; h++) base[h] = hi[h];
+  });
+  // day axis
+  for (let d = 0; d <= 9; d++) { const x = xs(d * 24); el('line', { x1: x, x2: x, y1: top + ih, y2: top + ih + 5, stroke: '#8A8F99' }, RV); if (d < 9) { const t = el('text', { x: x + 4, y: top + ih + 17, style: 'font:11px var(--mono);fill:#4A4F5A' }, RV); t.textContent = 'Nov ' + (5 + d); } }
+  el('line', { x1: L, x2: W - Rr, y1: top + ih, y2: top + ih, stroke: '#8A8F99' }, RV);
+  // minor events
+  [[EV.brief, 'Briefing request'], [EV.affair, 'Huang admits affair; board probe']].forEach(([h, s]) => { const x = xs(h); el('line', { x1: x, x2: x, y1: top - 4, y2: top + ih, stroke: '#8A8F99', 'stroke-dasharray': '2 3' }, RV); const t = el('text', { x: x + 5, y: top - 8, style: 'font:11.5px var(--sans);fill:#4A4F5A' }, RV); t.textContent = s + ' · Nov ' + (h < 24 ? 5 : 8); });
+  // major events (staggered labels)
+  [[EV.wsj, 'WSJ: board preparing to oust him', 'Nov 11 22:43', 12, 'end'], [EV.resign, 'Resigns; Kress interim CEO', 'Nov 12 13:55', 30, 'end'], [EV.wapo, 'WaPo: “online bots” defend him', 'Nov 12 20:15', 48, 'start']].forEach(([h, s, ts, y, anc]) => {
+    const x = xs(h); el('line', { x1: x, x2: x, y1: y + 3, y2: top + ih, stroke: '#16181D', 'stroke-width': 1 }, RV);
+    const g = el('g', {}, RV); const tx = anc === 'end' ? x - 6 : x + 6;
+    const t = el('text', { x: tx, y, 'text-anchor': anc, style: 'font:500 12px var(--sans);fill:#16181D;paint-order:stroke;stroke:#fff;stroke-width:4px' }, g);
+    const t1 = el('tspan', {}, t); t1.textContent = s + ' '; const t2 = el('tspan', { style: 'font:400 11.5px var(--mono);fill:#4A4F5A' }, t); t2.textContent = ts;
+  });
+  // future dim + playhead
+  RV.fut = el('rect', { y: top - 2, height: ih + 2, fill: '#FFFFFF', 'fill-opacity': .72 }, RV);
+  RV.ph = el('g', {}, RV);
+  el('line', { x1: 0, x2: 0, y1: top - 4, y2: top + ih + 4, stroke: '#16181D', 'stroke-width': 1.5 }, RV.ph);
+  el('rect', { x: -5, y: top + ih - 4, width: 10, height: 10, rx: 2, fill: '#16181D' }, RV.ph);
+}
+
+/* ---------------- time state ---------------- */
+let T = 190.5;
+const dateStr = h => { const d = 5 + Math.floor(h / 24); const hh = Math.floor(h % 24), mm = Math.floor((h % 1) * 60); return `Nov ${d}, ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; };
+function setT(h) {
+  T = Math.max(0, Math.min(H - .01, h));
+  const x = xs(T); RV.fut.setAttribute('x', x); RV.fut.setAttribute('width', Math.max(0, W - Rr - x)); RV.ph.setAttribute('transform', `translate(${x},0)`);
+  RV.setAttribute('aria-valuenow', T.toFixed(1)); RV.setAttribute('aria-valuetext', dateStr(T) + ' UTC');
+  let vis = 0; nodes.forEach(o => { const on = o.t <= T; if (on) vis++; o.el.classList.toggle('off', !on); if (o.lab) o.lab.classList.toggle('node', true), o.lab.classList.toggle('off', !on); if (o.hit) o.hit.style.display = on ? '' : 'none'; });
+  edges.forEach(e => e.el.classList.toggle('off', !(e.a.t <= T && e.b.t <= T)));
+  $('#now').innerHTML = dateStr(T) + '<small>UTC</small>';
+  let P = 0, A = 0, p6 = 0, a6 = 0;
+  N.forEach(n => { const p = cum(n.p, T), a = cum(n.a, T); P += p; A += a; p6 += p - cum(n.p, Math.max(0, T - 6)); a6 += a - cum(n.a, Math.max(0, T - 6)); $('#np-' + n.k).textContent = fmt(p); $('#na-' + n.k).textContent = p > 0 ? (a / p * 100).toFixed(1) + '%' : '·'; });
+  $('#s-posts').textContent = fmt(P); $('#s-accts').textContent = fmt(vis / nodes.length * 20482);
+  $('#s-auto').textContent = p6 > 0 ? (a6 / p6 * 100).toFixed(1) + '%' : '·';
+  $('#gcount').textContent = `${vis} of ${nodes.length} sampled accounts visible. Dots sized by followers; click a cluster for evidence.`;
+}
+let drag = false;
+const fromEv = ev => { const bb = RV.getBoundingClientRect(); return (ev.clientX - bb.left - L) / (bb.width - L - Rr) * H; };
+RV.addEventListener('pointerdown', ev => { drag = true; RV.setPointerCapture(ev.pointerId); stop(); setT(fromEv(ev)); });
+RV.addEventListener('pointermove', ev => { if (drag) setT(fromEv(ev)); });
+RV.addEventListener('pointerup', () => drag = false);
+RV.addEventListener('keydown', ev => { if (ev.key === 'ArrowRight') { setT(T + (ev.shiftKey ? 24 : 1)); ev.preventDefault(); } if (ev.key === 'ArrowLeft') { setT(T - (ev.shiftKey ? 24 : 1)); ev.preventDefault(); } });
+document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => { stop(); setT(+b.dataset.jump + .4); }));
+let raf = null, last = 0;
+const playIc = '<path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/>', pauseIc = '<path d="M3 1.5h2.2v9H3zM6.8 1.5H9v9H6.8z" fill="currentColor"/>';
+function stop() { if (raf) cancelAnimationFrame(raf); raf = null; $('#playic').innerHTML = playIc; $('#play').setAttribute('aria-label', 'Play replay'); }
+function tick(ts) { const dt = last ? (ts - last) / 1000 : 0; last = ts; const nt = T + dt * 18; if (nt >= H - .01) { setT(H - .01); stop(); return; } setT(nt); raf = requestAnimationFrame(tick); }
+$('#play').addEventListener('click', () => { if (raf) return stop(); if (T > H - 1) setT(0); last = 0; $('#playic').innerHTML = pauseIc; $('#play').setAttribute('aria-label', 'Pause replay'); raf = requestAnimationFrame(tick); });
+
+/* ---------------- without likely automated ---------------- */
+const NB = [
+  { k: 'spy', name: 'Spy plot and national security', c: '#6B5CA5', share: 62, after: 67, posts: 769, auto: 9, lo: 6, hi: 12, cuts: [14, 9, 5, 2] },
+  { k: 'defend', name: 'Defending Huang', c: '#A0527F', share: 21, after: 15, posts: 260, auto: 18, lo: 13, hi: 24, cuts: [27, 18, 11, 6] },
+  { k: 'jokes', name: 'Jokes and memes', c: '#8A8F99', share: 17, after: 18, posts: 211, auto: 3, lo: 1, hi: 5, cuts: [6, 3, 2, 1] },
+];
+const rowsEl = $('#rows'); const ROWH = 164; let removed = false;
+const ciSvg = r => { const w = 320, x = v => 6 + v / 30 * (w - 12); return `<svg viewBox="0 0 ${w} 44" preserveAspectRatio="none" aria-hidden="true">
+  <line x1="6" x2="${w - 6}" y1="18" y2="18" stroke="#E3DFD6"/>
+  ${[0, 10, 20, 30].map(v => `<line x1="${x(v)}" x2="${x(v)}" y1="14" y2="22" stroke="#C9C4B9"/><text x="${x(v)}" y="38" text-anchor="${v === 0 ? 'start' : v === 30 ? 'end' : 'middle'}" style="font:10.5px var(--mono);fill:#4A4F5A">${v}%</text>`).join('')}
+  <line x1="${x(4.1)}" x2="${x(4.1)}" y1="6" y2="28" stroke="#4A4F5A" stroke-dasharray="2 2"/>
+  <line x1="${x(r.lo)}" x2="${x(r.hi)}" y1="18" y2="18" stroke="#D9472B" stroke-width="2.5"/>
+  <circle cx="${x(r.auto)}" cy="18" r="5" fill="#D9472B" stroke="#fff" stroke-width="1.5"/></svg>`; };
+NB.forEach((r, i) => {
+  const d = document.createElement('div'); d.className = 'row'; d.tabIndex = 0; d.setAttribute('role', 'button'); d.setAttribute('aria-label', r.name + ', open evidence');
+  d.innerHTML = `<div class="rank">${i + 1}</div>
+    <div><div class="nname"><i class="sw" style="background:${r.c}"></i>${r.name}<span class="cnt">${r.posts} posts</span></div>
+      <div class="barline"><div class="bt"><div class="bf" style="background:${r.c};width:${r.share}%"></div><div class="ba" style="left:${r.share * (1 - r.auto / 100)}%;width:${r.share * r.auto / 100}%"></div></div><div class="bval">${r.share}%</div><div class="delta"></div></div>
+      <div class="strip"><span class="sl">At score cutoff</span>${r.cuts.map((v, j) => `<div class="cut${j === 1 ? ' def' : ''}"><div class="t"><span>${['0.3', '0.5', '0.7', '0.9'][j]}</span><b>${v}%</b></div><div class="m"><i style="width:${v / 30 * 100}%"></i></div></div>`).join('')}</div>
+    </div>
+    <div class="auto"><div class="big">${r.auto}%</div><div class="ci">${r.lo} to ${r.hi}%</div><div class="ci2">${r.auto > 4.1 * 2 ? (r.auto / 4.1).toFixed(1) + '× the 4.1% baseline' : 'near the 4.1% baseline'}</div>${ciSvg(r)}</div>`;
+  r.el = d; rowsEl.appendChild(d);
+  const go = () => openDrawer(r.name + ', likely automated ' + r.auto + '% (' + r.lo + ' to ' + r.hi + '%)' + (r.k === 'defend' ? '' : '. Showing the story\'s largest cluster'));
+  d.addEventListener('click', go); d.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+});
+const countTo = (node, from, to) => { const t0 = performance.now(); const f = now => { const k = Math.min(1, (now - t0) / 550), e = 1 - Math.pow(1 - k, 3); node.textContent = Math.round(from + (to - from) * e) + '%'; if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
+function layoutRows(animate) {
+  const vals = NB.map(r => ({ r, v: removed ? r.after : r.share })).sort((a, b) => b.v - a.v);
+  vals.forEach(({ r, v }, i) => {
+    r.el.style.transform = `translateY(${i * ROWH}px)`; r.el.querySelector('.rank').textContent = i + 1;
+    r.el.classList.toggle('gone', removed);
+    r.el.querySelector('.bf').style.width = v + '%';
+    const a = r.el.querySelector('.ba'); a.style.width = removed ? '0%' : (r.share * r.auto / 100) + '%'; a.style.left = removed ? v + '%' : (r.share * (1 - r.auto / 100)) + '%';
+    const bv = r.el.querySelector('.bval'); if (animate) countTo(bv, removed ? r.share : r.after, v); else bv.textContent = v + '%';
+    r.el.querySelector('.delta').textContent = removed ? `was ${r.share}%` : '';
+  });
+}
+layoutRows(false);
+$('#tog').addEventListener('click', () => { removed = !removed; $('#tog').setAttribute('aria-checked', removed); layoutRows(true); });
+
+/* ---------------- archetypes ---------------- */
+const AR = [
+  { name: 'New accounts that mostly repost market news', share: 31, n: 718, lift: 2.7, lo: 2.1, hi: 3.4, f: [['23 days', 'median account age'], ['81%', 'of posts are reposts'], ['64%', 'of reposts are stock or market posts']], mix: [71, 6, 23], delay: '3 min', pub: 'No public accounts in this group.' },
+  { name: 'Heavy reposters, mostly politics', share: 24, n: 556, lift: 1.9, lo: 1.5, hi: 2.3, f: [['140', 'median reposts a day'], ['72%', 'of reposts are about politics'], ['2,100', 'median accounts followed']], mix: [64, 9, 27], delay: '11 min', pub: 'No public accounts in this group.' },
+  { name: 'Tech-industry posters with large followings', share: 12, n: 278, lift: .8, lo: .6, hi: 1.1, f: [['8,400', 'median followers'], ['68%', 'of posts are original'], ['Quotes', 'more than reposts, often to dispute']], mix: [18, 47, 35], delay: '2.4 h', pub: '<span class="mono">96</span> public accounts; handles shown in the live product.' },
+  { name: 'Conversational posters (mostly replies)', share: 33, n: 764, lift: .6, lo: .5, hi: .8, f: [['70%', 'of posts are replies'], ['120', 'median followers'], ['1 in 9', 'reply to a likely automated post']], mix: [9, 21, 70], delay: '1.6 h', pub: 'No public accounts in this group.' },
+];
+const FS = $('#forest'); { const w = 1390, x0 = 560, x1 = w - 40, lg = v => Math.log(v), xl = v => x0 + (lg(v) - lg(.4)) / (lg(4) - lg(.4)) * (x1 - x0);
+  let s = '';
+  [.5, 1, 2, 3, 4].forEach(v => { s += `<line x1="${xl(v)}" x2="${xl(v)}" y1="10" y2="136" stroke="${v === 1 ? '#4A4F5A' : '#EFECE5'}" ${v === 1 ? 'stroke-dasharray="3 3"' : ''}/><text x="${xl(v)}" y="155" text-anchor="middle" style="font:11px var(--mono);fill:#4A4F5A">${v}x</text>`; });
+  s += `<text x="${xl(1) + 6}" y="20" style="font:11.5px var(--sans);fill:#4A4F5A">same as matched accounts</text>`;
+  AR.forEach((a, i) => { const y = 32 + i * 29; s += `<text x="20" y="${y + 4}" style="font:13.5px var(--sans);fill:#16181D">${a.name}</text><text x="${x0 - 30}" y="${y + 4}" text-anchor="end" style="font:12.5px var(--mono);fill:#4A4F5A">${a.lift.toFixed(1)}x (${a.lo} to ${a.hi})</text>
+    <line x1="${xl(a.lo)}" x2="${xl(a.hi)}" y1="${y}" y2="${y}" stroke="#2F6F8F" stroke-width="2.5"/><circle cx="${xl(a.lift)}" cy="${y}" r="5.5" fill="${a.hi < 1 ? '#fff' : '#2F6F8F'}" stroke="#2F6F8F" stroke-width="2"/>`; });
+  FS.innerHTML = s; }
+$('#cards').innerHTML = AR.map((a, i) => `<button class="acard" data-i="${i}">
+  <div class="share"><b>${a.share}%</b><span>of amplifiers · <span class="mono">${a.n}</span> accounts</span></div>
+  <h3>${a.name}</h3>
+  <div class="lift"><b class="${a.lift < 1 ? 'low' : ''}">${a.lift.toFixed(1)}x</b><span>${a.lo} to ${a.hi}</span><em>${a.hi < 1 ? 'less likely than matched' : a.lo > 1 ? 'more likely than matched' : 'no clear difference'}</em></div>
+  <ul class="feat">${a.f.map(([k, v]) => `<li><span class="mono">${k}</span><span>${v}</span></li>`).join('')}</ul>
+  <div class="mix"><div class="mt">How they amplified likely automated posts</div><div class="mb">${a.mix.map((v, j) => `<i style="width:${v}%;opacity:${[1, .6, .3][j]}"></i>`).join('')}</div>
+  <div class="ml">${['Reposts', 'Quotes', 'Likes'].map((l, j) => `<span><i style="opacity:${[1, .6, .3][j]}"></i>${l} <b class="mono">${a.mix[j]}%</b></span>`).join('')}</div>
+  <div class="md">Median delay after the automated post <b class="mono">${a.delay}</b></div></div>
+  <div class="pub">${a.pub} Private accounts are counted, never listed. Click for evidence.</div>
+</button>`).join('');
+document.querySelectorAll('.acard').forEach(c => c.addEventListener('click', () => openDrawer('Archetype: ' + AR[c.dataset.i].name + '. Largest cluster these accounts amplified')));
+
+/* ---------------- method charts ---------------- */
+document.querySelectorAll('.curve').forEach(svg => {
+  const k = svg.dataset.k.split(',').map(Number), v = svg.dataset.v.split(',').map(Number), hi = +svg.dataset.hi;
+  const w = 420, h = 104, l = 30, r = 12, t = 10, b = 26; svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const x = i => l + i / (k.length - 1) * (w - l - r), y = val => t + (1 - val) * (h - t - b);
+  let o = '';
+  [0, .5, 1].forEach(g => o += `<line x1="${l}" x2="${w - r}" y1="${y(g)}" y2="${y(g)}" stroke="#EFECE5"/><text x="${l - 6}" y="${y(g) + 4}" text-anchor="end" style="font:10.5px var(--mono);fill:#4A4F5A">${g}</text>`);
+  o += `<polyline points="${v.map((val, i) => x(i) + ',' + y(val)).join(' ')}" fill="none" stroke="#16181D" stroke-width="1.6"/>`;
+  v.forEach((val, i) => { o += `<circle cx="${x(i)}" cy="${y(val)}" r="${i === hi ? 4.5 : 2.6}" fill="${i === hi ? '#16181D' : '#fff'}" stroke="#16181D" stroke-width="1.4"/><text x="${x(i)}" y="${h - 8}" text-anchor="middle" style="font:10.5px var(--mono);fill:${i === hi ? '#16181D' : '#4A4F5A'}">${k[i]}</text>`; });
+  o += `<text x="${x(hi) + 8}" y="${y(v[hi]) + 14}" style="font:500 11px var(--mono);fill:#16181D">${v[hi].toFixed(2)}</text>`;
+  o += `<text x="${l + 6}" y="${t + 2}" style="font:11px var(--sans);fill:#4A4F5A">${svg.dataset.lab}</text>`;
+  svg.innerHTML = o;
+});
+$('#agree').innerHTML = [['spy', 88], ['affairs', 86], ['politics', 81], ['board', 91], ['market', 87], ['defend', 79], ['jokes', 72]].map(([k2, val]) => { const n = N.find(z => z.k === k2); return `<span><i class="sw" style="background:${n.c}"></i>${n.name}</span><div class="ab"><i style="width:${val}%;background:${n.c}"></i></div><span class="mono">${val}%</span>`; }).join('');
+
+/* ---------------- evidence drawer ---------------- */
+const secs = [4, 7, 9, 12, 15, 19, 22, 26, 31, 36, 41, 47, 52, 58];
+const refs = ['3f9a', 'b71c', '0e4d', '9a2f', 'c58e', '61b0', 'd3a7', '4c19', 'e802', '7f5b', '25ce', 'a4d6', '8b03', 'f1e7'];
+const sc = [.97, .95, .94, .93, .93, .91, .90, .88, .87, .85, .83, .79, .74, .68];
+const cr = ['Oct 21', 'Oct 21', 'Oct 23', 'Oct 24', 'Oct 24', 'Oct 26', 'Oct 27', 'Oct 29', 'Oct 30', 'Nov 1', 'Nov 2', 'Mar 14', 'Aug 3', '2024'];
+const ppd = [212, 188, 174, 160, 141, 133, 97, 88, 71, 58, 44, 39, 22, 9];
+$('#atbody').innerHTML = refs.map((r, i) => `<tr><td>acct·${r}</td><td>2026-11-12T20:31:${String(secs[i]).padStart(2, '0')}Z</td><td class="r sc">${sc[i].toFixed(2)}</td><td class="r">${cr[i]}</td><td class="r">${ppd[i]}</td></tr>`).join('');
+{ const B = $('#burst'); const w = 572, x = s => 10 + s / 60 * (w - 20); let s = `<line x1="10" x2="${w - 10}" y1="30" y2="30" stroke="#E3DFD6"/>`;
+  [0, 15, 30, 45, 60].forEach(v => s += `<line x1="${x(v)}" x2="${x(v)}" y1="26" y2="34" stroke="#8A8F99"/><text x="${x(v)}" y="50" text-anchor="${v === 0 ? 'start' : v === 60 ? 'end' : 'middle'}" style="font:11px var(--mono);fill:#4A4F5A">20:3${v === 60 ? '2:00' : '1:' + String(v).padStart(2, '0')}</text>`);
+  s += `<rect x="${x(4)}" y="12" width="${x(58) - x(4)}" height="4" fill="#FBE6E0"/><text x="${(x(4) + x(58)) / 2}" y="9" text-anchor="middle" style="font:11px var(--sans);fill:#4A4F5A">54 seconds, first post to last</text>`;
+  secs.forEach(v => s += `<line x1="${x(v)}" x2="${x(v)}" y1="20" y2="40" stroke="#D9472B" stroke-width="2"/>`);
+  B.innerHTML = s; }
+const drawer = $('#drawer'), scrim = $('#scrim'); let lastFocus = null;
+function openDrawer(from) { lastFocus = document.activeElement; $('#dfrom').textContent = 'Coordination cluster C-07 · opened from ' + from; drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false'); setTimeout(() => drawer.focus({ preventScroll: true }), 50); markTab('evidence'); }
+function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); markTab(current); if (location.hash.includes('evidence')) history.replaceState(null, '', '#view=' + current); if (lastFocus) lastFocus.focus({ preventScroll: true }); }
+$('#dclose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('on')) closeDrawer(); });
+document.querySelectorAll('[data-evidence]').forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.evidence)));
+
+/* ---------------- copy: finding, link, citation ---------------- */
+const CITE = 'Bluesky posts about Jensen Huang leaving Nvidia, Nov 5 to 13, 2026 (46,656 posts). Check JH-1112, coordination cluster C-07: 14 accounts posted identical text between 2026-11-12T20:31:04Z and 20:31:58Z. Accounts described as likely automated, not identified.';
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  const kind = b.dataset.copy; let text;
+  if (kind === 'finding') text = b.closest('.finding').querySelector('.ftext').textContent + ' (Check JH-1112)';
+  else if (kind === 'cite') text = CITE;
+  else text = location.href.split('#')[0] + '#view=' + (b.dataset.view || current) + (b.dataset.view === 'evidence' ? '&check=JH-1112&cluster=C-07' : '&check=JH-1112');
+  const done = () => { const sp = b.querySelector('span') || b; const was = sp.textContent; sp.textContent = 'Copied'; b.classList.add('done'); setTimeout(() => { sp.textContent = was; b.classList.remove('done'); }, 1400); };
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(done, done);
+});
+
+/* ---------------- routing ---------------- */
+const VIEWS = { replay: '#v-replay', nobots: '#v-nobots', archetypes: '#v-arch', method: '#v-method' };
+let current = 'replay', riverDrawn = false;
+function markTab(v) { document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view === v)); }
+function show(v) {
+  current = v; Object.entries(VIEWS).forEach(([k, s]) => $(s).classList.toggle('on', k === v)); markTab(v);
+  if (v === 'replay') { drawRiver(); setT(T); riverDrawn = true; } else stop();
+}
+function route() {
+  const p = new URLSearchParams(location.hash.slice(1)); const v = p.get('view') || 'replay';
+  if (v === 'evidence') { if (!drawer.classList.contains('on')) { show(current === 'replay' && !riverDrawn ? 'nobots' : current); openDrawer('Defending Huang, likely automated 18% (13 to 24%)'); } return; }
+  if (p.get('removed') === '1' && !removed) { removed = true; $('#tog').setAttribute('aria-checked', true); layoutRows(false); }
+  if (drawer.classList.contains('on')) closeDrawer();
+  show(VIEWS[v] ? v : 'replay');
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { location.hash = 'view=' + t.dataset.view; }));
+window.addEventListener('hashchange', route);
+window.addEventListener('resize', () => { if (current === 'replay') { drawRiver(); setT(T); } });
+route();
+})();
+</script>
+</body>
+</html>

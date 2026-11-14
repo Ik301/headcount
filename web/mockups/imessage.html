@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text line: who is pushing this claim (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F5F0;
+    --card: #FFFFFF;
+    --ink: #16181D;
+    --ink-2: #4A4F5A;
+    --ink-3: #8A8F99;
+    --rule: #E3DFD6;
+    --signal: #D9472B;
+    --signal-wash: #FBE6E0;
+    --human: #2F6F8F;
+    --human-wash: #E3EEF3;
+    --n-spy: #6B5CA5;
+    --n-affairs: #B0675A;
+    --n-politics: #3E7C6A;
+    --n-board: #8C7A3D;
+    --n-market: #4F6FA8;
+    --n-defend: #A0527F;
+    --n-jokes: #8A8F99;
+
+    /* iOS Messages, light mode */
+    --ios-blue: #007AFF;
+    --ios-gray: #E9E9EB;
+    --ios-label-2: #6E6E73;
+    --ios-sep: rgba(60, 60, 67, 0.18);
+
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --ios: -apple-system, "SF Pro Text", "IBM Plex Sans", system-ui, sans-serif;
+
+    --sw: 393px;   /* phone screen width */
+    --sh: 852px;   /* minimum phone screen height; long threads extend it */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 400 16px/1.5 var(--sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection { background: var(--human-wash); color: var(--ink); }
+  a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+  .page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 64px 32px 72px;
+  }
+
+  /* ---------- opening: table card + headline ---------- */
+  .opening {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 24px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+  .table-card-wrap { display: flex; justify-content: center; }
+  .intro { grid-column: 2 / 4; padding: 0 0 8px 8px; }
+  .intro h1 {
+    font: 500 56px/1.04 var(--serif);
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+    max-width: 15ch;
+    text-wrap: balance;
+  }
+  .intro .lede {
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin: 0 0 18px;
+    max-width: 58ch;
+  }
+  .sample-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font: 500 13px/1 var(--mono);
+    color: var(--ink-2);
+    padding: 7px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--card);
+  }
+  .sample-note::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-3);
+  }
+
+  /* physical table tent card */
+  .table-card {
+    width: 392px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 22px 18px;
+    transform: rotate(-2deg);
+    box-shadow: 0 18px 30px -18px rgba(22, 24, 29, 0.35), 0 2px 4px rgba(22, 24, 29, 0.06);
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .table-card .qr { width: 128px; height: 128px; display: block; }
+  .table-card h2 {
+    font: 500 27px/1.1 var(--serif);
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  .table-card p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+  .table-card .tc-foot {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+    font: 400 12px/1 var(--mono);
+    color: var(--ink-2);
+  }
+
+  /* ---------- the three screens ---------- */
+  .flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 24px;
+  }
+  .step { display: flex; flex-direction: column; align-items: center; }
+  .step figure { margin: 0; display: flex; flex-direction: column; align-items: center; }
+
+  .caption {
+    width: calc(var(--sw) + 24px);
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    column-gap: 8px;
+  }
+  .caption .n {
+    font: 500 13px/26px var(--mono);
+    color: var(--ink-2);
+  }
+  .caption h3 {
+    font: 500 21px/1.25 var(--serif);
+    margin: 0 0 6px;
+    letter-spacing: -0.005em;
+  }
+  .caption p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+  .caption code {
+    font: 400 14px/1 var(--mono);
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  .replay {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 500 14px/1 var(--sans);
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 9px 14px 9px 11px;
+    cursor: pointer;
+    transition: border-color 160ms var(--ease-out), background 160ms var(--ease-out);
+  }
+  .replay:hover { border-color: var(--ink-3); }
+  .replay:disabled { color: var(--ink-3); cursor: default; border-color: var(--rule); }
+  .replay svg { width: 14px; height: 14px; }
+
+  /* ---------- phone hardware ---------- */
+  .phone {
+    position: relative;
+    width: calc(var(--sw) + 24px);
+    padding: 12px;
+    display: flex;
+    border-radius: 60px;
+    background: #23252B;
+    box-shadow:
+      inset 0 0 0 1.5px #3A3D45,
+      0 40px 60px -30px rgba(22, 24, 29, 0.45),
+      0 2px 6px rgba(22, 24, 29, 0.18);
+  }
+  .screen {
+    position: relative;
+    width: var(--sw);
+    min-height: var(--sh);
+    flex: 1;
+    border-radius: 48px;
+    overflow: hidden;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ios);
+    color: #000;
+  }
+  .island {
+    position: absolute;
+    top: 11px; left: 50%;
+    width: 122px; height: 35px;
+    transform: translateX(-50%);
+    background: #000;
+    border-radius: 20px;
+    z-index: 30;
+  }
+  .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 30px 0 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 25;
+    font: 600 16px/20px var(--ios);
+    letter-spacing: -0.01em;
+  }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; height: 20px; }
+  .statusbar svg { display: block; }
+  .home-ind {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    width: 136px; height: 5px;
+    transform: translateX(-50%);
+    border-radius: 3px;
+    background: #000;
+    z-index: 30;
+  }
+
+  /* ---------- screen 1: Safari + join page ---------- */
+  .safari { background: var(--paper); }
+  .site {
+    flex: 1;
+    padding: 70px 24px 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .site-mast {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+    margin-bottom: 26px;
+    font: 400 12px/1 var(--mono);
+    color: var(--ink-2);
+  }
+  .site-mast strong { font: 500 13px/1 var(--sans); color: var(--ink); }
+  .site h2 {
+    font: 500 33px/1.08 var(--serif);
+    letter-spacing: -0.015em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .site .intro-p { font-size: 15px; line-height: 1.5; color: var(--ink-2); margin: 0 0 26px; }
+  .field label {
+    display: block;
+    font: 500 13px/1 var(--sans);
+    margin-bottom: 8px;
+  }
+  .field .input {
+    display: flex;
+    align-items: center;
+    padding: 13px 0;
+    background: var(--card);
+    border: 1px solid var(--ink-3);
+    border-radius: 10px;
+    font: 400 18px/22px var(--mono);
+    color: var(--ink);
+  }
+  .field .cc {
+    padding: 0 12px;
+    border-right: 1px solid var(--rule);
+    color: var(--ink-2);
+  }
+  .field .val { padding: 0 12px; }
+  .field .help { font-size: 13px; line-height: 1.45; color: var(--ink-2); margin: 8px 0 0; }
+  .registered {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 16px 0 26px;
+    padding: 11px 12px;
+    background: var(--human-wash);
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #1E4A60;
+  }
+  .registered svg { flex: none; margin-top: 1px; }
+  .agent-num {
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+  .agent-num .k { font-size: 14px; color: var(--ink-2); margin: 0 0 4px; }
+  .agent-num .num {
+    font: 500 34px/1.1 var(--serif);
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+  }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 48px;
+    border-radius: 10px;
+    font: 500 15px/1 var(--sans);
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-secondary { background: var(--card); color: var(--ink); border: 1px solid var(--rule); }
+  .try { margin-top: 26px; }
+  .try .k { font-size: 13px; color: var(--ink-2); margin: 0 0 8px; }
+  .try a {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 15px;
+    line-height: 1.4;
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+  .how { margin-top: 26px; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .how .k { font: 500 13px/1 var(--sans); margin: 0 0 10px; }
+  .how ol { margin: 0; padding: 0; list-style: none; }
+  .how li {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+  .how li span { font: 500 13px/1.4 var(--mono); color: var(--ink); }
+  .site .fine {
+    margin: 18px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .safari-bar {
+    position: relative;
+    background: rgba(247, 245, 240, 0.94);
+    border-top: 1px solid var(--rule);
+    padding: 8px 14px 30px;
+  }
+  .address {
+    min-height: 44px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border: 0.5px solid rgba(60, 60, 67, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    font: 400 16px/20px var(--ios);
+    color: #000;
+  }
+  .address .aa { font: 500 15px/1 var(--ios); }
+  .address .host { display: flex; align-items: center; gap: 5px; }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 10px 0;
+  }
+
+  /* ---------- screens 2 and 3: Messages ---------- */
+  .navbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 142px;
+    z-index: 20;
+    background: rgba(249, 249, 249, 0.82);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 0.5px solid var(--ios-sep);
+  }
+  .navbar .back {
+    position: absolute;
+    left: 10px; top: 72px;
+    display: flex; align-items: center; gap: 2px;
+    color: var(--ios-blue);
+    font: 400 17px/1 var(--ios);
+  }
+  .navbar .back .badge {
+    min-width: 22px; height: 22px; padding: 0 6px;
+    border-radius: 11px;
+    background: var(--ios-blue);
+    color: #fff;
+    font: 500 14px/22px var(--ios);
+    text-align: center;
+  }
+  .navbar .who {
+    position: absolute;
+    left: 50%; top: 58px;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 5px;
+  }
+  .avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(#A5A9B1, #858A93);
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .navbar .name {
+    font: 400 12px/1.3 var(--ios);
+    color: #000;
+    display: flex; align-items: center; gap: 3px;
+    white-space: nowrap;
+  }
+  .navbar .video {
+    position: absolute;
+    right: 18px; top: 74px;
+    color: var(--ios-blue);
+  }
+
+  .thread {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 150px 16px 10px;
+    font-size: 16px;
+    line-height: 21px;
+    letter-spacing: -0.01em;
+  }
+  .thread > * { flex-shrink: 0; }
+  .stamp {
+    text-align: center;
+    font: 400 12px/1.35 var(--ios);
+    color: var(--ios-label-2);
+    margin: 4px 0 10px;
+  }
+  .stamp b { font-weight: 600; }
+
+  .msg {
+    position: relative;
+    max-width: 80%;
+    padding: 7px 13px 8px;
+    border-radius: 19px;
+    margin-top: 2px;
+    word-wrap: break-word;
+  }
+  .msg p { margin: 0; }
+  .msg p + p { margin-top: 10px; }
+  .msg.sent { align-self: flex-end; background: var(--ios-blue); color: #fff; }
+  .msg.recv { align-self: flex-start; background: var(--ios-gray); color: #000; }
+  .msg.first { margin-top: 12px; }
+  .msg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* the iOS tail, only on the last bubble of a run */
+  .msg.tail::before, .msg.tail::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    height: 20px;
+  }
+  .msg.sent.tail::before { right: -7px; width: 20px; background: var(--ios-blue); border-bottom-left-radius: 16px 14px; }
+  .msg.sent.tail::after  { right: -26px; width: 26px; background: #fff; border-bottom-left-radius: 10px; }
+  .msg.recv.tail::before { left: -7px; width: 20px; background: var(--ios-gray); border-bottom-right-radius: 16px 14px; }
+  .msg.recv.tail::after  { left: -26px; width: 26px; background: #fff; border-bottom-right-radius: 10px; }
+
+  .receipt {
+    align-self: flex-end;
+    font: 400 12px/1.3 var(--ios);
+    color: var(--ios-label-2);
+    margin: 3px 4px 0 0;
+  }
+  .receipt b { font-weight: 600; }
+
+  .typing {
+    align-self: flex-start;
+    position: relative;
+    margin-top: 12px;
+    margin-left: 4px;
+    background: var(--ios-gray);
+    border-radius: 19px;
+    padding: 12px 14px;
+    display: none;
+    gap: 5px;
+  }
+  .typing::before, .typing::after {
+    content: "";
+    position: absolute;
+    background: var(--ios-gray);
+    border-radius: 50%;
+  }
+  .typing::before { width: 14px; height: 14px; left: -3px; bottom: -2px; }
+  .typing::after  { width: 7px; height: 7px; left: -9px; bottom: -8px; }
+  .typing i {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #8E8E93;
+    animation: dot 1.2s infinite ease-in-out;
+  }
+  .typing i:nth-child(2) { animation-delay: 0.18s; }
+  .typing i:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes dot {
+    0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-2px); }
+  }
+  .typing.on { display: flex; }
+
+  /* attachment images sent by the line: drawn in the instrument's world */
+  .attach {
+    align-self: flex-start;
+    width: 284px;
+    margin-top: 4px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--paper);
+    border: 0.5px solid rgba(0, 0, 0, 0.14);
+    font-family: var(--sans);
+    color: var(--ink);
+    letter-spacing: 0;
+    padding: 14px 16px 12px;
+  }
+  .attach .t {
+    font: 500 17px/1.3 var(--serif);
+    margin: 0 0 2px;
+  }
+  .attach .s {
+    font: 400 12px/1.35 var(--mono);
+    color: var(--ink-2);
+    margin: 0 0 12px;
+  }
+  .bars { display: grid; gap: 10px; }
+  .bar-row .lbl {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12.5px; line-height: 1.3;
+    margin-bottom: 3px;
+  }
+  .bar-row .lbl b { font: 500 12.5px/1.3 var(--mono); }
+  .track { height: 12px; position: relative; }
+  .fill {
+    height: 100%;
+    display: flex;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .fill .auto { background: var(--signal); min-width: 2px; }
+  .fill .rest { flex: 1; }
+  .bar-row .note {
+    font: 400 12px/1.35 var(--mono);
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+  .bar-row .note em { font-style: normal; color: var(--ink); font-weight: 500; }
+  .legend {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    white-space: nowrap;
+    margin-top: 12px;
+    padding-top: 9px;
+    border-top: 1px solid var(--rule);
+    font: 400 12px/1.35 var(--mono);
+    color: var(--ink-2);
+  }
+  .legend .sw { width: 9px; height: 9px; background: var(--signal); border-radius: 1px; flex: none; }
+  .legend .key { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* timing strip for the coordination evidence */
+  .strip { margin-bottom: 12px; }
+  .strip .k { font-size: 12.5px; line-height: 1.3; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .strip .k b { font: 500 12.5px/1.3 var(--mono); }
+  .strip svg { display: block; width: 100%; height: 30px; overflow: visible; }
+  .strip .ax { display: flex; justify-content: space-between; font: 400 11.5px/1.3 var(--mono); color: var(--ink-2); margin-top: 4px; }
+
+  .inputbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px 38px;
+    background: #fff;
+  }
+  .inputbar .plus {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--ios-gray);
+    display: grid; place-items: center;
+    flex: none;
+  }
+  .inputbar .field-ios {
+    flex: 1;
+    height: 36px;
+    border: 1px solid #D1D1D6;
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px 0 14px;
+    color: #A3A3A8;
+    font: 400 16.5px/1 var(--ios);
+  }
+
+  /* playback state */
+  .is-hidden { display: none !important; }
+  .reveal { animation: pop 360ms var(--ease-out) both; }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---------- close ---------- */
+  .close {
+    margin-top: 80px;
+    border-top: 1px solid var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    column-gap: 32px;
+    padding-top: 24px;
+  }
+  .close h2 {
+    font: 500 28px/1.15 var(--serif);
+    letter-spacing: -0.01em;
+    margin: 0;
+    max-width: 14ch;
+  }
+  .commands { margin: 0; padding: 0; list-style: none; }
+  .commands li {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    column-gap: 24px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .commands li:first-child { padding-top: 4px; }
+  .commands kbd {
+    font: 500 14px/1.5 var(--mono);
+    color: var(--ink);
+  }
+  .never {
+    grid-column: 2;
+    margin: 18px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 70ch;
+  }
+  .never strong { color: var(--ink); font-weight: 500; }
+
+  /* ---------- small screens ---------- */
+  @media (max-width: 1240px) {
+    .opening, .flow { grid-template-columns: 1fr; }
+    .intro { grid-column: 1; padding: 0; order: -1; margin-bottom: 40px; }
+    .opening { justify-items: start; }
+    .table-card-wrap { justify-content: flex-start; }
+    .flow { row-gap: 64px; }
+    .close { grid-template-columns: 1fr; row-gap: 20px; }
+    .never { grid-column: 1; }
+  }
+  @media (max-width: 520px) {
+    :root { --sw: calc(100vw - 48px); }
+    .page { padding: 36px 12px 48px; }
+    .intro h1 { font-size: 38px; }
+    .intro .lede { font-size: 16.5px; }
+    .opening { margin-bottom: 48px; }
+    .table-card-wrap { width: 100%; justify-content: center; }
+    .table-card { width: 100%; max-width: 360px; transform: rotate(-1.5deg); grid-template-columns: 96px 1fr; gap: 14px; padding: 18px; }
+    .table-card .qr { width: 96px; height: 96px; }
+    .table-card h2 { font-size: 21px; }
+    .phone { border-radius: 54px; }
+    .screen { border-radius: 42px; }
+    .caption { width: 100%; }
+    .commands li { grid-template-columns: 1fr; row-gap: 2px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .typing i { animation: none; opacity: 0.6; }
+    .reveal { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <section class="opening" aria-label="Introduction">
+    <div class="table-card-wrap">
+      <div class="table-card" role="img" aria-label="Printed card on the judges' table with a QR code to the join page">
+        <svg class="qr" id="qr" viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"></svg>
+        <div>
+          <h2>Heard a claim? Text it to us.</h2>
+          <p>Scan to join the text line. We text back who is pushing it, in about 20 seconds.</p>
+        </div>
+        <div class="tc-foot"><span>socialnet.watch/join</span><span>Table 14</span></div>
+      </div>
+    </div>
+    <div class="intro">
+      <h1>Text it a claim. It texts back who is pushing it.</h1>
+      <p class="lede">The text line, in three screens: a judge scans the card on the table, texts a claim they heard, then asks for the evidence behind the numbers. No app, no login; the answer is a few lines, a chart and a link.</p>
+      <p class="sample-note">Mockup with sample data.</p>
+    </div>
+  </section>
+
+  <ol class="flow">
+
+    <!-- 1. Join -->
+    <li class="step">
+      <figure>
+        <div class="phone">
+          <div class="screen safari">
+            <div class="island"></div>
+            <div class="statusbar" aria-hidden="true">
+              <span>2:13</span>
+              <span class="icons">
+                <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#000"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+                <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.1-1.2A10.2 10.2 0 0 0 8 .5C5.3.5 2.8 1.5.9 3.4L2 4.6a8.6 8.6 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.1-1.2A7 7 0 0 0 8 4a7 7 0 0 0-4.7 1.8L4.4 7c1-.9 2.2-1.4 3.6-1.4Zm0 3.4c.5 0 1 .2 1.3.5L8 11 6.7 9.5c.3-.3.8-.5 1.3-.5Z" fill="#000"/></svg>
+                <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="#000" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2.4" fill="#000"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="#000" fill-opacity=".45"/></svg>
+              </span>
+            </div>
+
+            <div class="site">
+              <div class="site-mast"><strong>Who is pushing this?</strong><span>text line</span></div>
+              <h2>Join the text line</h2>
+              <p class="intro-p">Text any claim or story. You get back who is pushing it, how much of it looks automated, and what kinds of real accounts share it.</p>
+
+              <div class="field">
+                <label for="num">Your iMessage number</label>
+                <div class="input" id="num"><span class="cc">+1</span><span class="val">(609) 555-0187</span></div>
+                <p class="help">The line is a shared Photon number. It only answers numbers registered here.</p>
+              </div>
+
+              <div class="registered">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.25" fill="none" stroke="#2F6F8F" stroke-width="1.5"/><path d="m5.4 9.2 2.4 2.3 4.8-5" fill="none" stroke="#2F6F8F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Registered. The line will answer texts from (609) 555-0187.</span>
+              </div>
+
+              <div class="agent-num">
+                <p class="k">Now text your claim to</p>
+                <p class="num">+1 (609) 555-0142</p>
+                <div class="btn-row">
+                  <a class="btn btn-primary" href="#thread">
+                    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.2c-4.1 0-7.3 2.7-7.3 6.1 0 1.9 1 3.6 2.6 4.7-.1 1-.6 2-1.4 2.7 1.6.1 3-.4 4-1.3.7.2 1.4.2 2.1.2 4.1 0 7.3-2.7 7.3-6.1S13.1 2.2 9 2.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    Open Messages
+                  </a>
+                  <a class="btn btn-secondary" href="#thread">Add to Contacts</a>
+                </div>
+              </div>
+
+              <div class="try">
+                <p class="k">Not sure what to ask? Try the story we followed all week:</p>
+                <a href="#thread">“Was Jensen Huang's mistress a Chinese spy?”</a>
+              </div>
+
+              <div class="how">
+                <p class="k">After that, three things to text</p>
+                <ol>
+                  <li><span>Any claim or story</span>who is pushing it, in about 20 seconds</li>
+                  <li><span>show the bots</span>the coordination behind the numbers</li>
+                  <li><span>who shares it</span>the real accounts amplifying them</li>
+                </ol>
+              </div>
+
+              <p class="fine">Your number is used only to reply to your texts. The line reports who is pushing a claim; it never rules on whether the claim is true.</p>
+            </div>
+
+            <div class="safari-bar" aria-hidden="true">
+              <div class="address">
+                <span class="aa">aA</span>
+                <span class="host">
+                  <svg width="10" height="13" viewBox="0 0 10 13"><rect x=".5" y="5.5" width="9" height="7" rx="1.5" fill="#000"/><path d="M2.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="#000" stroke-width="1.3"/></svg>
+                  socialnet.watch
+                </span>
+                <svg width="16" height="16" viewBox="0 0 16 16"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5c1.7 0 3.2.8 4.2 2" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round"/><path d="M12.8 1.5v3.3H9.5" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="toolbar">
+                <svg width="22" height="22" viewBox="0 0 22 22"><path d="m13.5 4-7 7 7 7" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 22 22"><path d="m8.5 4 7 7-7 7" fill="none" stroke="#C4C4C6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2.5v11M7.5 6 11 2.5 14.5 6" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 9H5.5v10.5h11V9H15" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 22 22"><path d="M3 5.5c2.5-1.5 5.5-1.5 8 0v13c-2.5-1.5-5.5-1.5-8 0v-13Zm8 0c2.5-1.5 5.5-1.5 8 0v13c-2.5-1.5-5.5-1.5-8 0" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="6" width="12" height="12" rx="2.5" fill="none" stroke="#007AFF" stroke-width="1.8"/><path d="M7 3h9.5A2.5 2.5 0 0 1 19 5.5V15" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </div>
+              <div class="home-ind"></div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="caption">
+          <span class="n">1</span>
+          <div>
+            <h3>Scan the card, register a number</h3>
+            <p>The shared iMessage line only answers registered senders, so the join page asks for the number you text from, then gives you the line's number.</p>
+          </div>
+        </figcaption>
+      </figure>
+    </li>
+
+    <!-- 2. Ask -->
+    <li class="step">
+      <figure>
+        <div class="phone">
+          <div class="screen" id="thread">
+            <div class="island"></div>
+            <div class="statusbar" aria-hidden="true">
+              <span>2:14</span>
+              <span class="icons" data-icons></span>
+            </div>
+            <div class="navbar" aria-hidden="true" data-nav></div>
+
+            <div class="thread" id="thread2" role="log" aria-label="Conversation with the text line">
+              <div class="stamp"><b>iMessage</b><br>Today 2:14 PM</div>
+
+              <div class="msg sent tail first" data-seq="1">Was Jensen Huang's mistress a Chinese spy?</div>
+              <div class="receipt" data-seq="1"><b>Delivered</b></div>
+
+              <div class="msg recv tail first" data-seq="2">Checking who is pushing that. About 20 seconds.</div>
+
+              <div class="typing" id="typing2" aria-label="The line is typing"><i></i><i></i><i></i></div>
+
+              <div class="msg recv first" data-seq="3">
+                <p>I found 1,240 Bluesky posts making this claim (Nov 5 to 13).</p>
+                <p>Spy plot and national security: 62% of posts, 9% likely automated (6 to 12%), 2.2x baseline.<br>
+                Defending Huang: 21%, 18% likely automated (13 to 24%), 4.4x baseline.<br>
+                Jokes and memes: 17%, 3% likely automated (1 to 5%).</p>
+                <p>The likely automated accounts defending Huang: 41 were created in the same two weeks; 14 reposted the same 6 posts within 60 seconds.</p>
+                <p>2,316 real accounts amplified them, most often new accounts that mostly repost market news (2.7x similar accounts).</p>
+                <p>I don't judge whether the claim is true. Full view: <a href="#">socialnet.watch/c/7f3k</a></p>
+              </div>
+
+              <div class="attach" data-seq="4" role="img" aria-label="Chart: share of the 1,240 posts by narrative, with the likely automated portion of each">
+                <p class="t">Who is pushing it</p>
+                <p class="s">1,240 Bluesky posts · Nov 5 to 13</p>
+                <div class="bars">
+                  <div class="bar-row">
+                    <div class="lbl"><span>Spy plot and national security</span><b>62%</b></div>
+                    <div class="track"><div class="fill" style="width: 88.6%"><span class="auto" style="width: 9%"></span><span class="rest" style="background: var(--n-spy)"></span></div></div>
+                    <div class="note"><em>9%</em> likely automated (6 to 12%)</div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="lbl"><span>Defending Huang</span><b>21%</b></div>
+                    <div class="track"><div class="fill" style="width: 30%"><span class="auto" style="width: 18%"></span><span class="rest" style="background: var(--n-defend)"></span></div></div>
+                    <div class="note"><em>18%</em> likely automated (13 to 24%)</div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="lbl"><span>Jokes and memes</span><b>17%</b></div>
+                    <div class="track"><div class="fill" style="width: 24.3%"><span class="auto" style="width: 3%"></span><span class="rest" style="background: var(--n-jokes)"></span></div></div>
+                    <div class="note"><em>3%</em> likely automated (1 to 5%)</div>
+                  </div>
+                </div>
+                <div class="legend"><span class="key"><span class="sw"></span>likely automated</span><span>baseline 4.1%</span></div>
+              </div>
+            </div>
+
+            <div class="inputbar" aria-hidden="true" data-input></div>
+            <div class="home-ind"></div>
+          </div>
+        </div>
+        <figcaption class="caption">
+          <span class="n">2</span>
+          <div>
+            <h3>Text a claim, get who is pushing it</h3>
+            <p>About 20 seconds later: one line per narrative with its likely automated share and interval, what those accounts have in common, who amplifies them, and a chart.</p>
+            <button class="replay" id="replay" type="button">
+              <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 2.2v9.6L11.5 7Z" fill="currentColor"/></svg>
+              <span>Replay the conversation</span>
+            </button>
+          </div>
+        </figcaption>
+      </figure>
+    </li>
+
+    <!-- 3. Follow up -->
+    <li class="step">
+      <figure>
+        <div class="phone">
+          <div class="screen">
+            <div class="island"></div>
+            <div class="statusbar" aria-hidden="true">
+              <span>2:16</span>
+              <span class="icons" data-icons></span>
+            </div>
+            <div class="navbar" aria-hidden="true" data-nav></div>
+
+            <div class="thread" role="log" aria-label="Follow-up questions">
+              <div class="stamp">Today 2:15 PM</div>
+
+              <div class="msg sent tail first">show the bots</div>
+
+              <div class="msg recv first">
+                <p>Behind Defending Huang: 14 accounts posted identical text within 54 seconds on Nov 12 (20:31:04 to 20:31:58 UTC):</p>
+                <p>“The smear campaign against Jensen is a gift to Beijing. Wake up.”</p>
+                <p>All 14 were created in the same two weeks (Oct 20 to Nov 2). Likely automated, not confirmed; none is public, so none is named. Evidence: <a href="#">socialnet.watch/c/7f3k/x2</a></p>
+              </div>
+
+              <div class="attach" role="img" aria-label="Timing of the 14 identical posts within one minute, and the creation dates of the 14 accounts">
+                <p class="t">14 identical posts</p>
+                <p class="s">Nov 12, 2026 · times in UTC</p>
+                <div class="strip">
+                  <div class="k"><span>Posted</span><b>within 54 s</b></div>
+                  <svg viewBox="0 0 240 30" preserveAspectRatio="none" aria-hidden="true" id="strip-posted"></svg>
+                  <div class="ax"><span>20:31:00</span><span>20:32:00</span></div>
+                </div>
+                <div class="strip" style="margin-bottom: 0">
+                  <div class="k"><span>Account created</span><b>Oct 20 to Nov 2</b></div>
+                  <svg viewBox="0 0 240 30" preserveAspectRatio="none" aria-hidden="true" id="strip-created"></svg>
+                  <div class="ax"><span>Sep 1</span><span>Nov 13</span></div>
+                </div>
+              </div>
+
+              <div class="msg sent tail first">who shares it</div>
+              <div class="receipt"><b>Read</b> 2:16 PM</div>
+
+              <div class="msg recv tail first">
+                <p>2,316 real accounts reposted, quoted or liked them. By kind, with lift over similar accounts:</p>
+                <p>New accounts that mostly repost market news: 31% of them, 2.7x (2.1 to 3.4)<br>
+                Heavy reposters, mostly politics: 24%, 1.9x (1.5 to 2.3)<br>
+                Tech-industry posters with large followings: 12%, 0.8x (0.6 to 1.1)<br>
+                Conversational posters (mostly replies): 33%, 0.6x (0.5 to 0.8)</p>
+                <p>Text “next” for the next narrative.</p>
+              </div>
+            </div>
+
+            <div class="inputbar" aria-hidden="true" data-input></div>
+            <div class="home-ind"></div>
+          </div>
+        </div>
+        <figcaption class="caption">
+          <span class="n">3</span>
+          <div>
+            <h3>Ask for the evidence</h3>
+            <p><code>show the bots</code> returns the coordination behind the numbers. <code>who shares it</code> returns the kinds of real accounts amplifying them, with lift over similar accounts.</p>
+          </div>
+        </figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <section class="close" aria-label="What the line understands">
+    <h2>What you can text the line</h2>
+    <ul class="commands">
+      <li><kbd>any claim or story</kbd><span>Narratives, likely automated share with a 95% interval, what those accounts share, who amplifies them, a chart and a link.</span></li>
+      <li><kbd>show the bots</kbd><span>The strongest coordination evidence: identical text or links posted within seconds, and when the accounts were created.</span></li>
+      <li><kbd>who shares it</kbd><span>The archetypes of real accounts amplifying likely automated ones, with lift over matched similar accounts.</span></li>
+      <li><kbd>next</kbd><span>The same breakdown for the next narrative.</span></li>
+    </ul>
+    <p class="never"><strong>What it never does:</strong> rule on whether a claim is true, say who runs an account, or name a private account. Undisclosed accounts are “likely automated”, with a score and reasons, never “bots”.</p>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  // shared iOS chrome for the two Messages screens
+  var icons = document.querySelector('.statusbar .icons').innerHTML;
+  document.querySelectorAll('[data-icons]').forEach(function (el) { el.innerHTML = icons; });
+
+  var nav =
+    '<span class="back"><svg width="13" height="21" viewBox="0 0 13 21"><path d="M11 2 2.5 10.5 11 19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="badge">2</span></span>' +
+    '<span class="who"><span class="avatar"><svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="19.5" r="8.5" fill="#fff"/><path d="M8.5 44c2.6-8 9-12.5 16.5-12.5S38.9 36 41.5 44" fill="#fff"/></svg></span>' +
+    '<span class="name">+1 (609) 555-0142<svg width="6" height="10" viewBox="0 0 6 10"><path d="m1 1 4 4-4 4" fill="none" stroke="#8E8E93" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>' +
+    '<span class="video"><svg width="27" height="18" viewBox="0 0 27 18"><rect x="1" y="2" width="17" height="14" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m19.5 7.2 5.5-3.4v10.4l-5.5-3.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>';
+  document.querySelectorAll('[data-nav]').forEach(function (el) { el.innerHTML = nav; });
+
+  var input =
+    '<span class="plus"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1v12M1 7h12" stroke="#6E6E73" stroke-width="1.8" stroke-linecap="round"/></svg></span>' +
+    '<span class="field-ios">iMessage<svg width="14" height="20" viewBox="0 0 14 20"><rect x="4" y="1" width="6" height="11" rx="3" fill="none" stroke="#8E8E93" stroke-width="1.6"/><path d="M1.5 9a5.5 5.5 0 0 0 11 0M7 14.5V18" fill="none" stroke="#8E8E93" stroke-width="1.6" stroke-linecap="round"/></svg></span>';
+  document.querySelectorAll('[data-input]').forEach(function (el) { el.innerHTML = input; });
+
+  // table card QR (a drawn stand-in, not a scannable code)
+  var qr = document.getElementById('qr');
+  var N = 25, seed = 7, cells = '';
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  function finder(x, y) {
+    return '<rect x="' + x + '" y="' + y + '" width="7" height="7" fill="#16181D"/>' +
+           '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="5" height="5" fill="#fff"/>' +
+           '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="3" height="3" fill="#16181D"/>';
+  }
+  function inFinder(x, y) {
+    return (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+  }
+  for (var y = 0; y < N; y++) {
+    for (var x = 0; x < N; x++) {
+      if (inFinder(x, y)) continue;
+      var on = (y === 6 || x === 6) ? ((x + y) % 2 === 0) : rnd() > 0.52;
+      if (x >= 16 && x <= 20 && y >= 16 && y <= 20) {
+        var edge = x === 16 || x === 20 || y === 16 || y === 20;
+        on = edge || (x === 18 && y === 18);
+      }
+      if (on) cells += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="#16181D"/>';
+    }
+  }
+  qr.innerHTML = '<rect width="25" height="25" fill="#fff"/>' + finder(0, 0) + finder(N - 7, 0) + finder(0, N - 7) + cells;
+
+  // evidence strips
+  function ticks(svg, xs, band) {
+    var s = '';
+    if (band) s += '<rect x="' + band[0] + '" y="0" width="' + (band[1] - band[0]) + '" height="30" fill="#FBE6E0"/>';
+    s += '<line x1="0" y1="29.5" x2="240" y2="29.5" stroke="#8A8F99" stroke-width="1"/>';
+    xs.forEach(function (x) {
+      s += '<line x1="' + x + '" y1="4" x2="' + x + '" y2="29" stroke="#D9472B" stroke-width="2"/>';
+    });
+    svg.innerHTML = s;
+  }
+  // 14 posts at second offsets within 20:31:00 to 20:32:00
+  var secs = [4, 8, 11, 15, 18, 22, 26, 31, 35, 40, 44, 49, 53, 58];
+  ticks(document.getElementById('strip-posted'), secs.map(function (s) { return s / 60 * 240; }));
+  // 14 creation dates between Oct 20 (day 49 from Sep 1) and Nov 2 (day 62), axis Sep 1 to Nov 13 (73 days)
+  var days = [49, 50, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62];
+  var dx = function (d) { return d / 73 * 240; };
+  ticks(document.getElementById('strip-created'), days.map(dx), [dx(49) - 2, dx(62) + 2]);
+
+  // equal phone heights in the side-by-side row; natural heights when stacked
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var stacked = window.matchMedia('(max-width: 1240px)');
+  function fit() {
+    screens.forEach(function (s) { s.style.minHeight = '0'; });
+    var hs = screens.map(function (s) { return Math.ceil(s.getBoundingClientRect().height); });
+    var max = Math.max.apply(null, hs);
+    screens.forEach(function (s, i) {
+      s.style.minHeight = Math.max(852, stacked.matches ? hs[i] : max) + 'px';
+    });
+  }
+  fit();
+  if (document.fonts) document.fonts.ready.then(fit);
+  window.addEventListener('resize', fit);
+
+  // replay screen 2: the judge's message, the holding reply, typing while the check runs, then the answer
+  var btn = document.getElementById('replay');
+  var label = btn.querySelector('span');
+  var thread = document.getElementById('thread2');
+  var typing = document.getElementById('typing2');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  btn.addEventListener('click', function () {
+    var items = Array.prototype.slice.call(thread.querySelectorAll('[data-seq]'));
+    items.forEach(function (el) { el.classList.add('is-hidden'); el.classList.remove('reveal'); });
+    btn.disabled = true;
+    label.textContent = 'Playing (the 20 second wait is shortened)';
+    var show = function (n) {
+      items.filter(function (el) { return el.dataset.seq === String(n); }).forEach(function (el) {
+        el.classList.remove('is-hidden');
+        if (!reduce) el.classList.add('reveal');
+      });
+    };
+    var t = reduce ? 0.25 : 1;
+    var plan = [
+      [300, function () { show(1); }],
+      [900, function () { typing.classList.add('on'); }],
+      [1900, function () { typing.classList.remove('on'); show(2); }],
+      [2500, function () { typing.classList.add('on'); }],
+      [5800, function () { typing.classList.remove('on'); show(3); }],
+      [6600, function () { show(4); }],
+      [7000, function () { btn.disabled = false; label.textContent = 'Replay the conversation'; }]
+    ];
+    plan.forEach(function (p) { setTimeout(p[1], p[0] * t); });
+  });
+})();
+</script>
+</body>
+</html>

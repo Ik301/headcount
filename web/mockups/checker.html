@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim check: who is pushing this story on Bluesky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5F0; --card:#FFFFFF;
+  --ink:#16181D; --ink-2:#4A4F5A; --ink-3:#8A8F99; --rule:#E3DFD6;
+  --signal:#D9472B; --signal-wash:#FBE6E0;
+  --human:#2F6F8F; --human-wash:#E3EEF3;
+  --n-spy:#6B5CA5; --n-affairs:#B0675A; --n-politics:#3E7C6A; --n-board:#8C7A3D;
+  --n-market:#4F6FA8; --n-defend:#A0527F; --n-jokes:#8A8F99;
+  --serif:"Newsreader",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+  /* secondary text on paper needs 4.5:1; --ink-3 is reserved for non-essential captions */
+  --cap:#6B707A;
+  /* --signal darkened for small text so it clears 4.5:1 on paper and on --signal-wash; same hue, same meaning */
+  --signal-ink:#B3371E;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scrollbar-color:var(--rule) var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--sans);
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;caret-color:var(--ink)}
+::selection{background:var(--human-wash);color:var(--ink)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--rule);border-radius:10px;border:2px solid var(--paper)}
+::-webkit-scrollbar-track{background:var(--paper)}
+:focus-visible{outline:2px solid var(--human);outline-offset:3px;border-radius:6px}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+button{font:inherit;color:inherit}
+.num,.mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
+.sig{color:var(--signal-ink)}
+.r-head .sig{color:var(--signal)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.narrow{max-width:640px}
+
+/* top bar */
+.bar{border-bottom:1px solid var(--rule)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 19px/1 var(--serif);letter-spacing:-.01em}
+.mark svg{width:22px;height:22px}
+.where{font-size:13px;color:var(--cap);display:flex;align-items:center;gap:6px}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--human)}
+
+[data-view]{display:none}
+body[data-state="idle"] [data-view="idle"],
+body[data-state="running"] [data-view="running"],
+body[data-state="result"] [data-view="result"]{display:block}
+
+/* ---------- idle ---------- */
+.idle{padding-top:44px;padding-bottom:56px}
+.idle h1{font:500 36px/1.1 var(--serif);letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance;max-width:16ch}
+.idle .lede{font-size:17px;color:var(--ink-2);margin:0 0 28px;max-width:52ch}
+.field{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:4px;
+  box-shadow:0 1px 2px rgba(22,24,29,.04),0 8px 24px -12px rgba(22,24,29,.12);transition:border-color .2s}
+.field:focus-within{border-color:var(--ink-2)}
+.field textarea{display:block;width:100%;border:0;resize:none;background:transparent;outline:none;
+  font:400 19px/1.4 var(--serif);color:var(--ink);padding:14px 14px 10px;min-height:96px}
+.field textarea::placeholder{color:var(--cap)}
+.field-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 6px 6px 14px}
+.field-foot .hint{font-size:13px;color:var(--cap)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;
+  border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:500;font-size:15px;
+  cursor:pointer;text-decoration:none;transition:background .2s var(--ease),transform .2s var(--ease)}
+.btn:hover{background:#2A2D35}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{background:var(--rule);border-color:var(--rule);color:var(--cap);cursor:not-allowed}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--ink-2);background:var(--card)}
+.try{margin:26px 0 10px;font-size:14px;color:var(--cap)}
+.chips{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.chip{display:inline-flex;align-items:center;gap:10px;text-align:left;min-height:44px;padding:10px 14px;
+  background:transparent;border:1px solid var(--rule);border-radius:10px;cursor:pointer;
+  font:400 16px/1.35 var(--serif);color:var(--ink);transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--ink-3);background:var(--card)}
+.chip svg{color:var(--cap)}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--card)}
+.never{margin:40px 0 0;padding-top:18px;border-top:1px solid var(--rule);display:grid;gap:10px;font-size:14px;color:var(--ink-2)}
+.never p{margin:0;display:flex;gap:10px;align-items:flex-start}
+.never svg{margin-top:2px;color:var(--cap)}
+
+/* ---------- query echo ---------- */
+.query{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 0 18px;border-bottom:1px solid var(--rule)}
+.query q{font:400 20px/1.35 var(--serif);quotes:"\201C" "\201D";color:var(--ink);text-wrap:pretty}
+.query .src{display:block;margin-top:6px;font-size:13px;color:var(--cap)}
+.linkbtn{background:none;border:0;padding:8px 2px;cursor:pointer;color:var(--ink-2);font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule);white-space:nowrap}
+.linkbtn:hover{color:var(--ink);text-decoration-color:var(--ink-2)}
+
+/* ---------- running ---------- */
+.run{padding-bottom:56px}
+.run-head{padding:28px 0 8px}
+.run-head h1{font:500 30px/1.15 var(--serif);letter-spacing:-.015em;margin:0 0 6px}
+.run-head p{margin:0;color:var(--ink-2);font-size:15px}
+.steps{list-style:none;margin:22px 0 0;padding:0;border-top:1px solid var(--rule)}
+.step{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--rule);
+  color:var(--cap);transition:color .4s var(--ease)}
+.step .lbl{font-size:16px}
+.step .sub{display:block;font-size:13px;color:var(--cap);margin-top:1px}
+.step .t{font-family:var(--mono);font-size:14px;color:var(--cap)}
+.step .st{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--rule);display:grid;place-items:center}
+.step.done{color:var(--ink)}
+.step.done .st{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.step.done .st svg{width:13px;height:13px;stroke-width:2.2}
+.step.active{color:var(--ink)}
+.step.active .lbl{font-weight:500}
+.step.active .t{color:var(--ink)}
+.step.active .st{border-color:var(--ink);position:relative}
+.step.active .st::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.step .st svg{display:none}.step.done .st svg{display:block}
+.meter{grid-column:2 / 4;height:3px;background:var(--rule);border-radius:2px;overflow:hidden;margin-top:-4px;display:none}
+.step.active .meter{display:block}
+.meter i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s linear}
+
+.partial{margin-top:34px}
+.tally{display:flex;gap:32px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--rule)}
+.tally div{display:flex;flex-direction:column}
+.tally b{font:500 40px/1 var(--serif);letter-spacing:-.02em;font-variant-numeric:tabular-nums lining-nums}
+.tally span{font-size:13px;color:var(--cap);margin-top:6px}
+.partial h2{font:500 20px/1.25 var(--serif);margin:24px 0 4px}
+.partial .note{margin:0 0 10px;font-size:14px;color:var(--cap)}
+.pending-row{display:grid;grid-template-columns:12px 1fr auto;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule)}
+.pending-row .sw{width:10px;height:10px;border-radius:2px;transform:translateY(1px)}
+.pending-row .nm{font-size:16px}
+.pending-row .ps{font-family:var(--mono);font-size:14px;color:var(--ink-2)}
+.pending-row .au{grid-column:2 / 4;font-size:13px;color:var(--cap)}
+.pending-row .au b{font-weight:500}
+.pending-row.ghost .nm{color:var(--cap)}
+.enter{animation:rise .7s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(6px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.run-foot{margin-top:28px;font-size:14px;color:var(--ink-2);display:flex;gap:10px}
+.run-foot svg{color:var(--cap);margin-top:2px}
+
+/* ---------- result ---------- */
+.result{padding-bottom:40px}
+.r-grid{display:grid;gap:0;grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"head" "actions" "narr" "common" "amp" "evid" "method"}
+.r-head{grid-area:head;padding:26px 0 0}
+.r-head h1{font:500 30px/1.18 var(--serif);letter-spacing:-.018em;margin:0;text-wrap:balance}
+.r-head h1 .n{font-weight:600}
+.r-meta{margin:14px 0 0;font-size:14px;color:var(--cap);display:flex;flex-wrap:wrap;gap:4px 14px}
+.r-meta .mono{color:var(--ink-2);font-size:13px}
+.nojudge{margin:18px 0 0;display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--ink-2)}
+.nojudge svg{margin-top:2px;color:var(--ink-2)}
+.nojudge b{color:var(--ink);font-weight:500}
+
+.actions{grid-area:actions;padding:22px 0 6px}
+.actions .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sms{display:none;margin-top:12px;padding:14px;background:var(--card);border:1px solid var(--rule);border-radius:10px}
+.sms.open{display:block}
+.sms label{display:block;font-size:14px;color:var(--ink-2);margin-bottom:8px}
+.sms .in{display:flex;gap:8px}
+.sms input{flex:1;min-width:0;height:44px;border:1px solid var(--rule);border-radius:8px;padding:0 12px;font:400 16px var(--mono);background:var(--paper);color:var(--ink)}
+.sms input:focus{outline:none;border-color:var(--ink-2)}
+.sms .fine{margin:8px 0 0;font-size:13px;color:var(--cap)}
+.copied{font-size:13px;color:var(--ink-2);margin:8px 0 0;min-height:20px}
+.again{margin-top:4px}
+
+section.blk{padding-top:34px}
+.blk h2{font:500 22px/1.25 var(--serif);letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+.blk .sub{margin:0 0 16px;font-size:14px;color:var(--cap)}
+.narr{grid-area:narr}
+.stack{display:flex;gap:2px;height:12px;border-radius:3px;overflow:hidden;margin:4px 0 6px}
+.stack i{display:block;height:100%}
+.nrows{margin:12px 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.nrow{padding:14px 0;border-bottom:1px solid var(--rule)}
+.nrow.top{background:var(--signal-wash);border-radius:10px;padding:14px 14px 16px;margin:8px -14px;border-bottom-color:transparent}
+.nrow .l1{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline}
+.nrow .sw{width:10px;height:10px;border-radius:2px;transform:translateY(1px)}
+.nrow .nm{font-weight:500;font-size:16px}
+.nrow .sh{font-family:var(--mono);font-size:14px;color:var(--ink-2);white-space:nowrap}
+.nrow .sh b{font-weight:500;color:var(--ink)}
+.flag{display:inline-block;margin-left:8px;font-size:12px;font-weight:500;color:var(--signal-ink);white-space:nowrap}
+.nrow .l2{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin:10px 0 0 22px}
+.track{position:relative;height:16px}
+.track::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;background:var(--rule);border-radius:1px}
+.nrow.top .track::before{background:#F0CFC6}
+.track .band{position:absolute;top:4px;height:8px;border-radius:4px;background:rgba(217,71,43,.26)}
+.track .pt{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--signal);border:2px solid var(--card)}
+.nrow.top .track .pt{border-color:var(--signal-wash)}
+.track .base{position:absolute;top:0;width:1px;height:16px;background:var(--ink-3)}
+.au-val{font-size:14px;color:var(--ink-2);white-space:nowrap;text-align:right;min-width:9.5em}
+.au-val b{font:500 16px var(--mono);color:var(--signal-ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 0 0 22px;font-size:13px;color:var(--cap)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .k-base{width:1px;height:12px;background:var(--ink-3)}
+.legend .k-band{width:18px;height:8px;border-radius:4px;background:rgba(217,71,43,.26);position:relative}
+.legend .k-band::after{content:"";position:absolute;left:5px;top:-1px;width:8px;height:8px;border-radius:50%;background:var(--signal);border:1.5px solid var(--paper)}
+
+.common{grid-area:common}
+.traits{list-style:none;margin:6px 0 0;padding:0}
+.traits li{display:grid;grid-template-columns:5.6em 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.traits li:first-child{border-top:1px solid var(--rule)}
+.traits .k{font:500 22px/1 var(--serif);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+.traits .k small{font:400 13px var(--sans);color:var(--cap);margin-left:2px}
+.traits .v{font-size:15px;color:var(--ink-2)}
+.traits .v b{color:var(--ink);font-weight:500}
+.aside-note{margin:12px 0 0;font-size:13px;color:var(--cap)}
+
+.amp{grid-area:amp}
+.arows{list-style:none;margin:6px 0 0;padding:0;border-top:1px solid var(--rule)}
+.arow{padding:13px 0;border-bottom:1px solid var(--rule)}
+.arow .l1{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.arow .nm{font-size:15px;font-weight:500}
+.arow .sh{font-family:var(--mono);font-size:14px;color:var(--ink-2);white-space:nowrap}
+.arow .l2{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-top:9px}
+.ltrack{position:relative;height:16px}
+.ltrack::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;background:var(--rule)}
+.ltrack .one{position:absolute;top:0;width:1px;height:16px;background:var(--ink-3)}
+.ltrack .band{position:absolute;top:4px;height:8px;border-radius:4px;background:rgba(47,111,143,.24)}
+.ltrack .pt{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--human);border:2px solid var(--paper)}
+.lift{font-size:14px;color:var(--ink-2);white-space:nowrap;min-width:8.6em;text-align:right}
+.lift b{font:500 16px var(--mono);color:var(--human)}
+.lift.low b{color:var(--ink-2)}
+
+.evid{grid-area:evid;padding-top:30px}
+details.ev{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+details.ev summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;min-height:44px}
+details.ev summary::-webkit-details-marker{display:none}
+details.ev summary .t{font:500 20px/1.25 var(--serif)}
+details.ev summary .c{display:block;font:400 13px var(--sans);color:var(--cap);margin-top:3px}
+details.ev summary svg{transition:transform .3s var(--ease);color:var(--ink-2)}
+details.ev[open] summary svg{transform:rotate(180deg)}
+.coord{margin:0 0 6px;padding:14px;background:var(--card);border:1px solid var(--rule);border-radius:10px;font-size:14px;color:var(--ink-2)}
+.coord b{color:var(--ink);font-weight:500}
+.coord .mono{font-size:13px;color:var(--ink);white-space:nowrap}
+.posts{list-style:none;margin:0;padding:0}
+.post{padding:16px 0;border-bottom:1px solid var(--rule)}
+.post:last-child{border-bottom:0}
+.post .who{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:13px;color:var(--cap)}
+.post .who .h{font:500 14px var(--mono);color:var(--ink)}
+.post .who time{font-family:var(--mono);font-size:12.5px}
+.post blockquote{margin:8px 0 0;font:400 17px/1.45 var(--serif);color:var(--ink);max-width:62ch}
+.post .why{margin:8px 0 0;font-size:13px;color:var(--ink-2)}
+.score{font:500 12.5px var(--mono);padding:2px 7px;border-radius:5px;white-space:nowrap}
+.score.hi{color:var(--signal-ink);background:var(--signal-wash)}
+.score.lo{color:var(--ink-2);background:#EFECE5}
+.more{display:inline-flex;align-items:center;gap:6px;margin:6px 0 18px;font-size:14px;color:var(--ink-2)}
+
+.method{grid-area:method;margin-top:24px;font-size:13px;color:var(--cap);max-width:72ch}
+.method p{margin:0 0 6px}
+
+/* footer */
+.foot{border-top:1px solid var(--rule);margin-top:8px}
+.foot .wrap{padding-top:16px;padding-bottom:28px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--cap)}
+.foot nav{display:flex;gap:12px}
+.foot nav a{color:var(--ink-2)}
+.foot nav a[aria-current="true"]{color:var(--ink);text-decoration:none;font-weight:500}
+
+/* ---------- desktop ---------- */
+@media (min-width:720px){
+  .wrap{padding:0 40px}
+  .idle{padding:88px 0 96px}
+  .idle h1{font-size:54px}
+  .idle .lede{font-size:18px}
+  .chips{flex-direction:row;flex-wrap:wrap}
+  .run-head{padding-top:44px}
+  .run-head h1{font-size:38px}
+  .actions .row{grid-template-columns:auto auto;justify-content:start}
+}
+@media (min-width:1080px){
+  .wrap{padding:0 56px}
+  .query{padding:28px 0 22px}
+  .query q{font-size:22px}
+  .r-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:72px;
+    grid-template-areas:"head actions" "narr amp" "common amp" "evid evid" "method method";
+    grid-template-rows:auto auto 1fr auto auto}
+  .r-head{padding-top:40px}
+  .r-head h1{font-size:44px;max-width:25ch}
+  .actions{align-self:end;padding:0 0 4px}
+  .actions .row{grid-template-columns:1fr 1fr}
+  .amp{align-self:start}
+  section.blk{padding-top:44px}
+  .evid{padding-top:48px}
+  .posts{display:grid;grid-template-columns:1fr 1fr;column-gap:56px}
+  .coord{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body data-state="idle">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 13v5.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V13"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4.5 6.5A2 2 0 016.5 4.5h11a2 2 0 012 2v8a2 2 0 01-2 2H10l-4.5 3.5v-3.5h0a1 1 0 01-1-1z"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14"/><path d="M5 7l-2.5 6a2.5 2.5 0 005 0zM19 7l-2.5 6a2.5 2.5 0 005 0z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9" rx="1.5"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 1.8"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M10 6H6.5A1.5 1.5 0 005 7.5v10A1.5 1.5 0 006.5 19h10a1.5 1.5 0 001.5-1.5V14M13 5h6v6M19 5l-8 8"/></symbol>
+</svg>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="mark" href="#state=idle" aria-label="Claim check, start over">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><g stroke="#16181D" stroke-width="1.6" stroke-linecap="round"><path d="M3 17V13"/><path d="M7 17V9"/><path d="M11 17V5"/><path d="M15 17V10"/><path d="M19 17V14"/></g><path d="M2 19.5h18" stroke="#16181D" stroke-width="1" opacity=".35"/></svg>
+      Claim check
+    </a>
+    <span class="where"><span class="dot-live" aria-hidden="true"></span>Live on Bluesky</span>
+  </div>
+</header>
+
+<main>
+<!-- ================= IDLE ================= -->
+<section data-view="idle" aria-labelledby="idle-h">
+  <div class="wrap narrow idle">
+    <h1 id="idle-h">Who is pushing this story?</h1>
+    <p class="lede">Type any claim or story. In under a minute we read what Bluesky is posting about it and measure how much comes from likely automated accounts, and which real people spread it.</p>
+
+    <form id="ask" class="field" autocomplete="off">
+      <label for="q" class="sr-only">Claim or story to check</label>
+      <textarea id="q" rows="3" placeholder="A claim, a rumor or a headline"></textarea>
+      <div class="field-foot">
+        <span class="hint">Public posts, last 72 hours</span>
+        <button class="btn" id="go" type="submit" disabled>Check <svg class="i"><use href="#i-arrow"/></svg></button>
+      </div>
+    </form>
+
+    <p class="try" id="try-l">Or try one</p>
+    <div class="chips" role="group" aria-labelledby="try-l">
+      <button type="button" class="chip" data-q="Was Jensen Huang's mistress a Chinese spy?" aria-pressed="false">Was Jensen Huang’s mistress a Chinese spy?</button>
+      <button type="button" class="chip" data-q="Is the new NYC congestion toll being repealed?" aria-pressed="false">Is the new NYC congestion toll being repealed?</button>
+    </div>
+
+    <div class="never">
+      <p><svg class="i"><use href="#i-scale"/></svg><span>It measures who is posting a story. It never rules on whether the story is true.</span></p>
+      <p><svg class="i"><use href="#i-lock"/></svg><span>Private accounts are counted, never named. Only public accounts, like news organizations, appear by handle.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RUNNING ================= -->
+<section data-view="running" aria-labelledby="run-h">
+  <div class="wrap narrow run">
+    <div class="query">
+      <div><q class="qtext">Is the new NYC congestion toll being repealed?</q></div>
+      <button class="linkbtn" type="button" data-go="idle">Cancel</button>
+    </div>
+
+    <div class="run-head">
+      <h1 id="run-h">Checking Bluesky</h1>
+      <p aria-live="polite"><span class="num" id="clock">0:24</span> elapsed. Most checks finish in under a minute.</p>
+    </div>
+
+    <ol class="steps" id="steps">
+      <li class="step" data-i="0">
+        <span class="st"><svg class="i"><use href="#i-check"/></svg></span>
+        <span><span class="lbl">Searching posts</span><span class="sub" id="s0sub">Bluesky public search</span></span>
+        <span class="t" id="s0t">6 s</span>
+        <span class="meter"><i id="s0m"></i></span>
+      </li>
+      <li class="step" data-i="1">
+        <span class="st"><svg class="i"><use href="#i-check"/></svg></span>
+        <span><span class="lbl">Grouping into narratives</span><span class="sub" id="s1sub">The different ways people tell it</span></span>
+        <span class="t" id="s1t">9 s</span>
+        <span class="meter"><i id="s1m"></i></span>
+      </li>
+      <li class="step" data-i="2">
+        <span class="st"><svg class="i"><use href="#i-check"/></svg></span>
+        <span><span class="lbl">Scoring <span class="num" id="s2n">155</span> of 380 accounts</span><span class="sub">Signs of automation in each account’s behavior</span></span>
+        <span class="t" id="s2t">9 s</span>
+        <span class="meter"><i id="s2m"></i></span>
+      </li>
+      <li class="step" data-i="3">
+        <span class="st"><svg class="i"><use href="#i-check"/></svg></span>
+        <span><span class="lbl">Finding amplifiers</span><span class="sub">Real accounts that spread automated posts</span></span>
+        <span class="t" id="s3t">waiting</span>
+        <span class="meter"><i id="s3m"></i></span>
+      </li>
+    </ol>
+
+    <div class="partial" aria-live="polite">
+      <div class="tally">
+        <div><b class="num" id="postsN">412</b><span>posts found</span></div>
+        <div><b class="num" id="acctN">380</b><span>accounts behind them</span></div>
+      </div>
+      <h2>Narratives named so far</h2>
+      <p class="note" id="pnote">Automation shares appear once every account is scored.</p>
+      <div id="prows"></div>
+    </div>
+
+    <p class="run-foot"><svg class="i"><use href="#i-scale"/></svg><span>This measures who is posting. It does not judge whether the claim is true.</span></p>
+  </div>
+</section>
+
+<!-- ================= RESULT ================= -->
+<section data-view="result" aria-labelledby="res-h">
+  <div class="wrap result">
+    <div class="query">
+      <div>
+        <q class="qtext">Is the new NYC congestion toll being repealed?</q>
+        <span class="src">Checked Nov 14, 2026, 10:42 EST</span>
+      </div>
+      <button class="linkbtn" type="button" data-go="idle">New check</button>
+    </div>
+
+    <div class="r-grid">
+      <div class="r-head">
+        <h1 id="res-h">Likely automated accounts wrote <span class="sig n">6%</span> of these 412 posts, and <span class="sig n">14%</span> of the ones spreading the repeal rumor.</h1>
+        <p class="r-meta"><span><span class="mono">412</span> posts</span><span><span class="mono">380</span> accounts</span><span>Bluesky, last <span class="mono">72</span> h</span><span>checked in <span class="mono">41</span> s</span></p>
+        <p class="nojudge"><svg class="i"><use href="#i-scale"/></svg><span><b>I don’t judge whether the claim is true.</b> This shows who is posting it and how.</span></p>
+      </div>
+
+      <div class="actions">
+        <div class="row">
+          <button class="btn" type="button" id="shareBtn"><svg class="i"><use href="#i-share"/></svg><span>Share report</span></button>
+          <button class="btn ghost" type="button" id="smsBtn" aria-expanded="false" aria-controls="sms"><svg class="i"><use href="#i-msg"/></svg>Text this to me</button>
+        </div>
+        <p class="copied" id="copied" aria-live="polite"></p>
+        <form class="sms" id="sms" autocomplete="off">
+          <label for="tel">We’ll text the summary, a chart and the report link.</label>
+          <div class="in">
+            <input id="tel" type="tel" inputmode="tel" placeholder="(609) 555-0142">
+            <button class="btn" type="submit">Send</button>
+          </div>
+          <p class="fine">Used once for this text. Reply to it with another claim to run a new check.</p>
+        </form>
+      </div>
+
+      <section class="blk narr" aria-labelledby="narr-h">
+        <h2 id="narr-h">Four ways people are telling it</h2>
+        <p class="sub">Named by the system from the posts. Share of all 412 posts.</p>
+        <div class="stack" role="img" aria-label="Toll repeal rumor 34%, Court ruling coverage 29%, Driver complaints 22%, Transit funding defense 15%">
+          <i style="flex:34;background:var(--n-spy)"></i><i style="flex:29;background:var(--n-board)"></i><i style="flex:22;background:var(--n-defend)"></i><i style="flex:15;background:var(--n-politics)"></i>
+        </div>
+        <ul class="nrows">
+          <li class="nrow top">
+            <div class="l1"><span class="sw" style="background:var(--n-spy)"></span><span class="nm">Toll repeal rumor<span class="flag">Highest automation</span></span><span class="sh"><b>34%</b> · 140 posts</span></div>
+            <div class="l2"><div class="track" aria-hidden="true"><span class="band" style="left:36%;width:44%"></span><span class="base" style="left:24%"></span><span class="pt" style="left:56%"></span></div><span class="au-val"><b>14%</b> (9 to 20%)</span></div>
+          </li>
+          <li class="nrow">
+            <div class="l1"><span class="sw" style="background:var(--n-board)"></span><span class="nm">Court ruling coverage</span><span class="sh"><b>29%</b> · 119 posts</span></div>
+            <div class="l2"><div class="track" aria-hidden="true"><span class="band" style="left:4%;width:12%"></span><span class="base" style="left:24%"></span><span class="pt" style="left:8%"></span></div><span class="au-val"><b>2%</b> (1 to 4%)</span></div>
+          </li>
+          <li class="nrow">
+            <div class="l1"><span class="sw" style="background:var(--n-defend)"></span><span class="nm">Driver complaints</span><span class="sh"><b>22%</b> · 91 posts</span></div>
+            <div class="l2"><div class="track" aria-hidden="true"><span class="band" style="left:4%;width:20%"></span><span class="base" style="left:24%"></span><span class="pt" style="left:12%"></span></div><span class="au-val"><b>3%</b> (1 to 6%)</span></div>
+          </li>
+          <li class="nrow">
+            <div class="l1"><span class="sw" style="background:var(--n-politics)"></span><span class="nm">Transit funding defense</span><span class="sh"><b>15%</b> · 62 posts</span></div>
+            <div class="l2"><div class="track" aria-hidden="true"><span class="band" style="left:0%;width:20%"></span><span class="base" style="left:24%"></span><span class="pt" style="left:8%"></span></div><span class="au-val"><b>2%</b> (0 to 5%)</span></div>
+          </li>
+        </ul>
+        <div class="legend">
+          <span><span class="k-band"></span>Likely automated, 95% interval</span>
+          <span><span class="k-base"></span>6% across all posts</span>
+        </div>
+      </section>
+
+      <section class="blk common" aria-labelledby="common-h">
+        <h2 id="common-h">What the 16 likely automated accounts behind the repeal rumor have in common</h2>
+        <p class="sub">They wrote 20 of its 140 posts. The other three narratives average 2%.</p>
+        <ul class="traits">
+          <li><span class="k">11<small>of 16</small></span><span class="v"><b>Created within the same 9 days,</b> Oct 29 to Nov 6.</span></li>
+          <li><span class="k">9<small>of 16</small></span><span class="v"><b>Posted the same link within 90 seconds</b> of each other on Nov 13.</span></li>
+          <li><span class="k">7<small>of 16</small></span><span class="v"><b>Post more than 50 times a day,</b> almost all reposts.</span></li>
+        </ul>
+        <p class="aside-note">These are behaviors, not identities. We don’t say who runs an account.</p>
+      </section>
+
+      <section class="blk amp" aria-labelledby="amp-h">
+        <h2 id="amp-h">Who amplifies them</h2>
+        <p class="sub"><span class="mono" style="color:var(--ink-2)">143</span> real accounts reposted, quoted or liked posts from likely automated accounts. Grouped by behavior.</p>
+        <ul class="arows">
+          <li class="arow">
+            <div class="l1"><span class="nm">Local accounts that mostly post about driving and parking</span><span class="sh">38%</span></div>
+            <div class="l2"><div class="ltrack" aria-hidden="true"><span class="one" style="left:28.6%"></span><span class="band" style="left:45.7%;width:37.1%"></span><span class="pt" style="left:62.9%"></span></div><span class="lift"><b>2.2×</b> (1.6 to 2.9)</span></div>
+          </li>
+          <li class="arow">
+            <div class="l1"><span class="nm">Heavy reposters, mostly politics</span><span class="sh">27%</span></div>
+            <div class="l2"><div class="ltrack" aria-hidden="true"><span class="one" style="left:28.6%"></span><span class="band" style="left:37.1%;width:31.4%"></span><span class="pt" style="left:51.4%"></span></div><span class="lift"><b>1.8×</b> (1.3 to 2.4)</span></div>
+          </li>
+          <li class="arow">
+            <div class="l1"><span class="nm">Conversational posters (mostly replies)</span><span class="sh">21%</span></div>
+            <div class="l2"><div class="ltrack" aria-hidden="true"><span class="one" style="left:28.6%"></span><span class="band" style="left:11.4%;width:14.3%"></span><span class="pt" style="left:17.1%"></span></div><span class="lift low"><b>0.6×</b> (0.4 to 0.9)</span></div>
+          </li>
+          <li class="arow">
+            <div class="l1"><span class="nm">Transit and urbanism posters</span><span class="sh">14%</span></div>
+            <div class="l2"><div class="ltrack" aria-hidden="true"><span class="one" style="left:28.6%"></span><span class="band" style="left:11.4%;width:20%"></span><span class="pt" style="left:20%"></span></div><span class="lift low"><b>0.7×</b> (0.4 to 1.1)</span></div>
+          </li>
+        </ul>
+        <div class="legend" style="margin-left:0">
+          <span><span class="k-base"></span>1× = as likely as similar accounts to amplify</span>
+          <span>Percent = share of the 143 amplifiers</span>
+        </div>
+      </section>
+
+      <div class="evid">
+        <details class="ev" id="ev">
+          <summary><span><span class="t">Evidence</span><span class="c">5 sample posts with UTC timestamps and the reasons behind each score</span></span><svg class="i"><use href="#i-chev"/></svg></summary>
+          <p class="coord"><b>9 accounts posted the same link</b> between <span class="mono">2026-11-13T14:02:11Z</span> and <span class="mono">14:03:40Z</span>, each with near-identical text. Three are shown below.</p>
+          <ul class="posts">
+            <li class="post">
+              <div class="who"><span class="h">acct·3f9a</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:11Z">2026-11-13T14:02:11Z</time><span class="score hi">0.91 likely automated</span></div>
+              <blockquote>Albany is about to scrap the congestion toll. Drivers finally win. Read before it’s deleted 👇</blockquote>
+              <p class="why">Account 11 days old · 74 posts a day · same link as 8 other accounts within 90 s</p>
+            </li>
+            <li class="post">
+              <div class="who"><span class="h">acct·b71c</span><span>private account</span><time class="mono" datetime="2026-11-13T14:02:39Z">2026-11-13T14:02:39Z</time><span class="score hi">0.88 likely automated</span></div>
+              <blockquote>Albany about to scrap the congestion toll. Drivers finally win. Read before it gets deleted</blockquote>
+              <p class="why">Account 9 days old · 96% reposts · same link within 28 s of acct·3f9a</p>
+            </li>
+            <li class="post">
+              <div class="who"><span class="h">acct·0e52</span><span>private account</span><time class="mono" datetime="2026-11-13T14:03:05Z">2026-11-13T14:03:05Z</time><span class="score hi">0.84 likely automated</span></div>
+              <blockquote>Congestion toll is DONE. Albany scrapping it. Read before it’s deleted</blockquote>
+              <p class="why">Posts around the clock with no gap longer than 40 min · same link within 54 s of acct·3f9a</p>
+            </li>
+            <li class="post">
+              <div class="who"><span class="h">@nytimes.com</span><span>news organization</span><time class="mono" datetime="2026-11-12T19:20:00Z">2026-11-12T19:20:00Z</time><span class="score lo">0.02</span></div>
+              <blockquote>Federal judge declines to pause Manhattan congestion pricing while the lawsuit proceeds.</blockquote>
+              <p class="why">Court ruling coverage · 1,180 reposts</p>
+            </li>
+            <li class="post">
+              <div class="who"><span class="h">@nowbreezing.ntw.app</span><span>self-labeled trend bot</span><time class="mono" datetime="2026-11-13T15:00:00Z">2026-11-13T15:00:00Z</time></div>
+              <blockquote>Trending in New York: “congestion toll repeal”, up 340% in the last hour.</blockquote>
+              <p class="why">Declares itself automated, so it is counted apart from the likely automated share.</p>
+            </li>
+          </ul>
+          <a class="more" href="#state=result">All 412 posts and 380 account scores <svg class="i"><use href="#i-ext"/></svg></a>
+        </details>
+      </div>
+
+      <div class="method">
+        <p>Likely automated means an account’s automation score is 0.5 or higher, based on its posting rhythm, age, repost share and coordination with other accounts. Intervals are 95%. A score is not proof of who runs an account.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Mockup with sample data. Every check plays the NYC toll sample.</span>
+    <nav aria-label="Mockup states">
+      <a href="#state=idle" data-s="idle">Idle</a>
+      <a href="#state=running" data-s="running">Running</a>
+      <a href="#state=result" data-s="result">Result</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const NARR = [
+    {nm:"Toll repeal rumor", c:"var(--n-spy)", posts:140, share:34, au:"14%", iv:"9 to 20%", at:8.2},
+    {nm:"Court ruling coverage", c:"var(--n-board)", posts:119, share:29, au:"2%", iv:"1 to 4%", at:10.6},
+    {nm:"Driver complaints", c:"var(--n-defend)", posts:91, share:22, au:"3%", iv:"1 to 6%", at:12.8},
+    {nm:"Transit funding defense", c:"var(--n-politics)", posts:62, share:15, au:"2%", iv:"0 to 5%", at:14.6}
+  ];
+  const STEPS = [[0,6],[6,15],[15,37],[37,41]];   // simulated seconds, total 41
+  const FROZEN_T = 24;  // the #state=running snapshot
+  const SPEED = 6;      // live playback compresses 41 s into about 7 s
+  let raf = null, shown = new Set();
+
+  function params(){
+    const p = new URLSearchParams(location.hash.slice(1));
+    return {state: p.get('state') || 'idle', live: p.get('live') === '1', ev: p.get('evidence')};
+  }
+  function clamp(x){return Math.max(0, Math.min(1, x));}
+  function fmtClock(t){t=Math.floor(t);return Math.floor(t/60)+":"+String(t%60).padStart(2,'0');}
+
+  function renderRun(t, animate){
+    $('#clock').textContent = fmtClock(t);
+    STEPS.forEach(([a,b],i)=>{
+      const li = document.querySelector('.step[data-i="'+i+'"]');
+      const tEl = $('#s'+i+'t'), m = $('#s'+i+'m');
+      li.classList.toggle('done', t >= b);
+      li.classList.toggle('active', t >= a && t < b);
+      if (t >= b) tEl.textContent = (b-a)+' s';
+      else if (t >= a) { tEl.textContent = Math.floor(t-a)+' s'; m.style.width = (clamp((t-a)/(b-a))*100)+'%'; }
+      else tEl.textContent = 'waiting';
+    });
+    const posts = Math.round(412 * (1 - Math.pow(1 - clamp(t/6), 2)));
+    $('#postsN').textContent = posts;
+    $('#s0sub').textContent = t < 6 ? 'Bluesky public search' : '412 posts, last 72 hours';
+    const acct = Math.round(380 * clamp(t/6));
+    $('#acctN').textContent = acct;
+    $('#s2n').textContent = Math.round(380 * clamp((t-15)/22));
+    $('#s1sub').textContent = t >= 15 ? '4 narratives named' : 'The different ways people tell it';
+    const scored = t >= 37;
+    $('#pnote').textContent = t < 6 ? 'Narratives appear as soon as posts are grouped.' :
+      scored ? 'Every account scored.' : 'Automation shares appear once every account is scored.';
+    const box = $('#prows');
+    NARR.forEach((n,i)=>{
+      let row = box.children[i];
+      if (t >= n.at && !shown.has(i)) {
+        shown.add(i);
+        row = document.createElement('div');
+        row.className = 'pending-row' + (animate ? ' enter' : '');
+        row.innerHTML = '<span class="sw" style="background:'+n.c+'"></span><span class="nm">'+n.nm+'</span><span class="ps">'+n.posts+' posts</span><span class="au"></span>';
+        box.appendChild(row);
+      }
+      if (row) row.querySelector('.au').innerHTML = scored
+        ? 'Likely automated <b class="sig">'+n.au+'</b> ('+n.iv+')'
+        : 'Likely automated: scoring';
+    });
+  }
+
+  function stopLive(){ if (raf) cancelAnimationFrame(raf); raf = null; }
+  function playLive(){
+    stopLive(); shown.clear(); $('#prows').innerHTML='';
+    const t0 = performance.now();
+    const tick = now => {
+      const t = Math.min(41, (now - t0)/1000*SPEED);
+      renderRun(t, true);
+      if (t < 41) raf = requestAnimationFrame(tick);
+      else setTimeout(()=>{ location.hash = 'state=result'; }, 700);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function route(){
+    const {state, live, ev} = params();
+    const s = ['idle','running','result'].includes(state) ? state : 'idle';
+    document.body.dataset.state = s;
+    document.querySelectorAll('.foot nav a').forEach(a=>a.setAttribute('aria-current', a.dataset.s===s ? 'true':'false'));
+    stopLive();
+    if (s === 'running') {
+      if (live) playLive();
+      else { shown.clear(); $('#prows').innerHTML=''; renderRun(FROZEN_T, false); }
+    }
+    if (s === 'result') $('#ev').open = ev === 'open';
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange', route);
+
+  // idle interactions
+  const q = $('#q'), go = $('#go');
+  const sync = () => { go.disabled = !q.value.trim(); };
+  q.addEventListener('input', ()=>{ sync(); document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); });
+  document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click', ()=>{
+    q.value = c.dataset.q; sync();
+    document.querySelectorAll('.chip').forEach(o=>o.setAttribute('aria-pressed', o===c ? 'true':'false'));
+    go.focus();
+  }));
+  $('#ask').addEventListener('submit', e=>{ e.preventDefault(); if (!q.value.trim()) return; location.hash = 'state=running&live=1'; });
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click', ()=>{ location.hash = 'state='+b.dataset.go; }));
+
+  // result actions
+  $('#shareBtn').addEventListener('click', ()=>{
+    $('#copied').textContent = 'Report link copied. It opens a one-page summary anyone can read.';
+    $('#shareBtn span').textContent = 'Link copied';
+  });
+  $('#smsBtn').addEventListener('click', ()=>{
+    const open = $('#sms').classList.toggle('open');
+    $('#smsBtn').setAttribute('aria-expanded', open);
+    if (open) $('#tel').focus();
+  });
+  $('#sms').addEventListener('submit', e=>{
+    e.preventDefault();
+    const v = $('#tel').value.replace(/\D/g,'');
+    $('#sms .fine').textContent = v.length >= 10 ? 'Sent. Check your messages.' : 'That number looks short. Enter a 10-digit US number.';
+  });
+
+  route();
+})();
+</script>
+</body>
+</html>

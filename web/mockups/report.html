@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim check report: “Was Jensen Huang’s mistress a Chinese spy?” (chk-7a3e-2611)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F5F0;
+    --card: #FFFFFF;
+    --ink: #16181D;
+    --ink-2: #4A4F5A;
+    --ink-3: #8A8F99;
+    --rule: #E3DFD6;
+    --signal: #D9472B;
+    --signal-wash: #FBE6E0;
+    --human: #2F6F8F;
+    --human-wash: #E3EEF3;
+    --n-spy: #6B5CA5;
+    --n-defend: #A0527F;
+    --n-jokes: #8A8F99;
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { background: #E9E6DF; color: var(--ink); scrollbar-color: var(--rule) #E9E6DF; }
+  body { margin: 0; font: 400 11px/1.45 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--human-wash); color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 3px; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Screen toolbar (not printed) ---------- */
+  .bar { height: 44px; display: flex; align-items: center; justify-content: space-between; width: 816px; margin: 0 auto; padding: 0 2px; }
+  .bar .doc { font: 500 12px/1 var(--sans); color: var(--ink-2); }
+  .bar .doc .num { color: var(--ink-2); font-size: 11.5px; margin-left: 6px; }
+  .bar .acts { display: flex; gap: 8px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border: 1px solid #D6D1C6; border-radius: 6px; background: var(--card); color: var(--ink); font: 500 12px/1 var(--sans); cursor: pointer; transition: background-color .2s cubic-bezier(.16,1,.3,1), border-color .2s; }
+  .btn:hover { background: var(--paper); border-color: var(--ink-2); }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary:hover { background: #2A2D35; }
+  .btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- The sheet: US Letter, 8.5 x 11 in ---------- */
+  .sheet { width: 8.5in; height: 11in; margin: 0 auto 40px; background: var(--card); padding: 32px 46px 26px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(22,24,29,.06), 0 12px 32px -16px rgba(22,24,29,.22); overflow: hidden; }
+
+  .run { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid var(--ink); font-size: 11px; color: var(--ink-2); }
+  .run b { font-weight: 600; color: var(--ink); letter-spacing: 0.01em; }
+  .run .num { font-size: 11px; }
+
+  .title { margin: 14px 0 0; font: 400 28px/1.1 var(--serif); letter-spacing: -0.015em; text-wrap: balance; }
+  .scope { margin: 6px 0 0; color: var(--ink-2); font-size: 11px; }
+  .finding { margin: 11px 0 0; font: 400 15.5px/1.36 var(--serif); color: var(--ink); max-width: 80ch; text-wrap: pretty; }
+  .finding .sig { color: var(--signal); }
+  .noverdict { margin-top: 11px; display: flex; gap: 11px; align-items: center; padding: 6px 11px; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; font-size: 11px; color: var(--ink-2); }
+  .noverdict svg { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .noverdict b { color: var(--ink); font-weight: 600; }
+
+  section { margin-top: 13px; }
+  h2 { margin: 0 0 6px; font: 500 14px/1.25 var(--serif); letter-spacing: -0.005em; }
+  .cap { margin: 6px 0 0; color: var(--ink-2); font-size: 11px; line-height: 1.4; }
+  .rowx { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .rowx.wide-r { grid-template-columns: 0.86fr 1.14fr; }
+
+  /* Narrative table */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font: 500 11px/1.3 var(--sans); color: var(--ink-2); padding: 0 8px 5px 0; border-bottom: 1px solid var(--rule); vertical-align: bottom; }
+  td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; font-size: 11px; }
+  th.r, td.r { text-align: right; }
+  .sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 7px; transform: translateY(-1px); }
+  .nname { font-weight: 500; }
+  .share { display: flex; align-items: center; gap: 8px; }
+  .share .b { height: 6px; background: var(--ink-2); border-radius: 1px; opacity: .8; }
+  .autom { font: 500 11px var(--mono); }
+  .autom.hi { color: var(--signal); }
+  .ivl { color: var(--ink-2); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+
+  .plot { position: relative; height: 16px; }
+  .plot .grid { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid #EFECE5; }
+  .plot .base { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 1px dashed var(--ink-3); }
+  .plot .wh { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--signal); }
+  .plot .wh::before, .plot .wh::after { content: ""; position: absolute; top: -4px; height: 7px; border-left: 1.5px solid var(--signal); }
+  .plot .wh::before { left: 0; } .plot .wh::after { right: 0; }
+  .plot .pt { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 2px var(--card); }
+  .axis { position: relative; height: 12px; font: 400 11px/1 var(--mono); color: var(--ink-2); }
+  .axis span { position: absolute; top: 3px; transform: translateX(-50%); }
+  .axis span:first-child { transform: none; }
+  .axis span:last-child { transform: translateX(-100%); }
+
+  /* Threshold strip */
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-items: end; height: 78px; margin-top: 2px; }
+  .cell { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .cell .v { font: 400 18px/1 var(--serif); margin-bottom: 3px; }
+  .cell .col { background: var(--signal-wash); border-top: 2px solid var(--signal); }
+  .cell.used .col { background: var(--signal); }
+  .cell .k { margin-top: 5px; padding-top: 4px; border-top: 1px solid var(--ink); font: 400 11px/1.3 var(--mono); color: var(--ink-2); }
+  .cell.used .k { color: var(--ink); font-weight: 500; }
+
+  /* Without automated: dumbbells */
+  .db { display: grid; grid-template-columns: 112px 1fr 64px; gap: 7px 11px; align-items: center; margin-top: 6px; }
+  .db .n { font-size: 11px; }
+  .db .line { position: relative; height: 14px; }
+  .db .line::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid #EFECE5; }
+  .db .seg { position: absolute; top: 50%; height: 0; border-top: 2px solid var(--ink-3); }
+  .db .from, .db .to { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; }
+  .db .from { background: var(--card); box-shadow: inset 0 0 0 1.5px var(--ink-2); }
+  .db .to { background: var(--ink); }
+  .db .vals { font: 400 11px var(--mono); color: var(--ink-2); text-align: right; white-space: nowrap; }
+  .db .vals b { color: var(--ink); font-weight: 500; }
+  .dbkey { display: flex; gap: 14px; margin-top: 8px; font-size: 11px; color: var(--ink-2); }
+  .dbkey span { display: inline-flex; align-items: center; gap: 5px; }
+  .dbkey i { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Common traits */
+  .traits { list-style: none; margin: 0; padding: 0; }
+  .traits li { display: grid; grid-template-columns: 30px 1fr; gap: 11px; align-items: baseline; padding: 4px 0; border-bottom: 1px solid var(--rule); font-size: 11px; color: var(--ink-2); }
+  .traits li:first-child { padding-top: 0; }
+  .traits .n { font: 400 18px/1 var(--serif); color: var(--ink); text-align: right; }
+  .traits strong { color: var(--ink); font-weight: 500; }
+  .ex { margin-top: 7px; font-size: 11px; color: var(--ink-2); }
+  .ex q { font-family: var(--serif); font-style: italic; font-size: 11.5px; color: var(--ink); quotes: "“" "”"; }
+  .ticks { position: relative; height: 12px; margin-top: 5px; border-bottom: 1px solid var(--ink-3); }
+  .ticks i { position: absolute; bottom: 0; width: 1.5px; height: 11px; background: var(--signal); }
+  .tscale { display: flex; justify-content: space-between; margin-top: 3px; font: 400 11px/1 var(--mono); color: var(--ink-2); }
+
+  /* Archetypes */
+  .arch td { padding: 4px 8px 4px 0; font-size: 11px; }
+  .arch td:first-child { color: var(--ink); width: 38%; line-height: 1.25; }
+  .arch .ivl { font-size: 11px; }
+  .lift { position: relative; height: 14px; }
+  .lift .one { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 1px solid var(--ink-3); }
+  .lift .wh { position: absolute; top: 50%; border-top: 1.5px solid var(--human); }
+  .lift .pt { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--human); box-shadow: 0 0 0 2px var(--card); }
+  .lift .pt.low { background: var(--card); box-shadow: inset 0 0 0 1.5px var(--human), 0 0 0 2px var(--card); }
+
+  /* Method */
+  .method { margin-top: 15px; padding: 11px 13px 11px; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; }
+  .method h2 { margin-bottom: 5px; }
+  .method dl { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 20px; }
+  .method dt { font: 600 11px/1.3 var(--sans); color: var(--ink); }
+  .method dd { margin: 1px 0 0; font-size: 11px; line-height: 1.38; color: var(--ink-2); }
+  .method dd .num { font-size: 11px; color: var(--ink); }
+
+  .foot { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: var(--ink-2); }
+  .foot .num { font-size: 11px; color: var(--ink); }
+
+  @media print {
+    @page { size: letter; margin: 0; }
+    html, body { background: var(--card); }
+    .bar { display: none; }
+    .sheet { margin: 0; box-shadow: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<nav class="bar" aria-label="Report actions">
+  <span class="doc">Claim check report<span class="num">chk-7a3e-2611</span></span>
+  <span class="acts">
+    <button class="btn" type="button" id="copy"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2.1-2.1a3 3 0 0 0-4.2-4.2l-.8.8"/><path d="M9.5 6.5a3 3 0 0 0-4.2 0L3.2 8.6a3 3 0 0 0 4.2 4.2l.8-.8"/></svg><span>Copy link</span></button>
+    <button class="btn primary" type="button" onclick="window.print()"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6V2.5h7V6"/><rect x="2.5" y="6" width="11" height="5.5" rx="1"/><path d="M4.5 9.5h7v4h-7z"/></svg>Print or save as PDF</button>
+  </span>
+</nav>
+
+<article class="sheet">
+  <div class="run">
+    <span><b>Claim check report</b> &nbsp;·&nbsp; Bluesky public posts</span>
+    <span>Check ID <span class="num">chk-7a3e-2611</span> &nbsp;·&nbsp; Generated <span class="num">2026-11-13 14:20 UTC</span></span>
+  </div>
+
+  <h1 class="title">“Was Jensen Huang’s mistress a Chinese spy?”</h1>
+  <p class="scope"><span class="num">1,240</span> Bluesky posts match this claim, Nov 5 to 13, 2026, within a story of <span class="num">46,656</span> posts from <span class="num">20,482</span> accounts.</p>
+
+  <p class="finding">Posts defending Huang carry the most likely automated activity, <span class="sig">18%</span> of that narrative (95% interval 13 to 24%), over four times the story’s 4.1% baseline; without those accounts the narrative shrinks from 21% to 15% of matching posts.</p>
+
+  <p class="noverdict"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3"/><path d="M8 7.2v4"/><circle cx="8" cy="4.9" r=".4" fill="#16181D"/></svg><span><b>This report does not judge whether the claim is true.</b> It measures who posts about it, not who runs any account.</span></p>
+
+  <section aria-labelledby="h-narr">
+    <h2 id="h-narr">Three narratives in the matching posts</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28%">Narrative</th>
+          <th style="width:17%">Share of matching posts</th>
+          <th class="r" style="width:10%">Likely automated</th>
+          <th style="width:11%">95% interval</th>
+          <th>Likely automated share, with interval <span style="color:var(--ink-2)">(dashed: 4.1% baseline)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sw" style="background:var(--n-spy)"></span><span class="nname">Spy plot and national security</span></td>
+          <td><div class="share"><span class="num">62%</span><span class="b" style="width:62px"></span></div></td>
+          <td class="r"><span class="autom">9%</span></td>
+          <td class="ivl">6 to 12%</td>
+          <td><div class="plot"><span class="grid" style="left:33.3%"></span><span class="grid" style="left:66.6%"></span><span class="base" style="left:13.7%"></span><span class="wh" style="left:20%;width:20%"></span><span class="pt" style="left:30%"></span></div></td>
+        </tr>
+        <tr>
+          <td><span class="sw" style="background:var(--n-defend)"></span><span class="nname">Defending Huang</span></td>
+          <td><div class="share"><span class="num">21%</span><span class="b" style="width:21px"></span></div></td>
+          <td class="r"><span class="autom hi">18%</span></td>
+          <td class="ivl">13 to 24%</td>
+          <td><div class="plot"><span class="grid" style="left:33.3%"></span><span class="grid" style="left:66.6%"></span><span class="base" style="left:13.7%"></span><span class="wh" style="left:43.3%;width:36.7%"></span><span class="pt" style="left:60%"></span></div></td>
+        </tr>
+        <tr>
+          <td><span class="sw" style="background:var(--n-jokes)"></span><span class="nname">Jokes and memes</span></td>
+          <td><div class="share"><span class="num">17%</span><span class="b" style="width:17px"></span></div></td>
+          <td class="r"><span class="autom">3%</span></td>
+          <td class="ivl">1 to 5%</td>
+          <td><div class="plot"><span class="grid" style="left:33.3%"></span><span class="grid" style="left:66.6%"></span><span class="base" style="left:13.7%"></span><span class="wh" style="left:3.3%;width:13.4%"></span><span class="pt" style="left:10%"></span></div></td>
+        </tr>
+        <tr>
+          <td colspan="4" style="border-bottom:0"></td>
+          <td style="border-bottom:0; padding-top:2px"><div class="axis"><span style="left:0">0%</span><span style="left:33.3%">10%</span><span style="left:66.6%">20%</span><span style="left:100%">30%</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="rowx">
+    <section aria-labelledby="h-thr">
+      <h2 id="h-thr">Defending Huang at four score cutoffs</h2>
+      <div class="strip" role="img" aria-label="Likely automated share of Defending Huang: 27% at cutoff 0.3, 18% at 0.5, 11% at 0.7, 6% at 0.9">
+        <div class="cell"><span class="v">27%</span><span class="col" style="height:40.5px"></span><span class="k">≥ 0.3</span></div>
+        <div class="cell used"><span class="v">18%</span><span class="col" style="height:27px"></span><span class="k">≥ 0.5 · used</span></div>
+        <div class="cell"><span class="v">11%</span><span class="col" style="height:16.5px"></span><span class="k">≥ 0.7</span></div>
+        <div class="cell"><span class="v">6%</span><span class="col" style="height:9px"></span><span class="k">≥ 0.9</span></div>
+      </div>
+      <p class="cap">Score cutoff for “likely automated”. A stricter cutoff counts fewer accounts; the report uses 0.5.</p>
+    </section>
+
+    <section aria-labelledby="h-wo">
+      <h2 id="h-wo">The narratives without likely automated accounts</h2>
+      <div class="db">
+        <span class="n"><span class="sw" style="background:var(--n-spy)"></span>Spy plot</span>
+        <div class="line"><span class="seg" style="left:88.6%;width:7.1%"></span><span class="from" style="left:88.6%"></span><span class="to" style="left:95.7%"></span></div>
+        <span class="vals">62 → <b>67%</b></span>
+        <span class="n"><span class="sw" style="background:var(--n-defend)"></span><b style="font-weight:600">Defending Huang</b></span>
+        <div class="line"><span class="seg" style="left:21.4%;width:8.6%;border-color:var(--ink)"></span><span class="from" style="left:30%"></span><span class="to" style="left:21.4%"></span></div>
+        <span class="vals">21 → <b>15%</b></span>
+        <span class="n"><span class="sw" style="background:var(--n-jokes)"></span>Jokes and memes</span>
+        <div class="line"><span class="seg" style="left:24.3%;width:1.4%"></span><span class="from" style="left:24.3%"></span><span class="to" style="left:25.7%"></span></div>
+        <span class="vals">17 → <b>18%</b></span>
+      </div>
+      <div class="dbkey"><span><i style="box-shadow: inset 0 0 0 1.5px var(--ink-2)"></i>All matching posts</span><span><i style="background:var(--ink)"></i>Likely automated accounts removed</span></div>
+      <p class="cap">Share of matching posts, axis 0 to 70%. The other two gain share because Defending Huang shrinks.</p>
+    </section>
+  </div>
+
+  <div class="rowx wide-r">
+    <section aria-labelledby="h-common">
+      <h2 id="h-common">Likely automated accounts in Defending Huang</h2>
+      <ul class="traits">
+        <li><span class="n">41</span><span><strong>were created within the same two weeks</strong>, Oct 20 to Nov 2, 2026</span></li>
+        <li><span class="n">14</span><span><strong>reposted the same 6 posts</strong> within 60 seconds of each other</span></li>
+        <li><span class="n">22</span><span><strong>post more than 60 times a day</strong></span></li>
+      </ul>
+      <p class="ex">Example cluster: 14 accounts posted <q>The smear campaign against Jensen is a gift to Beijing. Wake up.</q> between 20:31:04 and 20:31:58 UTC on Nov 12.</p>
+      <div class="ticks" aria-hidden="true"><i style="left:6.7%"></i><i style="left:10%"></i><i style="left:15%"></i><i style="left:21.7%"></i><i style="left:26.7%"></i><i style="left:30%"></i><i style="left:38.3%"></i><i style="left:43.3%"></i><i style="left:51.7%"></i><i style="left:60%"></i><i style="left:68.3%"></i><i style="left:76.7%"></i><i style="left:88.3%"></i><i style="left:96.7%"></i></div>
+    </section>
+
+    <section aria-labelledby="h-amp">
+      <h2 id="h-amp">Real accounts that amplify them</h2>
+      <p class="cap" style="margin:0 0 4px"><span class="num" style="color:var(--ink)">2,316</span> real accounts reposted, quoted or liked likely automated posts. Lift: how much more likely than matched similar accounts.</p>
+      <table class="arch">
+        <thead><tr><th>Archetype</th><th class="r">Share</th><th class="r">Lift (95% interval)</th><th style="width:30%">0 to 4×, line at 1×</th></tr></thead>
+        <tbody>
+          <tr><td>New accounts that mostly repost market news</td><td class="r num">31%</td><td class="r ivl">2.7× (2.1 to 3.4)</td><td><div class="lift"><span class="one" style="left:25%"></span><span class="wh" style="left:52.5%;width:32.5%"></span><span class="pt" style="left:67.5%"></span></div></td></tr>
+          <tr><td>Heavy reposters, mostly politics</td><td class="r num">24%</td><td class="r ivl">1.9× (1.5 to 2.3)</td><td><div class="lift"><span class="one" style="left:25%"></span><span class="wh" style="left:37.5%;width:20%"></span><span class="pt" style="left:47.5%"></span></div></td></tr>
+          <tr><td>Tech-industry posters with large followings</td><td class="r num">12%</td><td class="r ivl">0.8× (0.6 to 1.1)</td><td><div class="lift"><span class="one" style="left:25%"></span><span class="wh" style="left:15%;width:12.5%"></span><span class="pt low" style="left:20%"></span></div></td></tr>
+          <tr><td>Conversational posters, mostly replies</td><td class="r num">33%</td><td class="r ivl">0.6× (0.5 to 0.8)</td><td><div class="lift"><span class="one" style="left:25%"></span><span class="wh" style="left:12.5%;width:7.5%"></span><span class="pt low" style="left:15%"></span></div></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <aside class="method" aria-labelledby="h-method">
+    <h2 id="h-method">Method</h2>
+    <dl>
+      <div><dt>Data source</dt><dd>Bluesky public API: posts, reposts, quotes and likes. Nothing private.</dd></div>
+      <div><dt>Window and counts</dt><dd>Nov 5 to 13, 2026, UTC. <span class="num">1,240</span> matching posts; story: <span class="num">46,656</span> posts, <span class="num">20,482</span> accounts.</dd></div>
+      <div><dt>Likely automated</dt><dd>Automation score 0.5 or higher. 95% intervals; baseline is the whole-story share.</dd></div>
+      <div><dt>Finding automation</dt><dd>Bot model recall@100 on held-out labeled bots: <span class="num">0.58</span>. Shares here may lean low.</dd></div>
+      <div><dt>Finding the claim</dt><dd>Claim retrieval recall@20: <span class="num">0.71</span>. Narrative labels match hand labels <span class="num">84%</span> of the time.</dd></div>
+      <div><dt>Privacy</dt><dd>Private accounts are counted, never named. Only public accounts appear by handle.</dd></div>
+    </dl>
+  </aside>
+
+  <footer class="foot">
+    <span>Cite as: Claim check <span class="num">chk-7a3e-2611</span>, generated <span class="num">2026-11-13 14:20 UTC</span>.</span>
+    <span>Mockup with sample data.</span>
+  </footer>
+</article>
+
+<script>
+  document.getElementById('copy').addEventListener('click', e => {
+    const label = e.currentTarget.querySelector('span');
+    label.textContent = 'Link copied';
+    setTimeout(() => { label.textContent = 'Copy link'; }, 1800);
+  });
+</script>
+</body>
+</html>
