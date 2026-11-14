@@ -681,6 +681,8 @@ def archetypes(c: Ctx) -> tuple[list[dict], dict]:
             row["lift_matched_ci"] = [_r(m.get("lift_lo"), 3), _r(m.get("lift_hi"), 3)]
         if m.get("description"):
             row["description"] = m["description"]
+        if m.get("defining_features"):
+            row["defining_features"] = m["defining_features"]
         # features: user_features means if present, else profile medians
         if feats is not None:
             sub = feats.filter(pl.col("account_id").is_in(ds))
@@ -1086,6 +1088,10 @@ def sample_of(site: dict, nodes: int = 150, edges: int = 300, public: int = 10) 
     g["edges"] = [e for e in g.get("edges", []) if e["s"] in ids and e["t"] in ids][:edges]
     g.setdefault("meta", {})["sample"] = f"truncated to {len(g['nodes'])} nodes and {len(g['edges'])} edges"
     s["public_accounts"] = s.get("public_accounts", [])[:public]
+    for n in s.get("narratives", []):
+        n["evidence"] = n.get("evidence", [])[:5]
+    for a in s.get("archetypes", []):
+        a["evidence"] = a.get("evidence", [])[:3]
     s["coordination"] = s.get("coordination", [])[:10]
     for cl in s["coordination"]:
         cl["accounts_ref"] = cl.get("accounts_ref", [])[:20]
