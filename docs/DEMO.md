@@ -14,6 +14,63 @@ What we never do: rule on whether a claim is true, say who runs an account, or n
 
 Who would pay for this: newsrooms deciding whether a viral claim is worth covering, brand and social-listening teams, trust-and-safety teams, investor relations teams facing stock-moving rumors. Enterprise firms (Graphika, Cyabra, Blackbird.AI) sell analyst reports; a check anyone can run from a text message is the gap we claim (precedent check still to do).
 
+## MVP scope
+
+The MVP is the smallest version that still tells the whole story end to end: a judge texts a claim about the Huang week and gets back narratives, bot share with intervals, and who amplifies the automation, while the dashboard shows the same numbers with the evidence behind them. Everything below is either in the MVP, a named stretch, or explicitly out. If it is not listed as in, it is out until the 03:00 freeze lifts.
+
+### The floor (if everything else slips, this still demos)
+
+1. Dashboard on the precomputed Jensen corpus only: replay, bot share per narrative with the bots-removed toggle, archetype cards. All numbers from `site_data.json`, no live calls.
+2. The text-a-claim flow answered from the corpus path of `/claim` only (no live path), even if a teammate sends the texts instead of a judge.
+3. Backup recordings of both. A demo that runs entirely from the floor still answers the Post's claim with intervals and evidence.
+
+### In scope, by component
+
+| Component | In the MVP | Boundary |
+|---|---|---|
+| Data (H1, H2) | Bluesky only: accounts, posts, history (last 50), interactions for likely-automated posts and top 500 human posts | No Reddit. No firehose or streaming; the Nov 5-13 window is fixed |
+| Narratives (H3) | 6-10 named clusters over unique posts, sides assigned, 200 hand labels for accuracy | Term/LLM naming only; no reply-stance classifier (already first in the README cut order) |
+| Bot model (M2) | One saved model scoring every account: profile + behavior features (lifetime posts/day, account age, follow ratios, posting-app mix) plus coordination signals (duplicate text, near-simultaneous reposts, shared links). Self-labeled bots are training/eval labels, never the output | No per-account public verdicts on private accounts; scores ship as shares and intervals. No graph neural anything; a regularized logistic model or gradient boosting that beats the 0.046 baseline on recall@100 is enough |
+| Coordination (M3) | Clusters of accounts sharing exact or near-duplicate text, or reposting the same post within 60 seconds, sized and reason-coded for the evidence views | Exact/near-duplicate text and timing only; no stylometry, no cross-platform matching |
+| Archetypes (M5) | 4-6 archetypes over real accounts that amplified likely-automated posts, lift vs matched controls with bootstrap intervals | Matched on narrative, time window, reach, activity and follower bucket; no follower-graph features beyond counts |
+| Retrieval (H5, M6) | Corpus path: bge-small embeddings, cosine top 300, similarity floor from the eval set, grouped by narrative. Eval: 50 hand-written claims with recall@k | Live path is a stretch (see below), not required for the MVP demo |
+| API (H4) | `/claim` (corpus mode), `/claim/{id}`, chart PNG, `/health`, reply rules enforced and tested, <20 s per corpus claim | `/xray` is a stretch. No auth, no rate limiting beyond a simple per-sender cap in the messaging layer |
+| Messaging (H7) | Photon Spectrum text line: checking message, reply text, chart image, dashboard link; follow-ups `show the bots`, `who shares it`, `next`, `help`; per-sender last-claim state | Text only. One claim at a time per sender; a second claim queues with a "still checking" reply |
+| Agent layer (H6) | Deepagent routing corpus vs live and calling the five named tools, LangSmith trace saved | The agent never writes numbers itself; every figure comes from an API tool result |
+| Dashboard (H8 bare version, Isaac's UI) | Replay with event markers, narrative river, story-without-bots, archetype cards, claim view at `/claim/:id`, method and validation view | Runs locally for judging; static deploy is a stretch. Public account pages are cut (already last in the cut order) |
+| Pitch (humans) | 2-minute script, Q&A card, Devpost with the four tracks selected | No landing page, no sign-ups |
+
+### The three grafts from the merge note, scoped
+
+Source: Muse's merge note (commit c48f0a3).
+
+1. Evidence drawer: in the MVP. Every bar, archetype card, coordination cluster and X-ray result opens the posts behind the number: timestamps, duplicate traces, reason chips. On the text path this is the `show the bots` follow-up. This is the anti-slop feature, so it is not a stretch; H4 and H8 split the work (API includes example/evidence post IDs in `/claim` and `/xray` responses; dashboard renders them).
+2. Threshold sensitivity strip: in the MVP, precomputed only. Screen 3 shows bot share per narrative at thresholds 0.3 / 0.5 / 0.7 / 0.9 from precomputed values in `site_data.json`, so a judge asking "is that just your cutoff?" gets an answer in one glance. A live slider that recomputes is a stretch, only after the floor is safe.
+3. Challenge mode: Plan B and post-pitch, not in the 2 minutes. If the live text flow fails twice in rehearsal, the demo's live moment becomes challenge mode on the laptop (the judge labels 3 of the 20 frozen accounts, then sees the model's call and the evidence). After the pitch, a QR at the table runs the same mode; disagreements join the hand-label queue. Recordings of the text flow become Plan C.
+
+### Stretch, in order (start only when the floor is verified working)
+
+1. `/xray` endpoint and dashboard view (contract already in this file).
+2. Live path for claims outside the Jensen corpus (<60 s target).
+3. Live threshold slider on screen 3.
+4. Static deploy of the dashboard.
+5. Voice line, only after 01:00 and only if the text flow is stable.
+
+### Explicitly out
+
+- Reddit data in any form (first cut, stays cut).
+- Any verdict on whether a claim is true, and any claim about who operates an account.
+- Naming or linking private accounts anywhere: dashboard, texts, chart images, Devpost, or the pitch.
+- Reply-stance classification, sentiment scoring, follower-graph analysis.
+- Accounts, logins, persistence beyond per-sender last-claim state, or a public launch. This is a judging demo on a fixed corpus, not a product release.
+- New tracks beyond the table above; a stretch feature that is not working by 03:00 does not get entered.
+
+### Acceptance checks
+
+By 18:00 (v0): floor items 1 and 2 run end to end on v0 data; kill tests 1-3 reported with real numbers, pass or fail; the example text exchange reproduced with computed (not placeholder) numbers for one claim.
+By 01:00: `/claim` live behind the text line; evidence drawer working on screens 3 and 4; threshold strip rendered from real precomputed values; three backup recordings made; rehearsal run once against the clock.
+Scope changes after 16:30 go through a `[demo]` pull request like this one, with the cut it replaces named in the description.
+
 ## Tracks
 
 Main track (exactly one allowed): Entertainment and Media. Its description lists "media literacy centered apps". Best Overall considers every project automatically.
@@ -240,6 +297,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 16:40: Muse's MVP scope section (PR #5) folded in, mapped to H/M milestones; Peri item dropped with the track (Hermes).
 - Sat 16:20: rewritten as the two-agent plan (Hermes and Muse), tracks cut to Arlequin, Photon, LangChain and ChatOverflow; Muse's three grafts from `merge-note-interactive-grafts.md` folded in (evidence drawer, threshold strip, challenge mode as first fallback); module interfaces added (Hermes, for Isaac).
 - Sat 16:10: tracks section added.
 - Sat 16:05: file created from the README demo plan and the MVP walkthrough; Photon text-a-claim flow added.
