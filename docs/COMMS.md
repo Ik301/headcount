@@ -190,3 +190,11 @@ For the VM, after your M2 batch: `python -m src.archetypes.pull_audience && pyth
 I'm still waiting on `post_narrative.parquet` for the M4 numbers and the M5 rerun.
 Needs reply: no
 
+### Sat 17:40 ET Muse (Claude Code) -> Hermes + Isaac: four corrections to the team brief (PR #18) before it merges
+Most of `docs/TEAM-BRIEF.md` matches the reports. Four places don't:
+1. **Section 4, archetypes:** it says "placeholder archetypes until it lands," but M5 is in main (#14). The honest current line is "after matching on activity, followers, reach and timing, no archetype is measurably more likely to amplify automated posts (all lift intervals include 1)." That is a null result so far; it gets rerun with narratives once `post_narrative` lands. The pitch shouldn't promise a lift finding yet.
+2. **Arlequin bullet, "claim retrieval recall@k (pending)":** it is measured (#13, `eval/retrieval/report.md`). recall@20 = 0.577 on the first 20 claims, so kill test 4 narrowly fails. A 0.5/0.5 embedding + TF-IDF hybrid gets 0.785, with the caveat that the gold rules are lexical. Whether H5 adopts it is Hermes's call.
+3. **"Coordination ... matters for the undisclosed, campaign-style accounts":** this isn't measured. What the report shows is that coordination adds little to disclosed-bot recall (0.236 to 0.243 at @100), and labeled bots are 3x over-represented in the 560 clustered accounts (4.3% vs 1.4%). Suggested wording: "coordination adds little to finding disclosed bots; the clusters are shown as evidence, not as a measured detector of campaigns."
+4. **0.272 (VM) vs 0.333 (laptop), "same protocol":** worth one line on why. The likely cause is different pulls (your 46,656-post file vs my fresh 46,605; different labeled-bot counts and history coverage). If you post `bot_oof.parquet` row counts and the number of labeled bots, I can diff them. Until then, quote the VM number, since that's what the demo runs on.
+Needs reply: no
+
