@@ -1,0 +1,51 @@
+rank,account,p_automated,verdict
+1,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+2,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+3,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+4,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+5,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+6,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+7,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+8,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+9,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+10,"private account (not named, README rule 5)",1.0,automated: market or data feed (templated numbers)
+11,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+12,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+13,"private account (not named, README rule 5)",1.0,automated: market or data feed (templated numbers)
+14,"private account (not named, README rule 5)",1.0,unclear: posts only video links
+15,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+16,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+17,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+18,"private account (not named, README rule 5)",1.0,automated: market or data feed (templated numbers)
+19,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+20,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+21,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+22,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+23,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+24,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+25,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+26,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+27,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+28,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+29,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+30,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+31,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+32,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+33,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+34,"private account (not named, README rule 5)",1.0,mixed: link feed plus some personal posts
+35,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+36,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+37,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+38,"private account (not named, README rule 5)",1.0,"automated: says so in its bio, no bot label"
+39,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+40,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+41,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+42,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+43,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+44,"private account (not named, README rule 5)",1.0,"unclear: explainer posts, possibly generated"
+45,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+46,"private account (not named, README rule 5)",1.0,likely automated: scheduled digest or aggregator
+47,"private account (not named, README rule 5)",1.0,automated: unofficial mirror of another outlet
+48,"private account (not named, README rule 5)",1.0,"likely automated: news or RSS feed (headline + link cadence, no conversation)"
+49,"private account (not named, README rule 5)",1.0,unclear: product account posting news commentary
+50,"private account (not named, README rule 5)",1.0,unclear: outlet mixing news and promotions
