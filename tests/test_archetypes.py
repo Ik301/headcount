@@ -58,3 +58,11 @@ def test_assign_with_artifact_and_stub(tmp_path):
     assert [set(o) for o in out] == [{"did", "archetype_id", "label"}] * 2
     stub = A.load_archetypes(str(tmp_path / "missing.joblib"))
     assert stub["version"] == "stub" and len(A.assign(stub, [prof(3)], {})) == 1
+
+
+def test_summary_agrees_with_lifts_and_contrasts():
+    con = [{"id": "a2", "label": "Prolific posters", "or": 1.58, "lo": 1.1, "hi": 2.27, "p": 0.013, "p_adj": 0.039}]
+    assert "Null result" in B._summary(False, [], "Occasional posters")
+    s = B._summary(False, con, "Occasional posters")
+    assert "modest difference" in s and "1.58" in s and "Null result" not in s
+    assert "excludes 1" in B._summary(True, con, "Occasional posters")
