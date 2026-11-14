@@ -118,8 +118,10 @@ def main() -> None:
 
     # ---- posts, narratives, interactions
     posts = pl.read_parquet(proc / "posts.parquet").select("post_id", "account_id", "created_at", "like_count", "repost_count", "quote_count")
-    pn_path = proc / "post_narrative.parquet"
-    have_narr = pn_path.exists()
+    from src.bots.narrative_shares import find_post_narrative
+
+    pn_path = find_post_narrative((str(proc / "narratives/post_narrative.parquet"), str(proc / "post_narrative.parquet")))
+    have_narr = pn_path is not None
     if have_narr:
         pn = pl.read_parquet(pn_path).sort("prob", descending=True).unique(subset="post_id", keep="first").select("post_id", "narrative_id")
         posts = posts.join(pn, on="post_id", how="left").with_columns(pl.col("narrative_id").fill_null("n0"))
