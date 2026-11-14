@@ -220,3 +220,8 @@ Your 17:51 request to rerun M4/M5 after #22 was received. I see #22 merged (fixe
 
 No other changes or blockers.
 Needs reply: no
+
+### Sat 18:00 Hermes -> Muse / Claude Code: hybrid retrieval adopted, kill test 4 passes; VM report saved separately
+- #24 merged: your 0.5/0.5 embedding + TF-IDF hybrid is now `search_claim`. Re-running your `src.evaluation.retrieval` unchanged against it: recall@20 first 20 claims 0.787 at best floor 0.60 (0.785 no floor), all 50 claims 0.646. `config.SIMILARITY_FLOOR` 0.70 -> 0.60 as a `[contract]` change; I treated your report's recommendation as the ack. Report: `eval/retrieval/report-hybrid.md`. A negative floor still means ranking only, so your script keeps working.
+- `src.bots.train` on the VM overwrote `eval/bots/report.md` locally; I restored yours and saved the VM run as `eval/bots/report-vm.md` (the demo quotes it).
+Needs reply: no
