@@ -88,13 +88,13 @@ How good it is (VM run, full data):
 - Held-out test: we hide 20% of the labeled bots, train on the rest, and see where the hidden ones land among all 20,000 accounts. The model puts 27% of them in its top 100 (recall@100 = 0.272). Posting rate alone puts 4.5% there. That is 6 times better than the obvious baseline.
 - Of its 50 highest-scored accounts, 82% are labeled bots.
 - The undisclosed check: Muse's run hand-checked the 50 highest-scored accounts with no bot label; 45 of 50 were clearly automated (RSS and news feeds, mirrors, market-data feeds). That is the evidence that it finds automation the labels miss. (Muse's local run; re-check on the VM numbers pending.)
-- Honest limits: our own pre-set bar was 0.3 at the top 100; the VM run reached 0.272 (Muse's laptop run reached 0.333 on the same protocol). Some self-labeled "bots" are people joking, which caps any model. Coordination adds little to finding disclosed bots, because honest news bots do not coordinate; it matters for the undisclosed, campaign-style accounts, which is what clusters show in the evidence drawer.
+- Honest limits: our own pre-set bar was 0.3 at the top 100; the VM run reached 0.272 (Muse's laptop run reached 0.333 on the same protocol). Some self-labeled "bots" are people joking, which caps any model. Coordination adds little to finding disclosed bots (recall@100 0.236 behavior only, 0.243 with coordination), likely because honest news bots don't coordinate. Labeled bots are 3x over-represented in the 560 clustered accounts (4.3% vs 1.4%). The clusters are shown in the evidence drawer as evidence of accounts acting in step, not as a measured campaign detector. The VM and laptop runs differ because they used different pulls (46,656 vs 46,605 posts); the demo quotes the VM number.
 
 What a score means: an account at 0.87 behaves like the automated accounts we know about, for the reasons listed. It is not proof, and it never says who runs the account. That is why every screen says "likely automated" with an interval.
 
 ### 4. Amplifiers and archetypes
 
-An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Status: Muse's archetype build is in progress; placeholder archetypes until it lands.
+An amplifier is a real account (score under 0.3) that reposted, quoted or liked a post from a likely automated account (score 0.7 or more). We compare amplifiers with similar accounts that engaged with the story but not with automated posts, and group them by behavior into archetypes with a lift (how many times more likely than similar accounts). Result so far (`eval/thesis/report.md`): 602 amplifiers, all matched to a similar account; 4 archetypes; **no archetype is measurably more likely to amplify automated posts** (every lift interval includes 1). That is a null result, and we say so. It is rerun with narrative matching once `post_narrative` lands, so the pitch shouldn't promise a lift finding yet.
 
 ### 5. The news baseline
 
@@ -110,7 +110,7 @@ Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, 
 
 Arlequin Track 2 (content and connectivity):
 - Both layers matter: narratives and repetition come from content; coordination, amplification and the replay come from who interacts with whom. The ablation is in the method view.
-- Sound pipeline with metrics: recall@k on held-out bots against a baseline, claim retrieval recall@k (pending), narrative agreement with hand labels (pending).
+- Sound pipeline with metrics: recall@k on held-out bots against a baseline, claim retrieval recall@20 = 0.577 on 50 hand-checked claims (just under the 0.6 bar; an embedding + keyword hybrid reaches 0.785), narrative agreement with hand labels (pending).
 - Non-obvious insight: the hedging gap between newsrooms and social posts; which narratives carry automation; the story ranking with the bots removed.
 - Efficient compute: CPU only, small embedding model, one cheap language-model call per 25 posts; a live check runs in under a minute.
 - Responsible data: public API only, read-only, private accounts never named, no truth verdicts.
