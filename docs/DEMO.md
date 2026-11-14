@@ -14,7 +14,23 @@ What we never do: rule on whether a claim is true, say who runs an account, or n
 
 Who would pay for this: newsrooms deciding whether a viral claim is worth covering, brand and social-listening teams, trust-and-safety teams, investor relations teams facing stock-moving rumors. Enterprise firms (Graphika, Cyabra, Blackbird.AI) sell analyst reports; a check anyone can run from a text message is the gap we claim (precedent check still to do).
 
-Prizes this targets: Science and Discovery (main track), Arlequin Track 2 (content plus connectivity; recall@k on retrieval is named as a plus), Photon "Build a Messaging Agent using Photon 2.0" (winner $400 cash, $300 credits and a fast-track to Photon's final interview round; runner-up $200), and LangChain "Best use of deepagents" if the agent behind the text line is a deepagent.
+## Tracks
+
+Main track (exactly one allowed): Entertainment and Media. Its description lists "media literacy centered apps", which is what this is. Best Overall considers every project automatically.
+
+Special tracks, entered only where the feature is real (each one adds a judge visit):
+
+| Track | Prize | What qualifies us | Owner |
+|---|---|---|---|
+| Arlequin AI Track 2 | AirPods for winners | content plus connectivity in every number; recall@k on bot detection and claim retrieval | everyone |
+| Photon: Build a Messaging Agent using Photon 2.0 | winner $400 cash, $300 credits and a fast-track to Photon's final interview round; runner-up $200 | the text-a-claim line, live on a Photon Spectrum channel | WP-8 |
+| LangChain: Best use of deepagents | Switch 2 for winners | the agent behind the text line is a deepagent; LangSmith traces as evidence | WP-11 |
+| Amazon: Best Practical AI Innovation | Amazon gift cards, up to $125 per person | an agent that plans and acts, real users, simple interface; needs working demo, use case, docs, pitch | WP-10 |
+| Peri: Forward Deployed Challenge | introductions to hiring teams at Cognition, Edra, Ephemeral, Sea12, Arca, Poetic | consult a real business or student organization during the event (for example a Daily Princetonian editor) and submit their name, role and one piece of evidence | WP-10 |
+| ChatOverflow Agent Leaderboard | $500, $250, $150, $100 raffle | every teammate connects their coding agent; no submission needed | everyone |
+| Photon: Best Voice Agent (stretch) | $300 cash and $100 credits | the judge calls and says the claim; voice runs on an SMS number, not iMessage | WP-12 |
+
+Not entered: CoStar (no honest use of its data), Capital One Nessie (no banking use), Best Hardware and Physical AI (no hardware), Best Rookie (not eligible).
 
 ## The 2-minute demo
 
@@ -75,7 +91,7 @@ Judge's phone ─> Photon (Spectrum) ─> messaging service (TS) ─> analysis A
 3. Claim retrieval (`src/retrieval/`). Embeds the claim with `BAAI/bge-small-en-v1.5` using its query prefix (`Represent this sentence for searching relevant passages: `), takes cosine top 300 over the corpus embeddings (a 40k by 384 matrix in numpy, milliseconds), keeps matches above a similarity floor tuned on the eval set, and groups them by narrative.
 4. Live path (`src/retrieval/live.py`). For claims outside the Jensen corpus: an LLM turns the claim into two or three search queries, `app.bsky.feed.searchPosts` pulls up to 300 recent posts, they are embedded, grouped (k-means, k up to 5, an LLM names the groups), and their authors are scored live (`getProfiles` 25 per call, `getAuthorFeed` limit 30; measured about 45 accounts a second). Target under 60 seconds.
 5. Messaging service (TypeScript, `src/messaging/`). Photon 2.0 through Spectrum (`spectrum-ts`, a Spectrum Cloud number, no Mac needed). Receives a text, sends the "checking" message at once, calls `/claim`, then sends `reply_text`, the chart image and the dashboard link. Keeps per-sender state (last `claim_id`) for follow-ups. Read Photon's hackathon guidelines before writing code: https://somethingreat.notion.site/Hackathon-Guidelines-for-Photon-2-0-3f8e443f36bb81f9893fed0d08a4c01d (beta and $100 free credits at photon.codes/beta). Prize eligibility needs the project built on Photon 2.0 and live on at least one Photon channel. A shared iMessage line can't text first, so the judge starts the conversation from the QR code. Use the SDK's documented calls only; don't guess method names.
-6. Agent layer (optional, for the deepagents prize). If time allows, the logic between the messaging service and the API (decide corpus or live, call tools, handle follow-ups) becomes a LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence`. The API endpoints above stay the tools' backend either way.
+6. Agent layer (required, WP-11, for the deepagents prize). The logic between the messaging service and the API (decide corpus or live, call tools, handle follow-ups) becomes a LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence`. The API endpoints above stay the tools' backend either way.
 7. Dashboard (`web/`, Vite, React, TypeScript, sigma.js, graphology). Reads `web/public/site_data.json` (shape in `README.md`). Views: replay, narrative river, story without bots, archetype cards, claim view at `/claim/:id`, public account pages, method and validation.
 
 ### API contracts
@@ -216,8 +232,20 @@ Status values: `todo`, `doing`, `v0` (works end to end, rough), `done`, `cut`.
 ### WP-10 Pitch, Devpost, users
 - Owner: Jeremy
 - Depends on: nothing at first
-- Outputs: `docs/pitch.md` (2-minute script, Q&A card), Devpost text, video
-- First tasks: by 17:00 talk to Arlequin's people (what would impress them; does a text-a-claim check matter to their customers) and to Photon's booth (anything in the guidelines that affects eligibility; image attachments on the Spectrum number)
+- Outputs: `docs/pitch.md` (2-minute script, Q&A card), Devpost text with every track above selected, video
+- First tasks: by 17:00 talk to Arlequin's people (what would impress them; does a text-a-claim check matter to their customers) and to Photon's booth (anything in the guidelines that affects eligibility; image attachments on the Spectrum number). Today: the Peri consultation. Ask a Daily Princetonian editor (or another campus news organization) whether they would text viral claims to this before covering them, what answer they'd need, and get their name, role, a quote and a photo.
+- Status: todo
+
+### WP-11 Agent layer (deepagents)
+- Owner: Hermes
+- Depends on: WP-5, WP-6 contract
+- Outputs: `src/agent/`: a LangChain deepagent with tools `search_claim`, `narratives_for`, `bot_share`, `amplifier_archetypes`, `coordination_evidence` that decides corpus or live search and handles follow-ups; LangSmith tracing on
+- Done when: the messaging service calls the agent instead of `/claim` directly, the reply rules still hold, and a trace of one full exchange is saved for the Devpost
+- Status: todo
+
+### WP-12 Voice line (stretch)
+- Owner: unassigned; start only after the text flow works end to end (01:00)
+- Outputs: a Photon SMS number that takes a spoken claim and answers out loud with the same reply
 - Status: todo
 
 ## Timeline (Sat Nov 14 to Sun Nov 15)
@@ -234,7 +262,7 @@ Status values: `todo`, `doing`, `v0` (works end to end, rough), `done`, `cut`.
 | 06:30 | video recorded, Devpost written |
 | 07:00 | submit (hard stop 08:00) |
 
-Cut order if behind: Reddit, then `/xray`, then the live path for other topics, then public account pages. The replay, bot share per narrative, archetype cards and the text-a-claim flow on the Jensen corpus stay.
+Cut order if behind: Reddit, then the voice line, then `/xray`, then the live path for other topics, then public account pages. The replay, bot share per narrative, archetype cards and the text-a-claim flow on the Jensen corpus stay.
 
 ## Kill tests
 
@@ -258,4 +286,5 @@ Teammates and their agents add new demo ideas here, one short paragraph each, wi
 
 ## Changelog
 
+- Sat 16:10: tracks section (main track switched to Entertainment and Media; six special tracks), agent layer required as WP-11, Peri consultation in WP-10, voice line as WP-12 stretch (Hermes, for Isaac).
 - Sat 16:05: file created from the README demo plan and the MVP walkthrough; Photon text-a-claim flow added as the live demo moment (Hermes, for Isaac).
