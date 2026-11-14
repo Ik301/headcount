@@ -179,18 +179,56 @@ All tables live in `data/processed/<table>.parquet`.
 }
 ```
 
-## Lanes
+## Demo target
 
-Fill in names when you claim a lane. Each lane works on its own branch (`lane-a/...`) and only edits its own folders.
+The demo has three beats. Everything except the last one is precomputed.
+
+1. Replay (30 s). The Jensen week plays as a time-lapse: the network grows post by post and like by like, likely automated accounts glow red, and human accounts light up in their archetype's color when they amplify one. The narrative river runs underneath with each band shaded by its bot share.
+2. Finding (40 s). Bot share per narrative with intervals: does the defend-Huang narrative carry more automation, as the Washington Post claimed? Then the archetype cards: which kinds of people amplified likely automated posts, and by how much more than matched controls.
+3. Audience X-ray, live (40 s). The judge clicks any post on the map, or picks any viral Bluesky post from a list of what's trending right now. In about 20 seconds we pull everyone who reposted, quoted or liked it, score each account, and show the share likely automated, the archetype mix of its real audience, and any coordination clusters with their reasons. This is the product: "is this post's reach real?" for newsrooms, brands and trust-and-safety teams.
+4. Q&A card, not in the 2 minutes: recall@k, the ablation, gold-set accuracy, data sources, privacy rules.
+
+Record the X-ray on three posts beforehand, in case the venue Wi-Fi or the API fails during judging.
+
+## Lanes and owners
+
+Each lane works on its own branch (`lane-a/...`) and only edits its own folders. Isaac's VM agent (Hermes) runs Lane A and the narrative pipeline because the data and the pulls already live on that machine.
 
 | Lane | Owner | Folders | First task | Done when |
 |---|---|---|---|---|
-| A. Ingest and data model | | `src/ingest/`, `src/model/` | Bluesky search re-pull plus `accounts` and `posts` tables by 17:00 | all tables in the contract are filled for Bluesky; Reddit pulled or cut |
-| B. Bot scores and coordination | | `src/bots/`, `eval/bots/` | behavior features and a first model on the labeled set by 18:00 | `bot_scores` written, recall@k and ablation in `eval/bots/report.md` |
-| C. Narratives, archetypes, thesis | | `src/narratives/`, `src/archetypes/`, `eval/thesis/` | embeddings and first clusters by 18:00 | narratives with gold accuracy, archetypes with lift, regression table |
-| D. Dashboard, demo, Devpost | | `web/`, `src/export/`, `data/sample/` | sample JSON plus the timeline and narrative views by 19:00 | all 7 views on real data, 2-minute script rehearsed, video recorded |
+| A. Ingest | Hermes (Isaac's VM agent) | `src/ingest/`, `src/model/` | profiles (done), `accounts` and `posts` tables by 16:30 | interactions with timestamps for the posts that matter, histories for every account in the story, Reddit pulled in the background |
+| B. Bot scores, coordination, live X-ray backend | David | `src/bots/`, `src/xray/`, `eval/bots/` | v0 model on the labeled set by 18:00 | `bot_scores` written, recall@k and ablation in `eval/bots/report.md`, `/xray` endpoint returns in under 30 s |
+| C1. Narratives | Hermes, with Isaac naming clusters and labeling the gold set | `src/narratives/`, `eval/narratives/` | embeddings and v0 clusters by 17:30 | 6 to 10 named narratives, accuracy on 200 hand labels |
+| C2. Archetypes and thesis stats | Brian | `src/archetypes/`, `eval/thesis/` | features and matching on v0 bot scores by 21:00 | archetypes with lift and intervals, regression table |
+| D. Dashboard and replay | Isaac, through coding agents | `web/`, `src/export/`, `data/sample/` | sample JSON and the timeline view by 17:00 | replay, narrative river, bot ratio, archetype cards, X-ray screen, public account pages |
+| E. Pitch, Devpost, users | Jeremy | `docs/` | talk to Arlequin's people on site by 17:00: what would impress them, and does the X-ray matter to their customers | 2-minute script, Q&A card, Devpost text, recorded video, backup X-ray recordings |
 
-Until Lane A's tables exist, B and C can start from Isaac's raw JSONL file with a throwaway loader. Switch to the Parquet tables as soon as they land.
+Until Lane A's tables exist, B and C can start from the raw JSONL file with a throwaway loader.
+
+## Live X-ray contract
+
+`POST /xray` with `{"post_url": "https://bsky.app/profile/<handle>/post/<rkey>"}` returns:
+
+```json
+{
+  "post": {"uri": "", "text": "", "author_public_handle": null},
+  "audience_size": 0,
+  "share_likely_automated": 0.0,
+  "share_ci": [0.0, 0.0],
+  "archetype_mix": [{"id": "a1", "label": "", "share": 0.0}],
+  "coordination_clusters": [{"size": 0, "reasons": [""]}],
+  "public_accounts": [{"handle": "", "p_automated": 0.0}],
+  "seconds": 0.0
+}
+```
+
+Pull up to 300 audience accounts (`getRepostedBy`, `getQuotes`, `getLikes`), their profiles (25 per call) and the last 30 posts of each, then score them with the saved model and assign archetypes by nearest centroid. The same privacy rules apply: private accounts are counted, never listed.
+
+## Data handoff
+
+Raw and processed data stay out of git. Hermes puts `data/processed/*.parquet` in a link-only Google Drive folder and refreshes it at 16:30, 18:00, 22:00 and 01:00. Pull the latest before each milestone.
+
+Measured: the AppView returned all 20,482 story-account profiles in 20 seconds with 4 parallel workers, so pulling every account's history (about 20,000 `getAuthorFeed` calls) is feasible. The follow graph stays cut, except for accounts in the archetype analysis if there is time.
 
 ## Stack and layout
 
@@ -203,6 +241,8 @@ src/narratives/   embed.py, cluster.py, label.py
 src/bots/         features.py, coordination.py, train.py
 src/archetypes/   features.py, match.py, cluster.py, thesis.py
 src/export/       build_site_data.py
+src/xray/         api.py (FastAPI, live Audience X-ray)
+docs/             pitch script, Q&A card, Devpost text
 eval/             bots/, narratives/, thesis/ reports (markdown, committed)
 web/              dashboard
 data/sample/      small hashed or fake data (committed)
@@ -215,28 +255,23 @@ Setup: copy `.env.example` to `.env` and fill in `SALT` (ask Isaac) and an LLM k
 
 | Time | Milestone |
 |---|---|
-| 15:30 | lanes claimed, branches open, sample JSON committed |
-| 18:00 | kill tests (below) reported in the team chat |
-| 22:00 | interactions and history pulled for amplifiers and controls; Reddit pulled or cut |
-| 00:00 | bot scores final; narratives final with gold accuracy |
-| 03:00 | archetypes and thesis numbers final; dashboard on real data |
-| 05:00 | feature freeze; rehearse the demo |
+| 15:30 | owners confirmed, branches open |
+| 16:30 | `accounts` and `posts` tables on Drive; sample `site_data.json` committed |
+| 18:00 | v0 of everything joined end to end, ugly is fine; kill tests reported |
+| 22:00 | interactions and histories on Drive; archetypes v0; dashboard on real data |
+| 01:00 | X-ray working end to end; bot scores and narratives final |
+| 03:00 | thesis numbers final; feature freeze |
+| 03:00 to 05:00 | replay polish, rehearsal, backup recordings |
 | 06:30 | video recorded, Devpost written |
 | 07:00 | submit (hard stop 08:00) |
 
+Cuts if behind: Reddit first, then the reply-stance classifier, then public account pages. The replay, the bot ratio per narrative, the archetype cards and the X-ray stay.
+
 ## Kill tests by 18:00
 
-1. Bot model: behavior-only recall@100 on held-out labeled bots is at least 0.5. If not, coordination becomes the main signal and the pitch leans on it.
+1. Bot model: recall@100 on held-out labeled bots of at least 0.3. Baseline to beat: lifetime posts per day alone gives recall@100 of 0.046 on all labeled bots. If the model can't reach 0.3, coordination becomes the main signal and the pitch leans on it.
 2. Narratives: 6 to 10 clusters that a person can name, and at least 70% agreement with a first 50 hand labels.
 3. Spread: the bot post share in the most automated narrative is at least twice the share in the least automated one. If not, the headline becomes "automation is spread evenly, and the bots-defending-Huang claim does not show on Bluesky", which is still a finding.
-
-## Demo (2 minutes)
-
-1. 15 s: the story everyone knows, and the Post's claim that bots defended Huang.
-2. 30 s: the narrative river, then the bot ratio bars. Which side the automation sits on.
-3. 30 s: the network view. Click a coordination cluster and show its reasons.
-4. 30 s: archetype cards, with the archetype that amplifies likely automated posts most often and its lift.
-5. 15 s: validation (recall@k, ablation) and the privacy rules.
 
 ## Risks
 
