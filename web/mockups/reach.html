@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reach audit on a post</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F5F0;
+    --card: #FFFFFF;
+    --ink: #16181D;
+    --ink-2: #4A4F5A;
+    --ink-3: #8A8F99;
+    --rule: #E3DFD6;
+    --signal: #D9472B;
+    --signal-wash: #FBE6E0;
+    --human: #2F6F8F;
+    --human-wash: #E3EEF3;
+    /* archetype tints, all derived from --human */
+    --a1: #2F6F8F;
+    --a2: #5B8FA9;
+    --a3: #8DB2C4;
+    --a4: #BFD4DE;
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --host: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); color: var(--ink); scrollbar-color: var(--rule) var(--paper); }
+  body { margin: 0; font: 400 14px/1.45 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--human-wash); color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+  .num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .canvas { width: 1440px; min-height: 900px; margin: 0 auto; padding: 30px 72px 32px; }
+  header.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  header.top h1 { margin: 0; font: 500 30px/1.15 var(--serif); letter-spacing: -0.01em; }
+  header.top p { margin: 6px 0 0; color: var(--ink-2); }
+  .label { font: 400 12px/1 var(--mono); color: var(--ink-2); white-space: nowrap; }
+
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; margin-top: 22px; }
+  .col h2 { margin: 0; font: 600 14px/1.3 var(--sans); }
+  .col .cap { margin: 2px 0 14px; color: var(--ink-2); font-size: 13px; }
+
+  /* ---------- Host feed (a neutral, unbranded social app) ---------- */
+  .feed { width: 560px; background: var(--card); border: 1px solid #E6E6E6; border-radius: 12px; overflow: hidden; font-family: var(--host); color: #1F2328; box-shadow: 0 1px 2px rgba(22,24,29,.04), 0 8px 24px -12px rgba(22,24,29,.10); }
+  .post { display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 14px 18px 0; border-bottom: 1px solid #EDEDED; }
+  .post:last-child { border-bottom: 0; }
+  .post.ghost { opacity: .42; padding-bottom: 12px; }
+  .post.ghost.clip { max-height: 58px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%); mask-image: linear-gradient(to bottom, transparent, #000 70%); padding-top: 0; }
+  .post.ghost.clip-b { max-height: 62px; overflow: hidden; -webkit-mask-image: linear-gradient(to top, transparent, #000 70%); mask-image: linear-gradient(to top, transparent, #000 70%); }
+  .av { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #EEF0F2; }
+  .av svg { display: block; }
+  .who { display: flex; align-items: baseline; gap: 6px; font-size: 14px; line-height: 1.3; white-space: nowrap; }
+  .who b { font-weight: 600; }
+  .who .h { color: #6A7078; }
+  .who .ref { font-family: var(--mono); font-size: 12.5px; color: #6A7078; }
+  .ptext { margin: 3px 0 10px; font-size: 15px; line-height: 1.42; }
+  .acts { display: flex; gap: 40px; padding: 2px 0 10px; color: #6A7078; font-size: 13px; }
+  .acts span { display: inline-flex; align-items: center; gap: 6px; }
+  .acts svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .target { padding-bottom: 0; }
+  .target .body { padding-bottom: 0; }
+
+  /* ---------- Extension overlay ---------- */
+  .ext { grid-column: 1 / -1; margin: 0 -18px; font-family: var(--sans); color: var(--ink); }
+  .badge { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 18px; background: var(--paper); border-top: 1px solid var(--rule); cursor: pointer; font: 500 13px/1.2 var(--sans); transition: background-color .2s cubic-bezier(.16,1,.3,1); }
+  .badge:hover { background: #F1EEE7; }
+  .badge:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 0; }
+  .badge .mark { width: 18px; height: 18px; flex: none; }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--signal); flex: none; }
+  .badge .k { color: var(--ink-2); font-weight: 400; }
+  .badge .v { color: var(--ink); }
+  .badge .more { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); font-weight: 400; font-size: 12px; }
+  .badge .chev { width: 14px; height: 14px; fill: none; stroke: var(--ink-2); stroke-width: 1.6; transition: transform .3s cubic-bezier(.16,1,.3,1); }
+  .badge[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  .panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.16,1,.3,1); background: var(--card); }
+  .panel > .inner { overflow: hidden; }
+  .badge[aria-expanded="true"] + .panel { grid-template-rows: 1fr; }
+  .pad { padding: 12px 18px 0; }
+  .sec { padding: 12px 0; border-top: 1px solid var(--rule); }
+  .sec:first-child { border-top: 0; padding-top: 2px; }
+  .sec h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 8px; font: 600 12.5px/1.3 var(--sans); color: var(--ink); }
+  .sec h3 .aside { font-weight: 400; color: var(--ink-2); }
+
+  .sum { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: end; }
+  .big { font: 400 44px/0.9 var(--serif); letter-spacing: -0.02em; color: var(--ink); }
+  .big small { font-size: 26px; }
+  .sum p { margin: 0 0 3px; color: var(--ink-2); font-size: 13.5px; line-height: 1.35; }
+  .sum p strong { color: var(--ink); font-weight: 500; }
+  .meter { grid-column: 1 / -1; margin-top: 8px; }
+  .track { position: relative; height: 8px; background: var(--human-wash); border-radius: 2px; }
+  .track .fill { position: absolute; inset: 0 auto 0 0; background: var(--signal); border-radius: 2px 0 0 2px; }
+  .track .ci { position: absolute; top: -4px; bottom: -4px; border-left: 1px solid var(--ink); border-right: 1px solid var(--ink); }
+  .track .ci::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--ink); }
+  .track .base { position: absolute; top: -6px; bottom: -6px; width: 0; border-left: 1px dashed var(--ink-2); }
+  .scale { display: flex; justify-content: space-between; margin-top: 7px; font: 400 12px/1.2 var(--mono); color: var(--ink-2); }
+  .scale .b { color: var(--ink-2); }
+
+  .split { display: grid; grid-template-columns: 112px 1fr; gap: 6px 12px; align-items: center; font-size: 12.5px; }
+  .split .lab { color: var(--ink-2); }
+  .split .lab .num { color: var(--ink); font-size: 12px; margin-left: 4px; }
+  .bar2 { display: flex; height: 18px; border-radius: 2px; overflow: hidden; }
+  .bar2 i { display: flex; align-items: center; padding: 0 7px; font: 500 12px/1 var(--mono); font-style: normal; white-space: nowrap; }
+  .bar2 .a { background: var(--signal); color: #fff; }
+  .bar2 .r { background: var(--human-wash); color: var(--human); justify-content: flex-end; }
+  .legend { display: inline-flex; gap: 14px; font: 400 12px/1.3 var(--sans); color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; }
+
+  .cluster p { margin: 0 0 6px; font-size: 13px; color: var(--ink-2); max-width: 62ch; }
+  .cluster p strong { color: var(--ink); font-weight: 500; }
+  .ticks { position: relative; height: 24px; border-bottom: 1px solid var(--ink-3); }
+  .ticks i { position: absolute; bottom: 0; width: 2px; height: 16px; background: var(--signal); margin-left: -1px; }
+  .ticks i.me { height: 24px; background: var(--ink); }
+  .ticks i.me::after { content: ""; position: absolute; top: -4px; left: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  .tscale { display: flex; justify-content: space-between; margin-top: 5px; font: 400 12px/1.2 var(--mono); color: var(--ink-2); }
+  .tscale .me { color: var(--ink); }
+
+  .arche .stack { display: flex; height: 12px; border-radius: 2px; overflow: hidden; gap: 2px; background: var(--card); }
+  .arche ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; }
+  .arche li { display: grid; grid-template-columns: 9px 1fr auto; gap: 8px; align-items: baseline; font-size: 12px; color: var(--ink-2); line-height: 1.3; }
+  .arche li i { width: 9px; height: 9px; border-radius: 2px; transform: translateY(1px); }
+  .arche li .num { color: var(--ink); font-size: 12px; }
+
+  .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 18px 12px; border-top: 1px solid var(--rule); background: var(--paper); }
+  .pfoot .note { font-size: 12px; color: var(--ink-2); line-height: 1.35; max-width: 46ch; }
+  .open { display: inline-flex; align-items: center; gap: 6px; font: 500 13px/1 var(--sans); color: var(--human); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--human) 35%, transparent); text-underline-offset: 3px; white-space: nowrap; }
+  .open:hover { text-decoration-color: var(--human); }
+  .open svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+  .notes { width: 560px; margin: 28px 0 0; padding: 0; display: grid; gap: 14px; }
+  .notes div { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .notes dt { font-weight: 600; font-size: 13px; }
+  .notes dd { margin: 0; color: var(--ink-2); font-size: 13px; max-width: 60ch; }
+</style>
+</head>
+<body>
+<main class="canvas">
+  <header class="top">
+    <div>
+      <h1>Reach audit, on the post itself</h1>
+      <p>A browser extension adds one line under a post. Opening it shows where the post's reposts and likes came from.</p>
+    </div>
+    <span class="label">Mockup with sample data.</span>
+  </header>
+
+  <div class="stage">
+    <!-- BEFORE -->
+    <section class="col" aria-labelledby="h-before">
+      <h2 id="h-before">Collapsed</h2>
+      <p class="cap">One line under the post's actions. Nothing else on the page changes.</p>
+      <div class="feed">
+
+        <article class="post target" aria-label="Post by a private account">
+          <div class="av" data-ref="7c21"></div>
+          <div class="body">
+            <div class="who"><b>A private account</b><span class="ref">acct·7c21</span><span class="h">· Nov 12, 20:31</span></div>
+            <p class="ptext">The smear campaign against Jensen is a gift to Beijing. Wake up.</p>
+            <div class="acts">
+              <span><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>312</span>
+              <span><svg viewBox="0 0 24 24"><path d="M7 4 4 7l3 3"/><path d="M4 7h11a4 4 0 0 1 4 4v1"/><path d="m17 20 3-3-3-3"/><path d="M20 17H9a4 4 0 0 1-4-4v-1"/></svg>2.1k</span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>6.4k</span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m8 8 4-4 4 4"/><path d="M5 14v5h14v-5"/></svg></span>
+            </div>
+          </div>
+          <div class="ext" data-panel="before"></div>
+        </article>
+
+        <article class="post ghost clip-b" aria-hidden="true">
+          <div class="av" data-ref="e014"></div>
+          <div><div class="who"><b>A private account</b><span class="ref">acct·e014</span><span class="h">· Nov 12, 20:33</span></div>
+          <p class="ptext">Kress as interim CEO is the least surprising part of this week. Board was ready.</p></div>
+        </article>
+      </div>
+      <dl class="notes">
+        <div><dt>What 38% means</dt><dd>Of the post's 8,516 reposts and likes, 3,236 came from accounts the model scores 0.5 or higher. The story-wide baseline is 4.1%.</dd></div>
+        <div><dt>What it never says</dt><dd>Who runs an account, or whether the post is true. Private accounts are counted, never named.</dd></div>
+        <div><dt>Where it leads</dt><dd>"Open full check" shows the posts, timestamps and reasons behind every number in the panel.</dd></div>
+      </dl>
+    </section>
+
+    <!-- AFTER -->
+    <section class="col" aria-labelledby="h-after">
+      <h2 id="h-after">Expanded</h2>
+      <p class="cap">Who the reach came from, with the evidence one click away.</p>
+      <div class="feed">
+
+        <article class="post target" aria-label="Post by a private account">
+          <div class="av" data-ref="7c21"></div>
+          <div class="body">
+            <div class="who"><b>A private account</b><span class="ref">acct·7c21</span><span class="h">· Nov 12, 20:31</span></div>
+            <p class="ptext">The smear campaign against Jensen is a gift to Beijing. Wake up.</p>
+            <div class="acts">
+              <span><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>312</span>
+              <span><svg viewBox="0 0 24 24"><path d="M7 4 4 7l3 3"/><path d="M4 7h11a4 4 0 0 1 4 4v1"/><path d="m17 20 3-3-3-3"/><path d="M20 17H9a4 4 0 0 1-4-4v-1"/></svg>2.1k</span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>6.4k</span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m8 8 4-4 4 4"/><path d="M5 14v5h14v-5"/></svg></span>
+            </div>
+          </div>
+          <div class="ext" data-panel="after" data-open="true"></div>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
+
+<template id="ext-tpl">
+  <button class="badge" type="button" aria-expanded="false">
+    <svg class="mark" viewBox="0 0 18 18" aria-hidden="true"><path d="M2.5 13a6.5 6.5 0 0 1 13 0" fill="none" stroke="#16181D" stroke-width="1.4"/><path d="M4.4 8.4l.9.7M9 6.5v1.2M13.6 8.4l-.9.7" stroke="#16181D" stroke-width="1.2"/><path d="M9 13l3-4" stroke="#D9472B" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="13" r="1.3" fill="#16181D"/></svg>
+    <span class="k">Reach:</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span class="v">38% likely automated</span>
+    <span class="more"><span class="mlabel">Details</span><svg class="chev" viewBox="0 0 14 14" aria-hidden="true"><path d="m3.5 5.5 3.5 3.5 3.5-3.5"/></svg></span>
+  </button>
+  <div class="panel" role="region" aria-label="Reach audit details">
+    <div class="inner">
+      <div class="pad">
+        <div class="sec sum">
+          <div class="big">38<small>%</small></div>
+          <p>of this post's <strong class="num">8,516</strong> reposts and likes came from likely automated accounts (score 0.5 or higher). 95% interval 33 to 43%.</p>
+          <div class="meter" aria-label="38 percent, 95 percent interval 33 to 43 percent; story baseline 4.1 percent">
+            <div class="track">
+              <span class="fill" style="width:38%"></span>
+              <span class="ci" style="left:33%; width:10%"></span>
+              <span class="base" style="left:4.1%"></span>
+            </div>
+            <div class="scale"><span><span class="b">dashed line: story baseline, 4.1%</span></span><span>bracket: 95% interval</span><span>100%</span></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <h3>Who reposted and liked it <span class="legend"><span><i style="background:var(--signal)"></i>Likely automated</span><span><i style="background:var(--human-wash); box-shadow: inset 0 0 0 1px #BFD4DE"></i>Real accounts</span></span></h3>
+          <div class="split">
+            <span class="lab">Reposts<span class="num">2,104</span></span>
+            <div class="bar2" aria-label="Reposts: 1,094 likely automated, 1,010 real accounts"><i class="a" style="width:52%">1,094 · 52%</i><i class="r" style="width:48%">1,010</i></div>
+            <span class="lab">Likes<span class="num">6,412</span></span>
+            <div class="bar2" aria-label="Likes: 2,142 likely automated, 4,270 real accounts"><i class="a" style="width:33.4%">2,142 · 33%</i><i class="r" style="width:66.6%">4,270</i></div>
+          </div>
+        </div>
+
+        <div class="sec cluster">
+          <h3>Posted in a coordinated burst</h3>
+          <p><strong>14 accounts posted this exact text within 54 seconds</strong>, Nov 12, 20:31:04 to 20:31:58 UTC. This post is one of them.</p>
+          <div class="ticks" aria-label="14 posts between 20:31:04 and 20:31:58 UTC">
+            <i style="left:6.7%"></i><i style="left:10%"></i><i style="left:15%"></i><i style="left:21.7%"></i><i class="me" style="left:26.7%"></i><i style="left:30%"></i><i style="left:38.3%"></i><i style="left:43.3%"></i><i style="left:51.7%"></i><i style="left:60%"></i><i style="left:68.3%"></i><i style="left:76.7%"></i><i style="left:88.3%"></i><i style="left:96.7%"></i>
+          </div>
+          <div class="tscale"><span>20:31:00</span><span class="me">this post, 20:31:16</span><span>20:32:00</span></div>
+        </div>
+
+        <div class="sec arche">
+          <h3>The real audience, by archetype <span class="aside num">5,280 reposts and likes</span></h3>
+          <div class="stack" aria-hidden="true"><i style="flex:31;background:var(--a1)"></i><i style="flex:24;background:var(--a2)"></i><i style="flex:12;background:var(--a3)"></i><i style="flex:33;background:var(--a4)"></i></div>
+          <ul>
+            <li><i style="background:var(--a1)"></i>New accounts that mostly repost market news<span class="num">31%</span></li>
+            <li><i style="background:var(--a2)"></i>Heavy reposters, mostly politics<span class="num">24%</span></li>
+            <li><i style="background:var(--a3)"></i>Tech-industry posters with large followings<span class="num">12%</span></li>
+            <li><i style="background:var(--a4)"></i>Conversational posters, mostly replies<span class="num">33%</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pfoot">
+        <span class="note">Scored Nov 13, 09:12 UTC from the Bluesky public API. Does not judge whether the post is true.</span>
+        <a class="open" href="#check">Open full check<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5"/></svg></a>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  // Deterministic identicon (static SVG built from the hard-coded ref strings in this file; no user input).
+  // Deterministic identicon from a hashed ref: a 5x5 mirrored grid in muted ink tones.
+  function identicon(ref) {
+    let bits = (parseInt(ref, 16) * 2654435761) >>> 0;
+    const tones = ['#4A4F5A', '#8A8F99', '#6B7280'];
+    const fg = tones[parseInt(ref, 16) % tones.length];
+    let cells = '';
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) {
+      const on = bits & 1; bits = bits >>> 1;
+      if (on) {
+        cells += `<rect x="${4 + x * 6.4}" y="${4 + y * 6.4}" width="6.4" height="6.4"/>`;
+        if (x < 2) cells += `<rect x="${4 + (4 - x) * 6.4}" y="${4 + y * 6.4}" width="6.4" height="6.4"/>`;
+      }
+    }
+    return `<svg viewBox="0 0 40 40" width="40" height="40" aria-hidden="true"><rect width="40" height="40" fill="#EEF0F2"/><g fill="${fg}">${cells}</g></svg>`;
+  }
+  document.querySelectorAll('.av[data-ref]').forEach(el => el.innerHTML = identicon(el.dataset.ref));
+
+  const tpl = document.getElementById('ext-tpl');
+  document.querySelectorAll('.ext').forEach(slot => {
+    slot.appendChild(tpl.content.cloneNode(true));
+    const btn = slot.querySelector('.badge');
+    const label = slot.querySelector('.mlabel');
+    const set = open => { btn.setAttribute('aria-expanded', String(open)); label.textContent = open ? 'Hide' : 'Details'; };
+    set(slot.dataset.open === 'true');
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+  });
+</script>
+</body>
+</html>
