@@ -435,6 +435,18 @@ def _ref(did: str, prof: dict) -> dict:
     return public_ref(did, prof.get("handle"), is_public(prof))
 
 
+_URL_RE = re.compile(r"https?://\S+|\b(?:[a-z0-9-]+\.)+(?:com|net|org|social|io|ai|co|news|blog|xyz|me|app|dev)(?:/\S*)?", re.I)
+_MENTION_RE = re.compile(r"@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z0-9-]+")
+
+
+def safe_example_text(text: str, author_public: bool) -> str:
+    """Example posts are shown verbatim, so they must not name private accounts indirectly: @mentions are masked
+    (we don't know whether the mentioned account is public), and a private author's links are masked too, because
+    many Bluesky handles are the owner's own domain (a post linking to its own site names its author)."""
+    text = _MENTION_RE.sub("@[account]", text)
+    return text if author_public else _URL_RE.sub("[link]", text)
+
+
 def cached(claim_id: str) -> dict | None:
     with _LOCK:
         hit = _CACHE.get(claim_id)
@@ -678,7 +690,8 @@ def _run(result, text, http, llm_fn, embedder, scorer, assigner, since, until, f
             if tx.lower() in seen_txt:
                 continue
             seen_txt.add(tx.lower())
-            ex.append({"text": tx[:280], "public_handle": _ref(m["did"], _profile_for(m["did"], profiles, author_basic))["public_handle"]})
+            ref = _ref(m["did"], _profile_for(m["did"], profiles, author_basic))
+            ex.append({"text": safe_example_text(tx, bool(ref["public_handle"]))[:280], "public_handle": ref["public_handle"]})
             if len(ex) == 3:
                 break
         label, side = names.get(nid, (nid, "other"))

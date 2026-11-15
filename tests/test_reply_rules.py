@@ -50,3 +50,35 @@ def test_no_operator_claims():
 def test_chart_renders():
     png = reply.chart_png(result())
     assert png[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_declined_and_failed_results_keep_their_template():
+    # src.api.app recomposes every result, so the live path's decline must survive compose()
+    r = result(n=0, narratives=[])
+    r["declined"] = True
+    assert reply.compose(r) == reply.DECLINE
+    r = result(n=0, narratives=[])
+    r["error"] = "Bluesky search did not answer"
+    assert reply.compose(r) == reply.FAILURE
+
+
+def test_amplifier_line_skips_unprofiled_and_lifts_below_one():
+    r = result()
+    r["amplifiers"] = {"n_humans": 14, "archetype_mix": [
+        {"id": "unknown", "label": "Not profiled", "share": 0.79, "lift": 0.85},
+        {"id": "a2", "label": "Heavy reposters", "share": 0.07, "lift": 4.46},
+    ]}
+    text = reply.compose(r)
+    assert "Not profiled" not in text and "Heavy reposters" not in text  # 1 profiled account is too few
+    r["amplifiers"] = {"n_humans": 300, "archetype_mix": [{"id": "a1", "label": "Occasional posters", "share": 0.6, "lift": 0.9}]}
+    assert "more likely" not in reply.compose(r)
+    r["amplifiers"] = {"n_humans": 300, "archetype_mix": [{"id": "a2", "label": "Heavy reposters", "share": 0.6, "lift": 1.4}]}
+    assert '"Heavy reposters" (1.4x more likely' in reply.compose(r)
+
+
+def test_more_narratives_than_shown_are_counted():
+    narrs = [{"label": f"N{i}", "share_of_matches": s, "bot_post_share": 0.0, "bot_post_share_ci": [0.0, 0.0]} for i, s in enumerate([0.3, 0.25, 0.2, 0.1, 0.1, 0.03])]
+    text = reply.compose(result(narratives=narrs))
+    assert "N3" in text and "N4" not in text
+    assert "+ 2 smaller narratives in the full view." in text
+    assert "smaller narratives" not in reply.compose(result())

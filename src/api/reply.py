@@ -15,12 +15,22 @@ def pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
 
+def _unprofiled(a: dict) -> bool:
+    return a.get("id") == "unknown" or (a.get("label") or "").strip().lower() == "not profiled"
+
+
 def _window(result: dict) -> str:
     return "Nov 5 to 13" if result.get("scope", "corpus") == "corpus" else "recent posts"
 
 
 def compose(result: dict) -> str:
     """Templates from docs/DEMO.md, Build specification: Reply text templates."""
+    # The live path marks declines and failures; src.api.app recomposes every result, so these must win here
+    # (otherwise a declined private-person claim came back as the insufficient-data reply).
+    if result.get("declined"):
+        return DECLINE
+    if result.get("error"):
+        return FAILURE
     n = result["matched_posts"]
     if n < cfg.MIN_MATCHES:
         return (
@@ -36,15 +46,23 @@ def compose(result: dict) -> str:
         if base and nr["bot_post_share"] >= 2 * base:
             line += f", about {nr['bot_post_share'] / base:.0f}x the story's baseline"
         lines.append(line + ".")
+    if len(result["narratives"]) > len(narrs):
+        k = len(result["narratives"]) - len(narrs)
+        lines.append(f"+ {k} smaller narrative{'s' if k > 1 else ''} in the full view.")
     com = [c for c in result.get("bot_commonalities", []) if c.get("accounts")]
     if com and narrs:
         top = max(narrs, key=lambda nr: nr["bot_post_share"])["label"]
         parts = [c["signal"] if "account" in c["signal"] else f"{c['signal']} ({c['accounts']} accounts)" for c in com[:2]]
         lines.append(f"The likely automated accounts pushing {top}: " + "; ".join(parts) + ".")
     amp = result.get("amplifiers", {})
-    mix = [a for a in amp.get("archetype_mix", []) if a.get("lift")]
-    if amp.get("n_humans", 0) >= cfg.MIN_HUMANS_FOR_AMPLIFIER_LINE and mix:
-        top = max(mix, key=lambda a: (a["share"] >= 0.1, a["lift"]))
+    n_h = amp.get("n_humans", 0) or 0
+    # Only profiled archetypes count: "Not profiled" is missing data, not a kind of account. The line needs at least
+    # MIN_HUMANS profiled amplifiers, and the largest profiled group must have a lift above 1, so it never says
+    # "mostly X (0.8x more likely)" or names a group that rests on one account.
+    prof = [a for a in amp.get("archetype_mix", []) if a.get("lift") and not _unprofiled(a)]
+    n_prof = round(n_h * sum(a.get("share", 0) for a in prof))
+    top = max(prof, key=lambda a: (a.get("share", 0), a["lift"])) if prof else None
+    if n_h >= cfg.MIN_HUMANS_FOR_AMPLIFIER_LINE and n_prof >= cfg.MIN_HUMANS_FOR_AMPLIFIER_LINE and top and top["lift"] > 1:
         lines.append(f"The real accounts spreading their posts are mostly \"{top['label']}\" ({top['lift']:.1f}x more likely than similar accounts).")
     tail = TRUTH_LINE + (f" Full view: {result['dashboard_url']}" if result.get("dashboard_url") else "")
     lines.append(tail)
