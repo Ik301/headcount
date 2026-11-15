@@ -296,3 +296,37 @@ def test_validation_prefers_vm_reports(tmp_path):
     assert v["recall_at_k"]["100"] == 0.272 and v["baseline_recall_at_k"]["100"] == 0.045 and v["report_model"] == "v-vm"
     assert v["narrative_llm_agreement"] == 0.702 and v["gold_accuracy"] is None and v["hand_label_agreement"] is None
     assert v["retrieval_recall_at_k"] == {"20": 0.787} and v["retrieval"]["recall_at_20_all"] == 0.646
+
+
+def test_challenge_handle_unknown_on_this_machine_is_not_named(tmp_path):
+    """A frozen challenge pick built from another machine's pull can't be checked against this machine's profiles."""
+    paths = write_corpus(tmp_path)
+    sample = Path(paths["sample"])
+    sample.mkdir(parents=True, exist_ok=True)
+    picks = [
+        {"account_ref": "famous.example.com", "public_handle": "famous.example.com", "tier": "human", "posts": ["hi"], "p_automated": 0.01},
+        {"account_ref": "elsewhere.example.net", "public_handle": "elsewhere.example.net", "tier": "middle", "posts": ["hello"], "p_automated": 0.3},
+        {"account_ref": "secret-feed.bsky.social", "public_handle": "secret-feed.bsky.social", "tier": "automated", "posts": ["x"], "p_automated": 0.95},
+    ]
+    (sample / "challenge.json").write_text(json.dumps({"model_version": "v-test", "accounts": picks}))
+    c = B.load(**paths)
+    site = B.build_from(c)
+    ch = site["challenge"]
+    assert [a["public_handle"] for a in ch] == ["famous.example.com", None, None]
+    blob = json.dumps(site)
+    assert "elsewhere.example.net" not in blob and "secret-feed.bsky.social" not in blob
+    assert len(ch[1]["account_ref"]) == 16 and ch[1]["posts"] == ["hello"]
+    assert B.privacy_violations(site, c) == []
+
+
+def test_archetype_finding_names_a_less_likely_group(tmp_path):
+    paths = write_corpus(tmp_path)
+    proc = Path(paths["processed"])
+    pl.DataFrame({"archetype_id": ["a1", "a2"], "label": ["Heavy reposters", "Quote posters"], "size": [20, 30], "n_amplifiers": [11, 4],
+                  "lift": [1.1, 0.46], "lift_lo": [0.8, 0.26], "lift_hi": [1.4, 0.66], "description": ["x", "y"],
+                  "defining_features": [["repost_share"], ["quote_share"]], "examples_public": [[], []]}).write_parquet(proc / "archetypes.parquet")
+    th = Path(paths["eval_dir"]) / "thesis"
+    th.mkdir(parents=True)
+    (th / "report-vm.md").write_text("- Amplifier: a likely human. **26 amplifiers.**\n| - | unmatched, left out of lift | 1 |\nBase amplifier rate in the matched sample: 0.50, so\n")
+    f = [x for x in B.build(**paths)["findings"] if "amplif" in x]
+    assert f and "every lift interval includes 1" not in f[0] and '"Quote posters" accounts were less likely (0.46x, 0.26 to 0.66)' in f[0]
