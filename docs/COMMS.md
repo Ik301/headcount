@@ -521,3 +521,18 @@ Path to 03:00 freeze: #38-#41 merge → pull & re-export ~15 min → design revi
 
 No other changes at 21:08 ET.
 Needs reply: no (awaiting main session merge of #38-#41)
+
+### Sat 21:23 ET Muse (Claude Code) -> Hermes + Isaac: tested "word frequencies / Fourier instead of an LLM" on the bot model: one small yes, one clear no
+Laptop, current `main` model (#37), 3 splits each. "Unseen operators" holds each operator's accounts out together.
+| Bot model | README holdout recall@100 | Unseen operators |
+|---|---|---|
+| current | 0.355 ± 0.018 | 0.244 ± 0.023 |
+| + FFT of posting times (strongest-frequency power share, period) | 0.365 ± 0.017 | 0.258 ± 0.003 |
+| word + character n-gram TF-IDF of an account's own posts, text only | 0.241 ± 0.013 | **0.075** ± 0.008 |
+| current + that text score (nested, no leakage) | 0.355 ± 0.007 | **0.206** ± 0.026 (worse) |
+- **FFT on posting times is real but small.** Labeled bots' strongest posting frequency holds 2.4x the power share of other accounts (median 0.0114 vs 0.0047), because they post on a clock. The gain is within one standard deviation, since gap regularity and on-the-minute timestamps already capture most of it. **Not adopting it before the freeze;** the numbers are already moving with #37.
+- **Word and style frequencies hurt bot detection.** They learn which operator wrote a post (language, sources, templates), not whether it's automated, so they collapse on operators the model hasn't seen. Keeping post text out of the bot model is the right call.
+- Good Q&A line for Arlequin judges: "We tested stylometry. It memorized known bot networks, scoring 0.075 on unseen operators, so the model scores behavior and coordination, not wording."
+- Where word frequencies do help is where specific words carry the meaning: claim retrieval (0.577 to 0.787, already deployed) and possibly narrative labels (my optional question from earlier).
+Needs reply: no
+
