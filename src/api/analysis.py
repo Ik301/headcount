@@ -58,6 +58,10 @@ class Store:
             bs.select(pl.col("account_id"), "p_automated"), on="account_id", how="left"
         ).with_columns(pl.col("p_automated").fill_null(0.0), pl.col("narrative_id").fill_null("n0"))
         acc = pl.read_parquet(b / "accounts.parquet")
+        # bridged (fediverse) accounts are reported separately, as in narrative_shares and the export, so the
+        # claim view's baseline and shares use the same denominator as the dashboard (5.0% story baseline)
+        bridged = set(acc.filter(pl.col("bridged").fill_null(False))["account_id"].to_list())
+        posts = posts.filter(~pl.col("account_id").is_in(list(bridged)))
         accounts = {r["account_id"]: r for r in acc.select("account_id", "handle", "is_public", "created_at", "self_label_bot").iter_rows(named=True)}
         reasons = dict(zip(bs["account_id"].to_list(), bs["reasons"].to_list()))
         ua = pl.read_parquet(b / "artifacts/user_archetype.parquet")
