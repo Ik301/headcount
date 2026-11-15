@@ -28,7 +28,7 @@ import numpy as np
 import polars as pl
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 from src.bots.coordination import account_coord_features, posts_from_inputs
 from src.bots.features import COORD_FEATURES, FEATURES, bridged, feature_matrix, self_label_bot
@@ -92,11 +92,26 @@ def fit_predict(kind: str, Xtr, ytr, Xte, cols=None):
     return clf.predict_proba(_standardize(sc, Xte))[:, 1]
 
 
-def oof_scores(kind: str, X, y, cols=None, folds: int = 5) -> tuple[np.ndarray, np.ndarray]:
-    skf = StratifiedKFold(folds, shuffle=True, random_state=SEED)
+def operator_group(handle: str | None) -> str:
+    """Accounts likely run by the same operator share a group: the handle's domain after its first label
+    (zivesk.zpravobot.news.ap.brid.gy -> zpravobot.news.ap.brid.gy), and mm-<x>-bot.bsky.social style networks
+    share their prefix. Every other *.bsky.social account is its own group."""
+    h = (handle or "").lower()
+    if h.endswith(".bsky.social"):
+        return "bsky:" + (h.split("-")[0] if h.count("-") >= 2 and h.endswith("bot.bsky.social") else h)
+    parts = h.split(".")
+    return ".".join(parts[1:]) if len(parts) > 2 else h
+
+
+def oof_scores(kind: str, X, y, cols=None, folds: int = 5, seed: int = SEED, groups=None) -> tuple[np.ndarray, np.ndarray]:
+    """Out-of-fold scores. With groups, no operator appears in both the training and the scored fold."""
     oof = np.zeros(len(y))
     fold_id = np.zeros(len(y), dtype=int)
-    for f, (tr, te) in enumerate(skf.split(X, y)):
+    if groups is None:
+        splits = StratifiedKFold(folds, shuffle=True, random_state=seed).split(X, y)
+    else:
+        splits = StratifiedGroupKFold(folds, shuffle=True, random_state=seed).split(X, y, groups)
+    for f, (tr, te) in enumerate(splits):
         oof[te] = fit_predict(kind, X[tr], y[tr], X[te], cols)
         fold_id[te] = f
     return oof, fold_id
@@ -136,8 +151,9 @@ def handcheck_lines(path: Path) -> list[str]:
     auto = sum(r["verdict"].startswith(("automated", "likely automated")) for r in rows)
     kinds = Counter(r["verdict"].split(":")[0] + ":" + r["verdict"].split(":", 1)[1].split("(")[0] for r in rows)
     return head + [
-        f"Precision on this sample: **{auto} of {len(rows)} ({auto / max(len(rows), 1):.0%}) automated or likely automated**; none looked like a person",
-        "posting by hand. The other five are unclear or mixed. So the labels miss most automation, and the score finds it.",
+        f"Precision on this sample: **{auto} of {len(rows)} ({auto / max(len(rows), 1):.0%}) automated or likely automated**; the other"
+        f" {len(rows) - auto} are unclear or mixed ({sum('by a person' in r['verdict'] for r in rows)} of them probably a person posting by hand).",
+        "So the labels miss most automation, and the score finds it.",
         "",
         "| Verdict | Accounts |",
         "|---|---|",
@@ -199,16 +215,34 @@ def main() -> None:
 
     # README's literal protocol: hold out 20% of labeled bots, rank them among all accounts not used as positives
     # in training (every unlabeled account, scored out-of-fold, plus that fold's bots); averaged over the 5 folds
-    def holdout_recall(scores):
+    def holdout_recall(scores, fid=None):
+        fid = fold_id if fid is None else fid
         per = []
         for f in range(5):
-            keep = (y == 0) | ((y == 1) & (fold_id == f))
+            keep = (y == 0) | ((y == 1) & (fid == f))
             per.append(recall_at(scores[keep], y[keep]))
         return {k: float(np.mean([r[k] for r in per])) for k in KS}
 
     hold_r = holdout_recall(oof)
     hold_base = holdout_recall(base)
     n_hold = int(round(y.sum() / 5))
+
+    # one split is noisy (seed 42 alone ranged 0.27 to 0.33 across seeds), so repeat it; then the harder question,
+    # whether it finds bots of operators it never saw (all of an operator's accounts held out together)
+    def repeated(seeds, groups=None):
+        runs = []
+        for sd in seeds:
+            o, fid = oof_scores(best, X, y, seed=sd, groups=groups)
+            runs.append(holdout_recall(o, fid))
+        return {k: (float(np.mean([r[k] for r in runs])), float(np.std([r[k] for r in runs]))) for k in KS}
+
+    REPEAT_SEEDS = (1, 2, 3, 4, 5)
+    rep_r = repeated(REPEAT_SEEDS)
+    groups = np.array([operator_group(p.get("handle")) for p in profiles])
+    grp_r = repeated((1, 2, 3), groups)
+    n_ops = len(set(groups[y == 1]))
+    print(f"README holdout over {len(REPEAT_SEEDS)} splits: recall@100 {rep_r[100][0]:.3f} ± {rep_r[100][1]:.3f};"
+          f" unseen operators: {grp_r[100][0]:.3f} ± {grp_r[100][1]:.3f} ({time.time() - t0:.0f}s)")
 
     # Elkan-Noto constant from out-of-fold scores of labeled bots
     c = float(oof[y == 1].mean())
@@ -281,7 +315,23 @@ def main() -> None:
         "| Scorer | @50 | @100 | @200 | @500 |",
         "|---|---|---|---|---|",
         fmt_row("lifetime posts per day (baseline)", hold_base),
-        fmt_row(best_name.replace("_", ", "), hold_r),
+        fmt_row(best_name.replace("_", ", ") + ", one split (seed 42)", hold_r),
+        "| " + best_name.replace("_", ", ") + f", mean ± sd over {len(REPEAT_SEEDS)} splits | "
+        + " | ".join(f"{rep_r[k][0]:.3f} ± {rep_r[k][1]:.3f}" for k in KS) + " |",
+        "",
+        "One split is noisy: the same model and data gave 0.27 to 0.33 at @100 depending on the split, so the mean is the",
+        "number to quote.",
+        "",
+        "### Bots of operators the model never saw",
+        "",
+        f"The harder test: every account of an operator ({n_ops} operator groups among the labeled bots, by handle domain;"
+        " the largest is one mirror network of 47 accounts) is held out together, so the model can't recognize a network",
+        "it trained on. This is closer to finding a new, undisclosed operation.",
+        "",
+        "| Scorer | @50 | @100 | @200 | @500 |",
+        "|---|---|---|---|---|",
+        "| " + best_name.replace("_", ", ") + ", operator-grouped, mean ± sd over 3 splits | "
+        + " | ".join(f"{grp_r[k][0]:.3f} ± {grp_r[k][1]:.3f}" for k in KS) + " |",
         "",
         "Precision@k against labels (out-of-fold, chosen model): " + ", ".join(f"@{k} {v:.2f}" for k, v in precision_at(oof, y).items()) + ".",
         "",
@@ -303,8 +353,10 @@ def main() -> None:
         "",
         "## Kill test 1",
         "",
-        f"recall@100 = {results[best][100]:.3f} against the bar of 0.3: **{'pass' if results[best][100] >= 0.3 else 'fail'}**"
-        f" (baseline {results['baseline'][100]:.3f}; ceiling {min(1, 100 / max(y.sum(), 1)):.3f}).",
+        f"The test reads the README holdout (Hermes, COMMS Sat 17:10), as the mean over {len(REPEAT_SEEDS)} splits:"
+        f" recall@100 = {rep_r[100][0]:.3f} ± {rep_r[100][1]:.3f} against the bar of 0.3:"
+        f" **{'pass' if rep_r[100][0] >= 0.3 else 'fail'}** (posts-per-day baseline {hold_base[100]:.3f})."
+        f" On operators it never saw: {grp_r[100][0]:.3f}.",
         "",
         "## Score scale",
         "",

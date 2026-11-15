@@ -18,6 +18,7 @@ def make_account(i: int, bot: bool):
         "did": f"did:plc:test{i}",
         "handle": f"user{i}.bsky.social",
         "createdAt": _iso(t0 - timedelta(days=20 if bot else 900)),
+        "indexedAt": _iso(t0 - timedelta(days=19 if bot else 30)),  # profiles carry their last-update time
         "followersCount": 3 if bot else 400,
         "followsCount": 2 if bot else 300,
         "postsCount": 20000 if bot else 900,

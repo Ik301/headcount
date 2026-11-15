@@ -6,7 +6,8 @@ Inputs are the raw shapes named in docs/DEMO.md "Module interfaces":
   story    - that account's raw searchPosts records in the story, or [] / None
 
 Excluded on purpose (README, kickoff note): the self-applied `bot` label, any bio words, the handle text,
-and the bridged label. The model has to find automation from how an account behaves, not from what it
+the bridged label, and pronouns (a gender-adjacent field; README rule 4). One account-maintenance signal is used:
+how long after creation the profile was last updated. The model has to find automation from how an account behaves, not from what it
 says about itself. Bio *length* is kept; bio content is not.
 
 Every feature is computable for one account at API time, because the live path calls score_accounts directly.
@@ -84,6 +85,10 @@ FEATURES = [
     "has_display_name",
     "bio_len",
     "has_pinned",
+    # time from account creation to the profile's last update (getProfiles indexedAt); scripted accounts are set up
+    # once and left alone. The other account settings tried here (chat, lists, feeds, website) added nothing on
+    # operators the model hadn't seen, so they were left out (eval/bots/report.md).
+    "index_gap_log",
     # history timing
     "hist_n",
     "hist_rate_log",
@@ -141,6 +146,8 @@ def account_features(profile: dict, history: list[dict] | None, story: list[dict
     f["has_display_name"] = float(bool((profile.get("displayName") or "").strip()))
     f["bio_len"] = float(len(profile.get("description") or ""))
     f["has_pinned"] = float(bool(profile.get("pinnedPost")))
+    indexed = ts(profile.get("indexedAt"))
+    f["index_gap_log"] = math.log1p(abs((indexed - created).total_seconds()) / 3600) if created and indexed else float("nan")
 
     # --- history timing
     times = sorted(t for t in (ts(i.get("t")) for i in history) if t)
