@@ -11,18 +11,18 @@ from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 
+from src import config as cfg
 from src.api import analysis, reply
 
 SYSTEM = """You answer text messages for a tool that shows who is pushing a claim on Bluesky. It knows the week Jensen Huang left Nvidia (Nov 5 to 13, 2026) in depth and can search any other story live.
 
 For a new claim (about the Jensen Huang story or any other story): call search_claim with the claim as the user wrote it, then reply with exactly the reply_text that compose_reply returns for that claim_id. Do not change its numbers or add new ones. Always call search_claim for a new claim before deciding anything else: search_claim runs the private-person check itself and compose_reply then returns the decline text, so you never need to decline a claim on your own judgment.
-Claims about public figures and news stories are always checked, including claims about the people around them, named or unnamed (for example "Was Jensen Huang's mistress a Chinese spy?", "Did Nvidia's board push Huang out?", "Did bots defend Jensen Huang?"). Only if the message plainly asks about a named private individual (a neighbor, coworker, classmate, ex) and you are certain, reply with exactly: "I can't run checks on claims about a private person. I can check claims about public stories, like the Jensen Huang week."
-For follow-ups about the last claim:
-- "show the bots" or similar: call coordination_evidence and summarize it in 2 to 4 short lines.
-- "who shares it" or similar: call amplifier_archetypes and summarize in 2 to 4 short lines. Report each group's lift only with its account count, and when the tool says the sample is small, say so instead of calling any group "more likely".
+Claims about public figures and news stories are always checked, including claims about the people around them, named or unnamed (for example "Was Jensen Huang's mistress a Chinese spy?", "Did Nvidia's board push Huang out?", "Did bots defend Jensen Huang?"). Only if the message plainly asks about a named private individual (a neighbor, coworker, classmate, ex) and you are certain, reply with exactly: "__DECLINE__"
+The numbered follow-ups (1 to 4 and their word forms: narratives, bots, who shares it, news) and help or a greeting are answered by code before you see them, so you only get new claims and free-form questions. For a free-form question about the last claim:
+- about the automated accounts: call coordination_evidence and summarize it in 2 to 4 short lines.
+- about who spreads it: call amplifier_archetypes and summarize in 2 to 4 short lines. Report each group's lift only with its account count, and when the tool says the sample is small, say so instead of calling any group "more likely".
 - "next": call narratives_for and describe the next narrative not yet discussed, using its numbers as whole percentages (never raw decimals like 0.5267).
-- "help" or a greeting: say you are Headcount, and explain in 2 lines that they can text any claim or story they heard about and you will show how much of the posting behind it is automated.
-Rules, always: never say whether a claim is true; never say who runs or operates any account; never name accounts except the public handles a tool returns; say "likely automated", not "bots", for accounts that don't label themselves. Plain text only, no markdown, short lines suitable for a text message."""
+Rules, always: never say whether a claim is true; never say who runs or operates any account; never name accounts except the public handles a tool returns; say "likely automated", not "bots", for accounts that don't label themselves. Plain text only, no markdown, short lines suitable for a text message.""".replace("__DECLINE__", reply.DECLINE)
 
 _STORE: analysis.Store | None = None
 _LAST: dict[str, str] = {}
@@ -118,7 +118,30 @@ def _searched(messages) -> bool:
     return any(tc.get("name") == "search_claim" for m in messages for tc in (getattr(m, "tool_calls", None) or []))
 
 
+def _plain(text: str, claim_id: str | None = None, menu_text: str | None = None, dashboard_url: str | None = None) -> dict:
+    return {"reply_text": text, "claim_id": claim_id, "chart_png_url": None, "dashboard_url": dashboard_url, "menu_text": menu_text}
+
+
+def route(sender: str, text: str) -> dict | None:
+    """Deterministic replies, no model call: help or a greeting, and the numbered follow-ups 1 to 4 (and their word
+    forms) answered from the stored result of the sender's last claim. None means a claim or a free-form question."""
+    kind = reply.intent(text)
+    if kind is None:
+        return None
+    if kind == "help":
+        base = os.environ.get("DASHBOARD_BASE")
+        return _plain(reply.intro(), menu_text=reply.menu(base, examples=True), dashboard_url=base)
+    cid = _LAST.get(sender)
+    r = _STORE.claims.get(cid) if (cid and _STORE) else None
+    if not r:
+        return _plain(reply.no_claim_yet())
+    return _plain(reply.followup(kind, r), claim_id=cid)
+
+
 def run(sender: str, text: str) -> dict:
+    routed = route(sender, text)
+    if routed is not None:
+        return routed
     # The last claim_id rides along with each message, so follow-ups work even when the claim was answered by the
     # safety net below (outside the model's own tool calls).
     content = text if sender not in _LAST else f"{text}\n\n(Context for tools, not from the user: the last claim_id for this sender is {_LAST[sender]}.)"
@@ -151,7 +174,7 @@ def run(sender: str, text: str) -> dict:
         claim_id = None if r.get("declined") else r["claim_id"]
         new_claim = True
     if (msg or "").strip() == reply.DECLINE:  # never send the previous claim's chart or link with a decline
-        return {"reply_text": msg, "claim_id": None, "chart_png_url": None, "dashboard_url": None}
+        return _plain(msg)
     if claim_id:
         _LAST[sender] = claim_id
     cid = claim_id or _LAST.get(sender)
@@ -159,4 +182,7 @@ def run(sender: str, text: str) -> dict:
     attach = bool(r and claim_id and new_claim)  # chart and link go with a new answer, not with every follow-up
     chart = r["chart_png_url"] if (attach and r) else None
     link = r["dashboard_url"] if (attach and r) else None
-    return {"reply_text": msg, "claim_id": cid, "chart_png_url": chart, "dashboard_url": link}
+    if attach and r and r.get("reply_text") and not r.get("declined"):
+        msg = r["reply_text"]  # the rule-checked bubble 1, never the model's paraphrase
+    menu_text = reply.menu(link) if (attach and r and r.get("matched_posts", 0) >= cfg.MIN_MATCHES and not r.get("error")) else None
+    return {"reply_text": msg, "claim_id": cid, "chart_png_url": chart, "dashboard_url": link, "menu_text": menu_text}

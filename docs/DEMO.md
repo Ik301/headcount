@@ -35,7 +35,7 @@ The MVP is the smallest version that still tells the whole story end to end: a j
 | Archetypes (M5) | 4-6 archetypes over real accounts that amplified likely-automated posts, lift vs matched controls with bootstrap intervals | Matched on narrative, time window, reach, activity and follower bucket; no follower-graph features beyond counts |
 | Retrieval (H5, M6) | Corpus path: bge-small embeddings, cosine top 300, similarity floor from the eval set, grouped by narrative. Eval: 50 hand-written claims with recall@k | Live path is a stretch (see below), not required for the MVP demo |
 | API (H4) | `/claim` (corpus mode), `/claim/{id}`, chart PNG, `/health`, reply rules enforced and tested, <20 s per corpus claim | `/xray` is a stretch. No auth, no rate limiting beyond a simple per-sender cap in the messaging layer |
-| Messaging (H7) | Photon Spectrum text line: checking message, reply text, chart image, dashboard link; follow-ups `show the bots`, `who shares it`, `next`, `help`; per-sender last-claim state | Text only. One claim at a time per sender; a second claim queues with a "still checking" reply |
+| Messaging (H7) | Photon Spectrum text line: checking message, reply text, chart image, dashboard link; answer text, card and numbered menu (follow-ups 1 to 4, `help`; `next` goes to the model); per-sender last-claim state | Text only. One claim at a time per sender; a second claim queues with a "still checking" reply |
 | Agent layer (H6) | Deepagent routing corpus vs live and calling the five named tools, LangSmith trace saved | The agent never writes numbers itself; every figure comes from an API tool result |
 | Dashboard (H8 bare version, Isaac's UI) | Replay with event markers, narrative river, story-without-bots, archetype cards, claim view at `/claim/:id`, method and validation view | Runs locally for judging; static deploy is a stretch. Public account pages are cut (already last in the cut order) |
 | Pitch (humans) | 2-minute script, Q&A card, Devpost with the four tracks selected | No landing page, no sign-ups |
@@ -199,6 +199,9 @@ Until Muse's versions land, Hermes's API uses `src/stubs/` with the same signatu
       "evidence": [{"post_uri": "", "t": "", "note": ""}]
     }
   ],
+  "bot_post_share": 0.0,
+  "bot_post_share_ci": [0.0, 0.0],
+  "baseline_bot_share": 0.0,
   "bot_commonalities": [{"signal": "", "accounts": 0}],
   "amplifiers": {"n_humans": 0, "archetype_mix": [{"id": "a1", "label": "", "share": 0.0, "lift": 0.0}]},
   "chart_png_url": "",
@@ -208,7 +211,7 @@ Until Muse's versions land, Hermes's API uses `src/stubs/` with the same signatu
 }
 ```
 
-`GET /claim/{claim_id}` returns the same object. `GET /claim/{claim_id}/chart.png` returns the chart (one bar per narrative: share of matches, likely automated share overlaid). `GET /health` returns `{"ok": true, "artifacts_loaded": true, "bot_model": "stub" | "v<n>"}`.
+`GET /claim/{claim_id}` returns the same object. `GET /claim/{claim_id}/chart.png` returns the phone card (verdict, claim share against the baseline, one bar per narrative with the likely automated share overlaid, newsroom line; see Reply text templates). `GET /health` returns `{"ok": true, "artifacts_loaded": true, "bot_model": "stub" | "v<n>"}`.
 
 `site_data.json` additions to the README shape: every narrative, archetype and coordination cluster gets `"evidence": [{"post_uri", "t", "note"}]`; every narrative gets `"threshold_strip": {"0.3": 0.0, "0.5": 0.0, "0.7": 0.0, "0.9": 0.0}`; a top-level `"challenge": [{"account_ref", "posts": [], "p_automated", "reasons": [], "hand_label"}]` with 20 frozen, hand-checked accounts (public accounts by handle, private ones as hashed refs with no handle).
 
@@ -359,29 +362,41 @@ Written for the two agents. It elaborates the milestones and interfaces above wi
 
 ### Reply text templates (H4 composes, H7 sends verbatim)
 
-Checking (sent by H7 immediately): `Checking who is pushing that. About 20 seconds.`
+Design (text reply v2): the texter wants one thing at once, how much of the noise behind a claim is real people versus likely automated, and whether that is unusual. That is bubble 1. Everything else is contingent: it sits in one phone-sized image card and behind numbered follow-ups. Examples of every bubble for the flagship claim, `2`, `3`, `4` and `help` are in `docs/reply-v2/exchange.txt`, with the cards (`flagship.png`, `live.png`, `tiny.png`) and `render.py` to regenerate them.
 
-Main answer (percentages whole numbers, intervals as `9% (6 to 12%)`):
+Send order for a claim: `Checking who is pushing that. About 20 seconds.` (H7, immediately; skipped for help and numbered follow-ups, which answer at once), then bubble 1 (answer text), bubble 2 (card PNG), bubble 3 (menu text). `POST /agent` returns `reply_text`, `menu_text` (new; null when there is no menu to send, so older clients keep working), `chart_png_url`, `dashboard_url`, `claim_id`.
+
+**Bubble 1, the answer** (at most 3 short lines, no intervals, no jargon; `src/api/reply.py: compose`):
 
 ```
-I found {matched_posts} Bluesky posts making this claim ({window}).
-{narrative_lines}
-{commonality_line}
-{amplifier_line}
-I don't judge whether the claim is true. Full view: {dashboard_url}
+{verdict}
+{claim_share} of the {matched_posts} posts making this claim come from likely automated accounts. The story overall: {baseline}.
+Not a truth check: I measure who is pushing it.
 ```
 
-Narrative line: `{label}: {share}% of posts. Likely automated: {bot_share} ({lo} to {hi}%)`, appending `, about {x}x the story's baseline` when a narrative's bot share is at least twice the baseline. At most 4 narratives by share, then `+ {n} smaller narratives in the full view.`
+Verdict, from the claim's overall likely-automated post share with its 95% interval (`bot_post_share`, `bot_post_share_ci` on the claim result, computed over all matched posts exactly like the narratives, resampling accounts) against `baseline_bot_share` (the story baseline, 4.5% for the Huang week): interval above the baseline -> `More automated than usual.`; interval contains the baseline -> `Mostly real people.`; interval below -> `Mostly real people, less automation than usual.` Claim share is a whole percent (`under 1%` when it rounds to zero but is not); the baseline keeps its one decimal as on the dashboard. A live search has no story baseline (its baseline is its own sample), so the "story overall" clause and the comparison verdicts are dropped: `Mostly real people.` when the interval is below 50%, `Mostly likely automated accounts.` above, else `About half likely automated, too close to call.` Results stored before the claim-level field existed fall back to the narrative-weighted share and bounds.
 
-Commonality line (only with at least 5 likely-automated accounts): `The likely automated accounts pushing {top_bot_narrative}: {signal_1}; {signal_2}.` Amplifier line (only when `n_humans >= 10`): `The real accounts spreading their posts are mostly "{archetype_label}" ({lift}x more likely than similar accounts).`
+Insufficient data: `Only {n} Bluesky posts match that, too few to measure automation (I need 30). Try broader wording, or ask about the Jensen Huang story.` plus the truth line. Decline: `I can't check claims about private people. Public stories are fine, like the Jensen Huang week.` Failure: `Something broke on my end and I couldn't finish that check. Try again in a minute.` (no menu, no card with a decline or failure).
 
-Insufficient data: `I found {n} Bluesky posts making this claim, which isn't enough to measure automation reliably (I need at least 30). Try a broader wording, or ask about the Jensen Huang story from Nov 5 to 13.`
+**Bubble 2, the card** (`chart_png`): one portrait PNG, 1080 px wide, nothing smaller than 29 px: the claim, the verdict, the claim's share as the big number in magenta with a bar against the story baseline tick and the likely range; the narratives as bars (grey = share of posts, magenta = likely automated, with the automated % per narrative); one line on what the likely automated accounts have in common (only with at least 5 such accounts); the newsroom line (share of matching headlines that hedge against share of matching Bluesky posts that hedge; only with at least 10 matching headlines); footer: source and window, `likely automated = bot score \u2265 0.5`, `Headcount \u00b7 not a truth check`. Magenta only ever means likely automated. A claim under 30 posts gets a short card that says so.
 
-Decline: `I can't run checks on claims about a private person. I can check claims about public stories, like the Jensen Huang week.`
+**Bubble 3, the menu** (`menu`):
 
-Failure: `Something broke on my end and I couldn't finish that check. The team has a recording of a full check at the table.`
+```
+Reply with a number:
+1  What people are saying
+2  What the automated accounts share
+3  Who spreads it
+4  How newsrooms covered it
+Or text any other claim.
+Full view: {dashboard_url}
+```
 
-Follow-ups (per-sender state: last `claim_id`, narrative cursor): `show the bots` -> top 3 coordination clusters as text with reasons, plus 3 evidence posts; `who shares it` -> archetype lines with lift; `next` -> the next narrative's line and evidence, cycling; `help` -> `Text me a claim and I'll check who is pushing it on Bluesky. After an answer, try "show the bots" or "who shares it".` Anything else is a new claim.
+`help`, `menu`, `?` or a greeting returns two bubbles: `I'm Headcount. Text me any claim or story and I'll show how much of the posting behind it is automated.` and the same menu plus two example claims.
+
+**Follow-ups 1 to 4** (and `narratives`; `bots`, `show the bots`; `who shares it`, `who spreads it`; `news`) are answered by code from the sender's stored result before the model is invoked (`src/agent/agent.py: route`, `reply.intent`, `reply.followup`), at most 4 short lines each, no model call, each ending with `Also: ...` naming the other three numbers. 1: the top 3 narratives with share of posts and likely automated share. 2: what the likely automated accounts share (observable signals, at least 5 accounts), plus the most automated narrative that is at least 5% of posts. 3: how many real accounts spread the likely automated posts and how many could be profiled; lifts only with account counts and only with at least 10 profiled amplifiers (otherwise `too few to compare`). 4: matching headline count and top outlets, the hedge comparison (with at least 10 headlines), and narratives that exist only on social media. With no earlier claim: `Text me a claim first, like "...", then reply with a number.` The model stays for new claims and free-form questions; a new claim always sends the stored `reply_text` verbatim, not the model's paraphrase.
+
+Rules that hold in every bubble: never a verdict on whether the claim is true; whole percentages; never say who runs an account; "likely automated", not "bots", for unlabeled accounts; only public handles a tool returns.
 
 ### H7 Messaging and H8 Dashboard: build steps
 

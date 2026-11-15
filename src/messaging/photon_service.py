@@ -5,8 +5,8 @@ Env: PHOTON_API_KEY (pho_sk_..., project:read + project:write), PHOTON_PROJECT_I
      API_BASE (default http://127.0.0.1:8000, the analysis API that hosts /agent and the chart).
 
 Polls list_messages for received messages every 2 s (docs: get-started/imessage), de-duplicates by message id,
-and for each new text: typing indicator, "checking" text, POST /agent, the reply text, the chart image as an
-attachment, then the dashboard link. Replies reuse the incoming space.id and receivedBy.id with a stable
+and for each new text: typing indicator, "checking" text, POST /agent, the answer text, the chart image as an
+attachment, then the menu text (numbered follow-ups and the dashboard link). Replies reuse the incoming space.id and receivedBy.id with a stable
 idempotency key per incoming message, as the Photon docs require. Never answers its own outbound messages.
 """
 import os
@@ -33,6 +33,8 @@ from photon_api.rpc_generated import (
     UploadAttachmentInput,
     UploadAttachmentPath,
 )
+
+from src.api import reply  # noqa: E402  (pure text helpers: intent routing, no analysis state)
 
 CHECKING = "Checking who is pushing that. About 20 seconds."
 
@@ -68,7 +70,8 @@ def handle(photon: Photon, api: httpx.Client, project: str, m) -> None:
     space, agent_id, mid = m.space.root.id, m.receivedBy.root.id, m.id
     text = m.content.text.strip()
     human = m.sentBy.root.id
-    send_text(photon, project, space, agent_id, mid, f"ack:{mid}", CHECKING)
+    if reply.intent(text) is None:  # help and the numbered follow-ups answer at once, so no "checking" bubble
+        send_text(photon, project, space, agent_id, mid, f"ack:{mid}", CHECKING)
     try:
         r = api.post("/agent", json={"sender": human, "text": text}, timeout=120).json()
     except (httpx.HTTPError, ValueError) as e:
@@ -82,6 +85,8 @@ def handle(photon: Photon, api: httpx.Client, project: str, m) -> None:
             send_image(photon, project, space, agent_id, mid, f"chart:{mid}", png)
         except (httpx.HTTPError, ApiError) as e:
             print(f"chart send failed for {mid}: {e}", file=sys.stderr)
+    if r.get("menu_text"):  # third bubble, after the image, so the menu is what the texter sees last
+        send_text(photon, project, space, agent_id, mid, f"menu:{mid}", r["menu_text"])
 
 
 def main() -> None:

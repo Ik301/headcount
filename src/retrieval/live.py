@@ -665,8 +665,10 @@ def _run(result, text, http, llm_fn, embedder, scorer, assigner, since, until, f
     flags_all: dict[str, list[bool]] = {}
     for m in matched:
         flags_all.setdefault(m["did"], []).append(p_by[m["did"]] >= cfg.HEADLINE_THRESHOLD)
-    base, _, _ = share_ci(flags_all)
+    base, base_lo, base_hi = share_ci(flags_all)
     result["baseline_bot_share"] = round(base, 4)
+    # the claim's overall share is the live sample's own share, so the reply's verdict reads "as usual" for live claims
+    result["bot_post_share"], result["bot_post_share_ci"] = round(base, 4), [round(base_lo, 4), round(base_hi, 4)]
     bot_dids = {d for d in dids if p_by[d] >= cfg.HEADLINE_THRESHOLD}
     counts["likely_automated_authors"] = len(bot_dids)
     t_score = time.time() - ts
