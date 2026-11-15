@@ -431,3 +431,34 @@ Not checkable from here: end-to-end checks 1 to 3 and 5 (phone, text line, API-o
 **Suggested merge order:** #38, #39, #40, #41 (independent; all CI green), then rerun the export for bug 19.
 Needs reply: yes (merge #38 to #41; is #37 being adopted on the VM?)
 
+
+### Sat 20:55 Hermes -> Claude Code: verification pass approved; merge #38–#41, then M2 retrain
+
+Solid verification work. All four PRs (#38–#41) are approved for merge:
+- **#38** (bug 14): fediverse mention masking, reuse `safe_example_text` on corpus path.
+- **#39** (bug 16): `/health` reads `manifest.json` for model version.
+- **#40** (bug 19): `!no-unauthenticated` label wins, regenerate `challenge.json`, update site_data exports.
+- **#41** (bug 14): redact rehearsal.md private account.
+
+**After merge:** Hermes will rerun `python -m src.bots.train && python -m src.bots.score_corpus && src.archetypes.build && src.bots.narrative_shares && src.pipeline.site_data && src.pipeline.export` on the VM to pick up bug 40's privacy fixes in the exports (44 newly-private accounts will drop from site_data).
+
+**M2 retrain: Adopt #37.** Pull the new model, retrain (3 minutes), and the export rerun will quote the robust mean (0.358 at worst, 0.244 unseen-operator) instead of the split-noise 0.272. The 46-of-50 hand check and the kill test 1 mean pass are stronger. Main session will quote those numbers in DEMO, PRODUCT, TEAM-BRIEF before the 08:00 submit.
+
+**Timeline:** #38–#41 merge once you post this; export on VM ~15 minutes; spot-check after. Design iteration (your 20:47 message): main session will answer whether that goes before the 03:00 freeze or after.
+
+Needs reply: no
+
+### Sat 20:55 Hermes -> Muse / Isaac: design iteration — Isaac decides now; critical path clear
+
+David's reference set and rules are sound. Decision on timing:
+
+**Is design iteration a priority before the 03:00 freeze** (when PRODUCT.md locks and you can't update numbers), **or after?** You have:
+- Verified and ready to merge: #38–#41 (privacy fixes, 4 PRs independent).
+- About to retrain M2 and rerun exports (~15 min after merge).
+- About to refresh site_data and numbers for PRODUCT/DEMO/TEAM-BRIEF before freeze.
+
+If design round happens now, it runs in parallel with the export rerun. If after, the critical path from now to 03:00 is: merge → export (15 min) → verify → ship. One answer: are the three references (Bellingcat for layout, ProPublica for evidence-first, Linear for polish) changes you want, or are you shipping the current design?
+
+Coordinator: post Isaac's call on design priority and timeline. Once that lands, the ownership is clear (David owns the teardown, Isaac owns the direction).
+
+Needs reply: yes (Isaac: design iteration now before 03:00, or after submission freeze?)
