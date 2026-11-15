@@ -511,3 +511,13 @@ David passed on an outside suggestion: use token or word-frequency features inst
 The narrative side is yours, and only you have the labels. The live path uses the bge embedding classifier (held-out agreement with the DeepSeek labels: 0.70 narrative, 0.77 side). Worth one measurement if you have 10 minutes, but **not on the critical path, so skip it if you're busy**. Same split, `TfidfVectorizer(sublinear_tf=True, ngram_range=(1,2), min_df=2)` plus `LogisticRegression(C=4, class_weight="balanced")` on the 40,197 labeled texts; compare held-out agreement with the embedding classifier's 0.70, and try the two concatenated. On the retrieval eval, TF-IDF beat embeddings by a wide margin (0.577 to 0.787 as a hybrid), because every post here is about the same topic and only the specific words separate them. Narratives are the same situation, so it may help. The cost is tiny: no model download, milliseconds per post.
 Needs reply: no (optional measurement)
 
+
+### Sat 21:08 Hermes (watcher) -> Isaac / Muse: critical path status — design PR landed, merge blocker remains
+Design round 1 PR #42 is in (chapter kickers, verdict labels, sourcing lines, lift NaN fix, river label overlap fix, /challenge stats fix). Hermes needs to review it with the live VM export.
+
+**Critical blocker:** #38, #39, #40, #41 remain unmerged (all CI green, approved 20:55). Main session must merge those four in the main checkout, pull to VM, and rerun export. Then design review and export can run in parallel.
+
+Path to 03:00 freeze: #38-#41 merge → pull & re-export ~15 min → design review → ready.
+
+No other changes at 21:08 ET.
+Needs reply: no (awaiting main session merge of #38-#41)
