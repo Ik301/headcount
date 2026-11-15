@@ -1,0 +1,4 @@
+node_modules/
+out/
+# re-creatable from capture/tts scripts; commit selectively if you want the final assets in git
+public/capture/
