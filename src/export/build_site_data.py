@@ -34,6 +34,7 @@ import polars as pl
 
 from src import config as cfg
 from src.model.schema import PUBLIC_FOLLOWERS, hashed_id, public_ref
+from src.export.translate import CACHE_NAME, Translator, deepseek_translator, translate_challenge
 from src.stats import ratio_ci, share_ci
 
 AUTOMATED = cfg.HEADLINE_THRESHOLD  # "likely automated" for headline shares and the bots-off toggle
@@ -168,6 +169,9 @@ class Ctx:
     challenge_meta: dict = field(default_factory=dict)
     manifest: dict = field(default_factory=dict)
     sources: dict = field(default_factory=dict)
+    # challenge post translation (src/export/translate.py): None = cached results only, never a network call
+    translator: Translator | None = None
+    translation: dict = field(default_factory=dict)  # summary of the last challenge translation
 
     # --- privacy
     def nameable(self, did: str) -> bool:
@@ -1174,6 +1178,10 @@ def challenge(c: Ctx) -> list[dict]:
         if did and prof.get(did):
             item["profile"] = prof[did]
         out.append(item)
+    try:  # non-English posts get lang, lang_name and text_en; a failure ships the posts untranslated
+        c.translation = translate_challenge(out, c.processed / CACHE_NAME, c.translator, c.mask)
+    except Exception as e:
+        warnings.warn(f"challenge translation skipped: {e}")
     return out
 
 
@@ -1370,6 +1378,7 @@ def main() -> None:
     ap.add_argument("--sample-dir", default="data/sample", help="where challenge.json lives")
     ap.add_argument("--out", default="web/public/site_data.json")
     ap.add_argument("--sample-out", default=None, help="also write a truncated privacy-safe copy here")
+    ap.add_argument("--no-translate", action="store_true", help="don't call DeepSeek for new challenge posts (cached translations still apply)")
     a = ap.parse_args()
     try:
         from dotenv import load_dotenv
@@ -1378,7 +1387,11 @@ def main() -> None:
     except ImportError:
         pass
     c = load(a.processed, a.raw, a.eval, a.sample_dir)
+    if not a.no_translate:
+        c.translator = deepseek_translator
     site = build_from(c)
+    if c.translation:
+        print("challenge translation:", json.dumps(c.translation, ensure_ascii=False))
     bad = privacy_violations(site, c)
     if bad:
         print(f"privacy sweep FAILED ({len(bad)}), nothing written:", *bad[:20], sep="\n  ")

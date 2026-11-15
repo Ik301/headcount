@@ -425,6 +425,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 23:30: challenge posts not in English (Italian, Czech, French, Japanese: 35 of 100) ship with `lang`, `lang_name` and a DeepSeek `text_en`; the game shows the English first with "Translated from Japanese" and the original muted underneath. Cached by text sha256 in `data/processed/challenge_translations.json`; a translation that drops a privacy mask is not shipped (Isaac's request; Hermes, `hermes/challenge-translate`).
 - Sat 21:30: challenge mode built at `/challenge` (fallback 1); export reads the VM evaluation reports and M5's matched archetypes, ships the news module's hedging split (54% news, 50% link, 29% own words), masks every @mention that isn't a nameable Bluesky account (Hermes, `hermes/export-fixes`).
 - Sat 17:05: the "why" pitch spine; news baseline (H10) from wire services and public broadcasters (Isaac's request) (Hermes).
 - Sat 16:50: live any-story check is required, not a stretch (Isaac); PRODUCT.md (product and feature list) and web/mockups/BRIEF.md (shared mockup brief) added (Hermes).
