@@ -44,29 +44,17 @@ with sync_playwright() as p:
         pg.wait_for_timeout(2000)
         info["body_head"] = pg.inner_text("body")[:400]
     elif which == "story":
-        pg.goto(WEB + "/story", wait_until="networkidle")
-        pg.wait_for_timeout(2500)
-        pg.locator("button[aria-label*=\"replay\" i], button:has-text(\"Play\")").first.click()
-        pg.wait_for_timeout(14000)
-        smooth_scroll(pg, 700, steps=20, pause=80)
-        pg.wait_for_timeout(2500)
-        pg.mouse.wheel(0, -3000)
-        pg.wait_for_timeout(800)
-        pg.locator("button", has_text="Without likely automated").first.click()
-        pg.wait_for_timeout(3000)
-        pg.locator("button", has_text="Remove likely automated accounts").first.click()
-        pg.wait_for_timeout(3500)
-        pg.locator("button", has_text="Remove likely automated accounts").first.click()
-        pg.wait_for_timeout(1500)
-        smooth_scroll(pg, 800, steps=20, pause=80)
-        pg.wait_for_timeout(2000)
-        pg.mouse.wheel(0, -3000)
-        pg.locator("button", has_text="Amplifier archetypes").first.click()
-        pg.wait_for_timeout(4000)
-        pg.locator("button", has_text="Evidence").first.click()
-        pg.wait_for_timeout(3500)
-        pg.locator("button", has_text="Method").first.click()
-        pg.wait_for_timeout(4000)
+        # guided story (PR #34): step through the six chapters; ?ch=N addresses each one
+        for ch, dwell in ((1, 9000), (2, 6000), (3, 7000), (4, 7000), (5, 6000), (6, 5000)):
+            pg.goto(WEB + f"/story?ch={ch}", wait_until="networkidle")
+            pg.wait_for_timeout(dwell // 2)
+            if ch == 3:
+                toggle = pg.locator("button", has_text=re.compile("likely automated", re.I)).first
+                if toggle.count():
+                    toggle.click()
+                    pg.wait_for_timeout(2500)
+            smooth_scroll(pg, 500, steps=15, pause=70)
+            pg.wait_for_timeout(dwell // 2)
     info["elapsed_s"] = round(time.time() - t0, 1)
     video = pg.video
     ctx.close()
