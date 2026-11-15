@@ -66,3 +66,5 @@
 .sorter-steps button{border-radius:3px}
 .sorter-steps .n{border-radius:3px}
 .sorter-replay{border-radius:0 3px 3px 0!important}
+.sorter .few{color:var(--cap)}
+.sorter-legend .ct:has(.few){white-space:normal;text-align:right}

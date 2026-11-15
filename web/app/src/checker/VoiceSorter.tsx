@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ClaimNarrative } from "../api/types";
 import { fmtInt, pct } from "../lib/format";
+import { measurable } from "../lib/compare";
 import { narrativeColor, narrativeHex } from "../lib/narrativeColor";
 
 /* "Volume vs. voices": one dot per matching post, sorted in four steps.
@@ -30,6 +31,7 @@ interface Col {
   a: number;
   hi: number;
   bot: number;
+  few: boolean; // under 30 posts: no automated share is shown
   ci?: [number, number];
 }
 interface Dot {
@@ -102,6 +104,7 @@ export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimN
         lo: ci ? Math.min(a, Math.round(d * ci[0])) : a,
         hi: ci ? Math.max(a, Math.round(d * ci[1])) : a,
         bot: n.bot_post_share,
+        few: !measurable(n, matched),
         ci,
       };
     });
@@ -361,11 +364,11 @@ export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimN
                   {!compact && c.label}
                 </span>
                 {compact ? (
-                  <span className="ct">{stage === 2 ? <b>{pct(c.bot)}</b> : stage === 3 ? <b>−{fmtInt(Math.round(c.posts * c.bot))}</b> : fmtInt(c.posts)}</span>
+                  <span className="ct">{stage === 2 ? (c.few ? <>{fmtInt(c.posts)}</> : <b>{pct(c.bot)}</b>) : stage === 3 ? <b>−{fmtInt(Math.round(c.posts * c.bot))}</b> : fmtInt(c.posts)}</span>
                 ) : (
                   <span className="ct">
                     {stage === 3 ? <>{fmtInt(round(c.posts * (1 - c.bot)))} left</> : <>{fmtInt(c.posts)} posts</>}
-                    {stage === 2 && <b> · {pct(c.bot)} auto.</b>}
+                    {stage === 2 && (c.few ? <span className="few"> · too few to measure</span> : <b> · {pct(c.bot)} auto.</b>)}
                     {stage === 3 && <b> · {fmtInt(Math.round(c.posts * c.bot))} out</b>}
                   </span>
                 )}
@@ -384,7 +387,7 @@ export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimN
               <i className="sw" style={{ background: c.swatch }} />
               <span className="nm">{c.label}</span>
               <span className="ct">
-                {fmtInt(c.posts)} posts · <b>{pct(c.bot)} auto.</b>
+                {fmtInt(c.posts)} posts · {c.few ? <span className="few">too few to measure</span> : <b>{pct(c.bot)} auto.</b>}
               </span>
             </li>
           ))}

@@ -4,7 +4,7 @@ import { chartUrl } from "../api/client";
 import { config } from "../config";
 import { Icon } from "../components/Icons";
 import { ci, countWord, fmtInt, handle, isoSec, lift, localStamp, pct, plural, postRef, windowLabel } from "../lib/format";
-import { against, pickHeadline, versusWords, type HeadlinePick } from "../lib/compare";
+import { against, measurable, pickHeadline, versusWords, type HeadlinePick } from "../lib/compare";
 import { narrativeColor } from "../lib/narrativeColor";
 import { useCopy } from "../lib/useCopy";
 import { Redacted } from "../components/Redacted";
@@ -199,7 +199,7 @@ function Headline({ r, enough, pick, baseline }: { r: ClaimResult; enough: boole
 }
 
 function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: ClaimNarrative[]; top: ClaimNarrative | null; baseline?: number }) {
-  const max = Math.max(0.1, baseline ?? 0, ...narr.map((n) => n.bot_post_share_ci?.[1] ?? n.bot_post_share)) * 1.15;
+  const max = Math.max(0.1, baseline ?? 0, ...narr.filter((n) => measurable(n, r.matched_posts)).map((n) => n.bot_post_share_ci?.[1] ?? n.bot_post_share)) * 1.15;
   const pos = (v: number) => `${Math.min(100, (v / max) * 100)}%`;
   const word = countWord(narr.length);
   const [rv, rvCls] = useReveal<HTMLElement>();
@@ -220,8 +220,9 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
       </div>
       <ul className="nrows">
         {narr.map((n, i) => {
-          const isTop = top && n.id === top.id && top.bot_post_share > 0;
-          const x = ratio(n, baseline);
+          const few = !measurable(n, r.matched_posts);
+          const isTop = !few && top && n.id === top.id && top.bot_post_share > 0;
+          const x = few ? null : ratio(n, baseline);
           const [lo, hi] = n.bot_post_share_ci ?? [n.bot_post_share, n.bot_post_share];
           return (
             <li key={n.id} className={`nrow in-wipe${isTop ? " top" : ""}`} style={seq(i, 200)}>
@@ -236,6 +237,11 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                   {n.posts != null && <span className="pc">{plural(n.posts, "post")}</span>}
                 </span>
               </div>
+              {few ? (
+                <div className="l2 few">
+                  <span className="few-note">too few posts to measure</span>
+                </div>
+              ) : (
               <div className="l2">
                 <div className="track" aria-hidden="true">
                   <span className="band hatch-in" style={{ left: pos(lo), width: `calc(${pos(hi)} - ${pos(lo)})`, ...seq(i, 640) }} />
@@ -261,6 +267,7 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                     )}
                 </span>
               </div>
+              )}
             </li>
           );
         })}
@@ -273,7 +280,7 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
         {baseline != null && (
           <span>
             <span className="k-base" />
-            {pct(baseline)} across the whole story (baseline)
+            {pct(baseline, 1)} across the whole story (baseline)
           </span>
         )}
       </div>

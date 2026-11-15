@@ -386,6 +386,9 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .checker .xb.vs-above{color:var(--signal-ink);background:var(--signal-wash);border-color:var(--signal)}
 .checker .flag{font-weight:600}
 .checker .track .pt{border-color:var(--paper)}
+/* narratives under 30 posts: a quiet note instead of the share, interval and baseline chip */
+.checker .nrow .l2.few{display:block}
+.checker .few-note{font-size:13px;color:var(--cap)}
 @media (min-width:720px){
   .checker .idle h1{font-size:60px}
   .checker .run-head h1{font-size:40px}
@@ -400,6 +403,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
   .checker .nhead span:last-child{text-align:right}
   .checker .nrows{margin-top:0}
   .checker .nrow .l1,.checker .nrow .l2{display:contents}
+  .checker .nrow .few-note{grid-column:4 / 7}
   .checker .nrow .sw{align-self:center}
   .checker .nrow .sh{text-align:right;display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
   .checker .nrow .sh b{font-size:17px}
