@@ -110,7 +110,7 @@ def test_answer_bubble_is_three_short_lines_with_the_numbers():
     lines = text.split("\n")
     assert lines == [
         "Mostly real people.",
-        "4% of the 200 posts making this claim come from likely automated accounts. The story overall: 4.5%.",
+        "4% of the 200 posts making this claim come from likely automated accounts. Across all posts about the Jensen Huang story: 4.5%.",
         reply.TRUTH_LINE,
     ]
 
@@ -173,8 +173,8 @@ def test_followups_are_short_whole_percent_and_end_with_the_other_numbers():
     for k in (1, 2, 3, 4):
         text = reply.followup(k, r)
         lines = text.splitlines()
-        assert 2 <= len(lines) <= 4, text
-        assert lines[-1].startswith("Also:") and str(k) + " " not in lines[-1].split("Also:")[1]
+        assert 1 <= len(lines) <= 3, text
+        assert "Also:" not in text  # the numbered menu goes with the first answer only
         assert not re.search(r"\d\.\d+%|0\.\d{3}", lines[0]), text  # no raw decimals
         assert " bots" not in text.lower() and "run by" not in text
     assert "Spy plot and national security: 60% of posts, 12% likely automated." in reply.followup(1, r)

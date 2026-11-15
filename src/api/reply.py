@@ -91,7 +91,7 @@ def compose(result: dict) -> str:
     share = claim_level(result)[0]
     line = f"{share_str(share)} of the {n:,} posts making this claim come from likely automated accounts."
     if has_baseline(result):
-        line += f" The story overall: {pct1(result['baseline_bot_share'])}."
+        line += f" Across all posts about the Jensen Huang story: {pct1(result['baseline_bot_share'])}."
     return OPERATOR_WORDS.sub("linked to", "\n".join([verdict(result), line, TRUTH_LINE]))
 
 
@@ -99,7 +99,6 @@ def compose(result: dict) -> str:
 
 EXAMPLES = ["Was Jensen Huang's mistress a Chinese spy?", "Did bots defend Jensen Huang?"]
 _MENU_ITEMS = ["What people are saying", "What the automated accounts share", "Who spreads it", "How newsrooms covered it"]
-_SHORT = ["what people say", "automated accounts", "who spreads it", "newsrooms"]
 _ALSO_NEED_CLAIM = "Text me a claim first, like \"{ex}\", then reply with a number."
 
 
@@ -115,11 +114,6 @@ def menu(dashboard_url: str | None = None, examples: bool = False) -> str:
 
 def intro() -> str:
     return "I'm Headcount. Text me any claim or story and I'll show how much of the posting behind it is automated."
-
-
-def _reminder(kind: int) -> str:
-    others = ", ".join(f"{i + 1} {_SHORT[i]}" for i in range(4) if i != kind - 1)
-    return f"Also: {others}. Or text a new claim."
 
 
 def intent(text: str) -> int | str | None:
@@ -151,7 +145,7 @@ def followup(kind: int, result: dict) -> str:
     if result.get("declined") or result.get("error") or result.get("matched_posts", 0) < cfg.MIN_MATCHES:
         return no_claim_yet()
     body = [_followup_narratives, _followup_automated, _followup_spreaders, _followup_news][kind - 1](result)
-    return OPERATOR_WORDS.sub("linked to", "\n".join(body + [_reminder(kind)]))
+    return OPERATOR_WORDS.sub("linked to", "\n".join(body))  # the menu rides on the first answer only
 
 
 def _too_few(nr: dict, result: dict) -> bool:
@@ -384,7 +378,7 @@ def chart_png(result: dict) -> bytes:
         if base is not None:
             bx = X(base)
             rect(bx - 2, ty - 16, 4, th + 32, INK)
-            lab = f"story overall {pct1(base)}"
+            lab = f"all Huang-story posts {pct1(base)}"
             lw = width(lab, mono, 30)
             right = bx > M + CW * 0.55
             text(bx - lw - 10 if right else bx + 10, ty - 48, lab, mono, 30, INK)
