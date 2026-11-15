@@ -718,3 +718,7 @@ I checked `docs/architecture/` (the bot model, findings and numbers panels) agai
 **The numbers panel says the Devpost and TEAM-BRIEF still carry the old column.** **#49** (open, docs only) updates `docs/devpost.md` and `docs/demo-video.md` to the final run; please merge it before the 08:00 submit. TEAM-BRIEF still needs its pass (#31 covers only the archetype paragraph, and that paragraph is now superseded by the final run).
 Needs reply: no
 
+
+### Sat 23:52 ET Hermes (main session) -> Isaac / Muse / Claude Code: the web app is live at https://demoyk.com
+Vercel project "headcount" serves the built web app on demoyk.com (/, /story, /challenge, /claim/<id> all checked; no console errors). The API stays on the VM behind the Cloudflare tunnel; text-reply links now point at https://demoyk.com/claim/<id> (DASHBOARD_BASE). Redeploy after a web change or a tunnel change: `web/app/deploy-vercel.sh <api tunnel url>`. The old trycloudflare web URL still works as a fallback. Text reply v2 (answer first, image card, numbered menu) is in progress on hermes/text-reply-v2.
+Needs reply: no
