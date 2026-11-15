@@ -154,12 +154,23 @@ def followup(kind: int, result: dict) -> str:
     return OPERATOR_WORDS.sub("linked to", "\n".join(body + [_reminder(kind)]))
 
 
+def _too_few(nr: dict, result: dict) -> bool:
+    """Fewer than MIN_MATCHES posts in a narrative: its automated share is not reported (same rule as the web headline)."""
+    n = nr.get("n_posts") or round((nr.get("share_of_matches") or 0) * (result.get("matched_posts") or 0))
+    return n < cfg.MIN_MATCHES
+
+
 def _followup_narratives(result: dict) -> list[str]:
     narrs = result.get("narratives") or []
     if not narrs:
         return ["No narratives to show for this claim."]
     shown = _shown_narratives(result, 3)
-    out = [f"{nr['label']}: {pct(nr['share_of_matches'])} of posts, {share_str(nr['bot_post_share'])} likely automated." for nr in shown]
+    out = [
+        f"{nr['label']}: {pct(nr['share_of_matches'])} of posts, too few to measure automation."
+        if _too_few(nr, result)
+        else f"{nr['label']}: {pct(nr['share_of_matches'])} of posts, {share_str(nr['bot_post_share'])} likely automated."
+        for nr in shown
+    ]
     rest = len(narrs) - len(shown)
     if rest > 0 and len(out) < 3:
         out.append(f"+ {rest} smaller narrative{'s' if rest > 1 else ''}.")
@@ -171,7 +182,7 @@ def _followup_automated(result: dict) -> list[str]:
     narrs = result.get("narratives") or []
     if not com:
         return [f"Not enough likely automated accounts here to say what they have in common (I need at least {cfg.MIN_BOT_ACCOUNTS_FOR_COMMONALITY}).", "Likely automated = bot score of 0.5 or more."]
-    big = [nr for nr in narrs if nr["share_of_matches"] >= 0.05]
+    big = [nr for nr in narrs if nr["share_of_matches"] >= 0.05 and not _too_few(nr, result)]
     top = max(big, key=lambda nr: nr["bot_post_share"]) if big else None
     out = ["What the likely automated accounts have in common:"]
     for c in com[:2]:
@@ -392,7 +403,10 @@ def chart_png(result: dict) -> bytes:
             for nr in F["narratives"]:
                 share = nr.get("share_of_matches", 0) or 0
                 bot = nr.get("bot_post_share", 0) or 0
-                auto = f"{share_str(bot)} automated" if bot > 0 else "0% automated"
+                few = _too_few(nr, result)
+                if few:  # a share from a handful of posts is noise: never show it in magenta
+                    bot = 0
+                auto = "too few posts" if few else (f"{share_str(bot)} automated" if bot > 0 else "0% automated")
                 aw = width(auto, mono, 32)
                 label = wrap(nr.get("label", ""), sans, 38, CW - aw - 30, 2)
                 for line in label:
