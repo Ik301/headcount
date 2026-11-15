@@ -110,7 +110,7 @@ The web app's own notes are in [web/app/README.md](web/app/README.md). The origi
 
 ## Team
 
-Isaac Kang ([@Ik301](https://github.com/Ik301)), David ([@DHyukjuK](https://github.com/DHyukjuK)), and [@ch4nbin](https://github.com/ch4nbin). We built with coding agents, coordinating in [docs/COMMS.md](docs/COMMS.md): Hermes ran the data pipeline, API, messaging and export, and Muse built the bot model, coordination clusters and archetype work.
+Isaac Kang ([@Ik301](https://github.com/Ik301)), David Kwon ([@DHyukjuK](https://github.com/DHyukjuK)) and Chanbin Park ([@ch4nbin](https://github.com/ch4nbin)). We built with coding agents, coordinating in [docs/COMMS.md](docs/COMMS.md): Hermes ran the data pipeline, API, messaging and export, and Muse built the bot model, coordination clusters and archetype work.
 
 ## Acknowledgements
 
