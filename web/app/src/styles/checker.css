@@ -115,7 +115,7 @@ section.blk{padding-top:34px}
 .stack i{display:block;height:100%}
 .nrows{margin:12px 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
 .nrow{padding:14px 0;border-bottom:1px solid var(--rule)}
-.nrow.top{background:var(--signal-wash);border-radius:10px;padding:14px 14px 16px;margin:8px -14px;border-bottom-color:transparent}
+.nrow.top{box-shadow:inset 2px 0 0 var(--signal);padding-left:14px;margin-left:-14px}
 .nrow .l1{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline}
 .nrow .sw{width:10px;height:10px;border-radius:2px;transform:translateY(1px)}
 .nrow .nm{font-weight:500;font-size:16px}
@@ -125,10 +125,8 @@ section.blk{padding-top:34px}
 .nrow .l2{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin:10px 0 0 22px}
 .track{position:relative;height:16px}
 .track::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;background:var(--rule);border-radius:1px}
-.nrow.top .track::before{background:#F0CFC6}
-.track .band{position:absolute;top:4px;height:8px;border-radius:4px;background:rgba(217,71,43,.26)}
+.track .band{position:absolute;top:3px;height:10px;border-radius:2px;background:repeating-linear-gradient(135deg,rgba(217,71,43,.6) 0 1.5px,transparent 1.5px 4px);box-shadow:inset 0 0 0 1px rgba(217,71,43,.4)}
 .track .pt{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--signal);border:2px solid var(--card)}
-.nrow.top .track .pt{border-color:var(--signal-wash)}
 .track .base{position:absolute;top:0;width:1px;height:16px;background:var(--ink-3)}
 .au-val{font-size:14px;color:var(--ink-2);white-space:nowrap;text-align:right;min-width:9.5em}
 .au-val b{font:500 16px var(--mono);color:var(--signal-ink)}
@@ -158,7 +156,7 @@ section.blk{padding-top:34px}
 .ltrack{position:relative;height:16px}
 .ltrack::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;background:var(--rule)}
 .ltrack .one{position:absolute;top:0;width:1px;height:16px;background:var(--ink-3)}
-.ltrack .band{position:absolute;top:4px;height:8px;border-radius:4px;background:rgba(47,111,143,.24)}
+.ltrack .band{position:absolute;top:3px;height:10px;border-radius:2px;background:repeating-linear-gradient(135deg,rgba(47,111,143,.6) 0 1.5px,transparent 1.5px 4px);box-shadow:inset 0 0 0 1px rgba(47,111,143,.4)}
 .ltrack .pt{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--human);border:2px solid var(--paper)}
 .lift{font-size:14px;color:var(--ink-2);white-space:nowrap;min-width:8.6em;text-align:right}
 .lift b{font:500 16px var(--mono);color:var(--human)}
@@ -207,8 +205,8 @@ details.ev[open] summary svg{transform:rotate(180deg)}
   .query{padding:28px 0 22px}
   .query q{font-size:22px}
   .r-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:72px;
-    grid-template-areas:"head actions" "sorter sorter" "narr amp" "common amp" "evid evid" "method method";
-    grid-template-rows:auto auto auto 1fr auto auto}
+    grid-template-areas:"head head" "actions actions" "sorter sorter" "narr amp" "common amp" "evid evid" "method method";
+    grid-template-rows:auto auto auto auto 1fr auto auto}
   .r-head{padding-top:40px}
   .r-head h1{font-size:44px;max-width:25ch}
   .actions{align-self:end;padding:0 0 4px}
@@ -257,7 +255,12 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .run-head p .num{color:var(--ink)}
 .r-grid{grid-template-areas:"head" "actions" "sorter" "narr" "common" "amp" "news" "evid" "method"}
 @media (min-width:1080px){
-  .r-grid{grid-template-areas:"head actions" "sorter sorter" "narr amp" "common amp" "common news" "evid evid" "method method";grid-template-rows:auto auto auto auto 1fr auto auto}
+  .r-grid{grid-template-areas:"head head" "actions actions" "sorter sorter" "narr amp" "common amp" "common news" "evid evid" "method method";grid-template-rows:auto auto auto auto auto 1fr auto auto}
+  .actions{display:flex;flex-wrap:wrap;align-items:center;gap:4px 20px;padding:18px 0 0}
+  .actions .row{display:flex;gap:8px}
+  .actions .row .btn{min-width:150px}
+  .actions .copied{margin:0;min-height:0}
+  .actions .side-links{margin:0}
   .posts{grid-template-columns:1fr 1fr}
   .ev-narrs{grid-template-columns:1fr}
 }
@@ -307,7 +310,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .checker .globe-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal)}
 .checker .globe-dot.grey{background:#C9CDD4;box-shadow:none}
 .checker .globe-src{flex-basis:100%;justify-content:center;text-align:center;color:var(--ink-3)}
-.checker .globe-src-long{display:none}
+.checker .globe-cap .globe-src-long{display:none}
 .checker.is-dark .idle{padding-top:12px}
 .checker.is-dark .idle h1{letter-spacing:-.025em}
 @media (min-width:720px){
@@ -321,9 +324,19 @@ details.ev[open] summary svg{transform:rotate(180deg)}
   .checker .globe-box{height:min(620px,calc(100vh - 220px))}
   .checker .globe-cap{justify-content:flex-start;padding:0 0 0 12%}
   .checker .globe-src{justify-content:flex-start;text-align:left}
-  .checker .globe-src-long{display:inline-flex}
-  .checker .globe-src-short{display:none}
+  .checker .globe-cap .globe-src-long{display:inline-flex}
+  .checker .globe-cap .globe-src-short{display:none}
   .checker.is-dark .idle{padding:64px 0 72px}
   .checker.is-dark .run{padding-top:24px}
 }
+
+/* dark: an empty Check button stays visible (outline), not a dim slab */
+.page.checker.is-dark .btn[disabled]{background:transparent;border-color:var(--ink-3);color:var(--ink-2)}
+/* example claims as a numbered mono list, the instrument's voice */
+.checker .chips.as-list{flex-direction:column!important;gap:0;align-items:stretch;border-top:1px solid var(--rule)}
+.checker .chips.as-list .chip{width:100%;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:12px 4px;min-height:48px;gap:14px;background:none;transition:padding .2s var(--ease),color .2s}
+.checker .chips.as-list .chip:hover{background:none;padding-left:10px}
+.checker .chip-n{font:500 12px var(--mono);color:var(--ink-3);letter-spacing:.04em}
+.checker .chip-go{margin-left:auto;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s var(--ease);color:var(--ink-2)}
+.checker .chips.as-list .chip:hover .chip-go{opacity:1;transform:none}
 

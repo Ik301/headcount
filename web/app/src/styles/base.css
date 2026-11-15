@@ -63,3 +63,29 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 }
 /* privacy redactions inside quoted posts (see components/Redacted.tsx) */
 .redacted{display:inline-block;padding:0 6px;margin:0 1px;border-radius:4px;background:var(--panel);border:1px dashed var(--rule);font:500 .82em/1.5 var(--sans);font-style:normal;color:var(--cap);white-space:nowrap;vertical-align:.04em}
+
+/* ---------- provenance receipts (components/Receipt.tsx) ----------
+ * The number is the button: a dashed underline says "this opens". The ticket prints downward like a
+ * thermal receipt (clip-path reveal, 220 ms), with perforated edges from a radial-gradient mask. */
+.rc{position:relative;display:inline}
+.rc-num{all:unset;cursor:pointer;color:inherit;font:inherit;border-radius:3px;
+  text-decoration:underline dashed;text-decoration-thickness:1px;text-underline-offset:.18em;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent);
+  transition:background .15s,text-decoration-color .15s}
+.rc-num:hover,.rc.is-open .rc-num{background:color-mix(in srgb,currentColor 9%,transparent);text-decoration-color:currentColor}
+.rc-num:focus-visible{outline:2px solid var(--human);outline-offset:2px}
+.rc-ticket{position:absolute;z-index:40;left:0;top:calc(100% + 8px);width:min(360px,86vw);display:block;
+  padding:16px 16px 18px;background:#FFFEFA;color:#1B1D22;font:400 12px/1.5 var(--mono);letter-spacing:0;text-align:left;white-space:normal;
+  box-shadow:0 1px 0 rgba(22,24,29,.06),0 18px 40px -18px rgba(22,24,29,.45);
+  -webkit-mask:radial-gradient(circle 4px at 8px 0,#0000 98%,#000) top/12px 51% repeat-x,radial-gradient(circle 4px at 8px 100%,#0000 98%,#000) bottom/12px 51% repeat-x;
+          mask:radial-gradient(circle 4px at 8px 0,#0000 98%,#000) top/12px 51% repeat-x,radial-gradient(circle 4px at 8px 100%,#0000 98%,#000) bottom/12px 51% repeat-x;
+  animation:rc-print .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rc-print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+.rc-head{display:block;font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#6B707A;padding-bottom:8px;margin-bottom:8px;border-bottom:1px dashed #CFCAC0}
+.rc-line{display:flex;align-items:baseline;gap:6px;padding:2px 0}
+.rc-k{flex:none;color:#6B707A}
+.rc-dots{flex:1;min-width:12px;border-bottom:1px dotted #CFCAC0;transform:translateY(-3px)}
+.rc-v{flex:0 1 auto;text-align:right;color:#1B1D22;font-weight:500}
+.rc-foot{display:block;margin-top:10px;padding-top:8px;border-top:1px dashed #CFCAC0;color:#8A8F99;font-size:10.5px}
+.rc-right .rc-ticket{left:auto;right:0}
+.rc-ticket .rc-v{white-space:normal}
+@media (prefers-reduced-motion:reduce){.rc-ticket{animation:none}}

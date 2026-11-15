@@ -107,10 +107,16 @@ export default function CheckerPage() {
               <p className="try" id="try-l">
                 Or try one
               </p>
-              <div className="chips" role="group" aria-labelledby="try-l">
-                {EXAMPLES.map((ex) => (
+              <div className="chips as-list" role="group" aria-labelledby="try-l">
+                {EXAMPLES.map((ex, i) => (
                   <button key={ex} type="button" className="chip" aria-pressed={text === ex} onClick={() => run(ex)}>
+                    <span className="chip-n" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                     {ex}
+                    <span className="chip-go" aria-hidden="true">
+                      <Icon name="arrow" />
+                    </span>
                   </button>
                 ))}
               </div>

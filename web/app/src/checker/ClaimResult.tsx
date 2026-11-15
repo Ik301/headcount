@@ -10,6 +10,7 @@ import { useCopy } from "../lib/useCopy";
 import { Redacted } from "../components/Redacted";
 import { VoiceSorter } from "./VoiceSorter";
 import { CountUp } from "../components/CountUp";
+import { Receipt, type ReceiptLine } from "../components/Receipt";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -143,6 +144,24 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
   );
 }
 
+/** The receipt behind a narrative's likely automated share: every line is a field of the /claim JSON. */
+function narrReceipt(r: ClaimResult, n: ClaimNarrative, baseline?: number): (ReceiptLine | null)[] {
+  const win = windowLabel(r.window?.from, r.window?.to);
+  return [
+    ["Source", r.scope === "live" ? "Bluesky live search" : "Bluesky public API"],
+    win ? ["Window", `${win} (UTC)`] : null,
+    ["Narrative", n.label],
+    n.posts != null ? ["Posts", fmtInt(n.posts)] : null,
+    ["Share of matches", pct(n.share_of_matches)],
+    ["Counted as automated", "account score ≥ 0.5"],
+    ["Estimate", pct(n.bot_post_share)],
+    n.bot_post_share_ci ? ["95% interval", ci(n.bot_post_share_ci)] : null,
+    ["Interval method", "bootstrap over accounts"],
+    (n.baseline_bot_share ?? baseline) != null ? ["Story baseline", pct((n.baseline_bot_share ?? baseline)!, 1)] : null,
+    ["Check id", <span className="mono">{r.claim_id}</span>],
+  ];
+}
+
 function ratio(n: ClaimNarrative, baseline?: number) {
   const b = n.baseline_bot_share ?? baseline;
   if (!b || n.bot_post_share < 2 * b) return null;
@@ -168,7 +187,11 @@ function Headline({ r, enough, pick, baseline }: { r: ClaimResult; enough: boole
   const vs = x ? null : b != null ? versusWords(against(top.bot_post_share_ci, b)) : null;
   return (
     <>
-      <span className="n"><CountUp value={r.matched_posts} /></span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(top.bot_post_share)}</span> of those
+      <span className="n"><CountUp value={r.matched_posts} /></span> Bluesky posts make this claim. Likely automated accounts wrote{" "}
+      <Receipt lines={narrReceipt(r, top, baseline)} title={`Receipt · ${top.label}`}>
+        <span className="sig n">{pct(top.bot_post_share)}</span>
+      </Receipt>{" "}
+      of those
       in “{top.label}”{x ? `, about ${x.toFixed(1)}× the story’s baseline` : vs && b != null ? `, ${vs} the story’s ${pct(b, 1)} baseline` : ""}.
     </>
   );
@@ -212,7 +235,10 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                   <span className="pt" style={{ left: pos(n.bot_post_share) }} />
                 </div>
                 <span className="au-val">
-                  <b>{pct(n.bot_post_share)}</b> {n.bot_post_share_ci && `(${ci(n.bot_post_share_ci)})`}
+                  <Receipt lines={narrReceipt(r, n, baseline)} title={`Receipt · ${n.label}`} align="right">
+                    <b>{pct(n.bot_post_share)}</b>
+                  </Receipt>{" "}
+                  {n.bot_post_share_ci && `(${ci(n.bot_post_share_ci)})`}
                   {x ? (
                     <span className="xb">{x.toFixed(1)}× baseline</span>
                   ) : (

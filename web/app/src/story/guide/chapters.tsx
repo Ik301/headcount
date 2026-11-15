@@ -9,6 +9,7 @@ import { CheckGrid, CutoffStrip, EstimateBar, HedgeBars, LiftRows, NarrativeRows
 import { against, oneIn, pc, range, timeLabel, type GuideData } from "./data";
 import { ReplayFigure } from "./Replay";
 import { VoiceSorter } from "../../checker/VoiceSorter";
+import { Receipt } from "../../components/Receipt";
 
 export interface ChapterProps {
   m: Model;
@@ -167,7 +168,24 @@ function HowMuch({ g }: ChapterProps) {
         </div>
         <div className="g-interval">
           <p className="g-interval-text">
-            Our best estimate is <b>{pc(b.share)}</b>
+            Our best estimate is{" "}
+            <Receipt
+              title="Receipt · story-wide share"
+              lines={[
+                ["Source", `${g.platform} public API, no login`],
+                ["Window", `${g.windowLabel}, ${g.year} (UTC)`],
+                b.nPosts != null && ["Posts", fmtInt(b.nPosts)],
+                b.nAccounts != null && ["Accounts", fmtInt(b.nAccounts)],
+                ["Left out", "bridged fediverse accounts (counted separately)"],
+                ["Counted as automated", `account score ≥ ${AUTOMATED}`],
+                ["Estimate", pc(b.share)],
+                b.ci && ["95% interval", range(b.ci)],
+                ["Interval method", "1,000 bootstrap resamples over accounts"],
+                g.modelVersion ? ["Model", <span className="mono">{g.modelVersion}</span>] : null,
+              ]}
+            >
+              <b>{pc(b.share)}</b>
+            </Receipt>
             {b.ci && (
               <>
                 . The true share is most likely between {pc(b.ci[0])} and {pc(b.ci[1])}: that range is the <Term>interval</Term>. We give 95% intervals, worked out by recounting many times on resampled accounts.

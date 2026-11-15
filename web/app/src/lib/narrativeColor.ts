@@ -11,7 +11,7 @@ const BY_ID: Record<string, string> = {
 };
 const HEX: Record<string, string> = {
   "var(--n-spy)": "#6B5CA5",
-  "var(--n-affairs)": "#B0675A",
+  "var(--n-affairs)": "#B5853B",
   "var(--n-politics)": "#3E7C6A",
   "var(--n-board)": "#8C7A3D",
   "var(--n-market)": "#4F6FA8",

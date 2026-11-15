@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Narr } from "../model";
 import { pc, type Arch, type HedgeRow } from "./data";
+import { Receipt } from "../../components/Receipt";
 
 /* The guided story's charts. One visual grammar throughout: a dot for the best estimate, a line for the
  * 95% interval, a dashed rule for the comparison value. Red is reserved for likely automated. */
@@ -20,6 +21,18 @@ export function useWidth<T extends HTMLElement>(fallback = 800): [React.RefObjec
   }, [fallback]);
   return [ref, w];
 }
+
+/** Hatching for an interval: the engineering-drawing convention for "somewhere in this range". */
+function Hatch({ id, color }: { id: string; color: string }) {
+  return (
+    <defs>
+      <pattern id={id} patternUnits="userSpaceOnUse" width={4} height={4} patternTransform="rotate(45)">
+        <rect width={1.6} height={4} fill={color} fillOpacity={0.75} />
+      </pattern>
+    </defs>
+  );
+}
+const safeId = (s: string) => s.replace(/[^a-zA-Z0-9_-]/g, "");
 
 /** An inline term, defined in the sentence that follows it the first time it appears. */
 export function Term({ children }: { children: ReactNode }) {
@@ -46,6 +59,7 @@ export function Waffle({ share, cols }: { share: number; cols: number }) {
 
 export function EstimateBar({ value, ci, max, color = C.signal, label }: { value: number; ci?: [number, number]; max: number; color?: string; label: string }) {
   const [ref, w] = useWidth<HTMLDivElement>(600);
+  const hid = safeId(useId());
   const L = 6, R = 6, H = 46;
   const x = (v: number) => L + (Math.min(v, max) / max) * (w - L - R);
   const ticks = niceTicks(max);
@@ -53,7 +67,8 @@ export function EstimateBar({ value, ci, max, color = C.signal, label }: { value
     <div ref={ref} className="g-estimate">
       <svg width={w} height={H} role="img" aria-label={label}>
         <line x1={L} x2={w - R} y1={16} y2={16} stroke={C.rule} strokeWidth={6} strokeLinecap="round" />
-        {ci && <line x1={x(ci[0])} x2={x(ci[1])} y1={16} y2={16} stroke={color} strokeOpacity={0.35} strokeWidth={6} strokeLinecap="round" />}
+        <Hatch id={hid} color={color} />
+        {ci && <rect x={x(ci[0])} y={10} width={Math.max(2, x(ci[1]) - x(ci[0]))} height={12} rx={1.5} fill={`url(#${hid})`} stroke={color} strokeOpacity={0.45} />}
         {ci && [ci[0], ci[1]].map((v, i) => <line key={i} x1={x(v)} x2={x(v)} y1={9} y2={23} stroke={color} strokeWidth={1.5} />)}
         <circle cx={x(value)} cy={16} r={6.5} fill={color} stroke="#fff" strokeWidth={2} />
         {ticks.map((t, i) => (
@@ -77,6 +92,7 @@ function niceTicks(max: number): number[] {
 
 export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline?: number; note?: Record<string, string> }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
+  const hid = safeId(useId());
   const max = Math.max(0.05, ...narr.map((n) => n.ci?.[1] ?? n.bot), (baseline ?? 0) * 1.4) * 1.08;
   const L = 8, R = 8, H = 34;
   const x = (v: number) => L + (v / max) * (w - L - R);
@@ -97,12 +113,28 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
             <div className="g-row-chart" ref={n === narr[0] ? ref : undefined} role="cell" aria-label={`${pc(n.bot)}${n.ci ? `, interval ${pc(n.ci[0])} to ${pc(n.ci[1])}` : ""}`}>
               <svg width={w} height={H} aria-hidden="true">
                 {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />}
-                {n.ci && <line x1={x(n.ci[0])} x2={x(n.ci[1])} y1={H / 2} y2={H / 2} stroke={C.signal} strokeOpacity={solid ? 0.5 : 0.22} strokeWidth={5} strokeLinecap="round" />}
+                <Hatch id={`${hid}${n.id}`} color={C.signal} />
+                {n.ci && <rect x={x(n.ci[0])} y={H / 2 - 5} width={Math.max(2, x(n.ci[1]) - x(n.ci[0]))} height={10} rx={1.5} fill={`url(#${hid}${n.id})`} stroke={C.signal} strokeOpacity={solid ? 0.5 : 0.25} opacity={solid ? 1 : 0.6} />}
                 <circle cx={x(n.bot)} cy={H / 2} r={6} fill={solid ? C.signal : "#fff"} stroke={solid ? "#fff" : C.signal} strokeWidth={2} />
               </svg>
             </div>
             <div className="g-row-val" role="cell">
-              {pc(n.bot)}
+              <Receipt
+                align="right"
+                title={`Receipt · ${n.label}`}
+                lines={[
+                  ["Posts", n.posts.toLocaleString("en-US")],
+                  ["From likely automated", n.botPosts ? `about ${Math.round(n.botPosts).toLocaleString("en-US")}` : pc(n.bot)],
+                  ["Counted as automated", "account score ≥ 0.5"],
+                  ["Estimate", pc(n.bot)],
+                  n.ci && ["95% interval", `${pc(n.ci[0])} to ${pc(n.ci[1])}`],
+                  baseline != null && ["Whole story", pc(baseline)],
+                  ["Narrative labels", "language model, one per post"],
+                  ["Interval method", "bootstrap over accounts"],
+                ]}
+              >
+                {pc(n.bot)}
+              </Receipt>
               {v && <span className="g-verdict">{v === "above" ? "above the story" : v === "below" ? "below the story" : "not clearly different"}</span>}
             </div>
           </div>
@@ -212,6 +244,7 @@ export function HedgeBars({ rows }: { rows: HedgeRow[] }) {
 
 export function LiftRows({ arch }: { arch: Arch[] }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
+  const hid = safeId(useId());
   // A small group's interval can start at 0 (no amplifiers in some resamples). log(0) is -Infinity, so the
   // axis is clamped to 1/4..4 and an interval that runs past the edge is drawn open-ended with an arrow.
   const MIN = 0.25, MAX = 4;
@@ -241,10 +274,19 @@ export function LiftRows({ arch }: { arch: Arch[] }) {
             <div className="g-row-chart" ref={i === 0 ? ref : undefined} role="cell" aria-label={`${a.lift.toFixed(2)} times${a.ci ? `, interval ${a.ci[0].toFixed(2)} to ${a.ci[1].toFixed(2)}` : ""}`}>
               <svg width={w} height={H} aria-hidden="true">
                 <line x1={x(1)} x2={x(1)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />
+                <Hatch id={`${hid}${a.id}`} color={C.human} />
                 {a.ci && (
-                  <g stroke={C.human} strokeOpacity={clear ? 0.55 : 0.3} strokeWidth={5} strokeLinecap="round">
-                    <line x1={x(a.ci[0]) + (cutLo ? 6 : 0)} x2={x(a.ci[1]) - (cutHi ? 6 : 0)} y1={y} y2={y} />
-                  </g>
+                  <rect
+                    x={x(a.ci[0]) + (cutLo ? 6 : 0)}
+                    y={y - 5}
+                    width={Math.max(2, x(a.ci[1]) - (cutHi ? 6 : 0) - (x(a.ci[0]) + (cutLo ? 6 : 0)))}
+                    height={10}
+                    rx={1.5}
+                    fill={`url(#${hid}${a.id})`}
+                    stroke={C.human}
+                    strokeOpacity={clear ? 0.5 : 0.25}
+                    opacity={clear ? 1 : 0.6}
+                  />
                 )}
                 {cutLo && <path d={`M${x(a.ci![0]) + 7} ${y - 5} L${x(a.ci![0])} ${y} L${x(a.ci![0]) + 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}
                 {cutHi && <path d={`M${x(a.ci![1]) - 7} ${y - 5} L${x(a.ci![1])} ${y} L${x(a.ci![1]) - 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}

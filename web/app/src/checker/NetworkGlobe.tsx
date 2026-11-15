@@ -113,7 +113,7 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
       for (const [a, b, auto] of graph.edges) {
         const A = P[a], B = P[b];
         const depth = (A.z + B.z + 2) / 4;
-        ctx.strokeStyle = (auto ? EDGE_AUTO : EDGE) + (auto ? 0.1 + depth * 0.35 : 0.04 + depth * 0.16) + ")";
+        ctx.strokeStyle = (auto ? EDGE_AUTO : EDGE) + (auto ? 0.05 + depth * 0.2 : 0.02 + depth * 0.08) + ")";
         ctx.lineWidth = auto ? 0.9 : 0.6;
         ctx.beginPath();
         ctx.moveTo(A.sx, A.sy);
