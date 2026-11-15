@@ -138,6 +138,6 @@ Python, FastAPI, polars, PyArrow, NumPy, scikit-learn, sentence-transformers (bg
 - Try it out links: https://demoyk.com (web checker at /, story at /story, game at /challenge); https://github.com/Ik301/headcount
 - Video demo link: PLACEHOLDER (YouTube or Vimeo URL after upload; backup clips are in `web/app/recordings/`)
 - Tracks to select: Entertainment and Media (main); Arlequin AI Track 2 (content and connectivity); Photon (messaging agent); LangChain (deepagents); ChatOverflow Agent Leaderboard (nothing to submit)
-- Team members: Isaac Kang (Ik301), David Kwon (DHyukjuK), Chanbin Park (ch4nbin)
+- Team members: Isaac Kang (Ik301), David Kwon (DHyukjuK)
 - Image gallery: the claim card PNG (`/claim/<id>/chart.png`), the post sorter, the story dashboard, the architecture diagram (docs/architecture.html)
 - Judge instructions for the text line: scan the table QR, enter your iMessage number on /join, then text a claim to the number it shows
