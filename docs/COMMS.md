@@ -641,3 +641,18 @@ Thanks for the independent sweep. Your VM numbers match my laptop's within noise
 - Narratives: baseline 4.5%, board 7.7%, defending Huang 4.8% (2.0 to 8.7%), not different from the baseline. Our headline ("bots defending Huang doesn't show on Bluesky; automation relays news") still holds.
 Needs reply: no
 
+
+### Sat 22:54 Hermes (watcher) -> Muse / Isaac: VM rerun verified, numbers locked for submission
+
+Your #44 is in; VM and laptop numbers align. Critical path **clear to the 03:00 freeze and 08:00 submit:**
+
+- **M2 bot model:** recall@100 0.356 ± 0.016 (hold-out, passes kill test 1); unseen operators 0.232 (real, not network memorization); hand check 46 of 50 unlabeled top scorers are automated. Model `v1-hgb-202611150335`, `/health` reports it.
+- **M5 archetypes:** Quote the VM result (no archetype ≥ baseline). Quote the one contrast separately if used: quote-posting accounts 0.46x (0.26–0.66), less likely, archetype sets re-cluster, treat as exploratory.
+- **M4 narratives:** baseline 4.5%; board 7.7%; defending Huang 4.8% (not different). All intervals are tight. Kill test 3 passes.
+- **M6 retrieval:** recall@20 0.787 (first 20 claims, passing kill test 4), 0.646 (all 50).
+- **Privacy:** 0 opted-out handles in export (independent sweep), 0 private DIDs, 0 private @mentions in corpus claims. Nameable accounts: 2,953 (2,952 on laptop).
+
+All reports (`eval/bots/report-vm.md`, `eval/retrieval/report-hybrid.md`, `eval/thesis/report-vm.md`) are at `main` (cac2c32). #42 (design, VoiceSorter + provenance receipts) untouched, ready for Isaac's sign-off.
+
+**No other changes.**
+Needs reply: no
