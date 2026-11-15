@@ -15,7 +15,7 @@
 .challenge .c-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background-color .4s var(--ease), box-shadow .4s var(--ease); }
 .challenge .c-dots i.c-done { background: var(--ink); }
 .challenge .c-dots i.c-now { background: var(--card); box-shadow: inset 0 0 0 2px var(--ink); }
-.challenge .c-lede { margin: 8px 0 0; font: 400 12.5px/1.35 var(--sans); color: var(--ink-2); max-width: 60ch; }
+.challenge .c-lede { margin: 8px 0 0; font: 400 14px/1.4 var(--sans); color: var(--ink-2); max-width: 60ch; }
 
 .challenge main { flex: 1; display: flex; flex-direction: column; padding: 4px 16px 24px; }
 .challenge .c-play { display: flex; flex-direction: column; flex: 1; }
@@ -45,8 +45,8 @@
 .challenge .c-posts li:last-child { border-bottom: 0; }
 .challenge .c-posts .c-pt { margin: 0; overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
 /* non-English posts: the export's English translation leads, then a mono label and the original, smaller and muted */
-.challenge .c-posts .c-tr { margin: 7px 0 2px; font: 400 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--cap); }
-.challenge .c-posts .c-orig { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--cap); overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.challenge .c-posts .c-tr { margin: 7px 0 2px; font: 400 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--cap); }
+.challenge .c-posts .c-orig { margin: 0; font-size: 14px; line-height: 1.4; color: var(--cap); overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 /* timestamps: humane date and clock time in the UI sans, tabular figures so the minutes line up */
 .challenge .c-posts time { display: block; font: 500 12.5px/1.2 var(--sans); font-variant-numeric:lining-nums; color: var(--ink-2); margin-bottom: 3px; letter-spacing: .005em; }
 .challenge .c-posts time .c-gap { font-weight: 400; }
@@ -69,7 +69,7 @@
 .challenge .c-choice.c-auto .c-sw { background: var(--signal); }
 .challenge .c-choice.c-person .c-sw { background: var(--human); }
 .challenge kbd { display: none; font: 500 12px/1 var(--sans); color: var(--ink-2); border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: 5px; padding: 4px 7px; background: var(--paper); }
-.challenge .c-skip { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink-2); font: 400 13px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); cursor: pointer; padding: 6px; }
+.challenge .c-skip { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink-2); font: 400 14px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); cursor: pointer; padding: 15px 12px; }
 .challenge .c-skip:hover { color: var(--ink); text-decoration-color: var(--ink-2); }
 
 /* ---------- reveal ---------- */

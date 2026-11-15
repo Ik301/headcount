@@ -278,6 +278,7 @@ function Timeline({ g, m, T, onScrub }: { g: GuideData; m: Model; T: number; onS
           }}
           onPointerMove={(ev) => drag.current && onScrub(fromEv(ev))}
           onPointerUp={() => (drag.current = false)}
+          onPointerCancel={() => (drag.current = false)}
           onKeyDown={(ev) => {
             if (ev.key === "ArrowRight" || ev.key === "ArrowLeft") {
               ev.preventDefault();

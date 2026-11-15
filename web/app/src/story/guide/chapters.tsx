@@ -472,6 +472,7 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
   const A = g.arch;
   if (!A.length) return <Head h="The export has no amplifier groups yet." />;
   const sig = A.filter((a) => a.ci && a.ci[0] > 1).sort((a, b) => b.lift - a.lift);
+  const low = A.filter((a) => a.ci && a.ci[1] < 1).sort((a, b) => a.lift - b.lift);
   const autoCut = g.ampDefinition?.match(/>=\s*([\d.]+)/)?.[1];
   const example = A.find((a) => /repost/i.test(a.label)) ?? A[0];
   return (
@@ -497,7 +498,12 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
               We took the {g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged with the story and grouped them by how they behave into {countWord(A.length).toLowerCase()} <Term>archetypes</Term>, such as “{example.label.toLowerCase()}”. Then we compared how often each group <Term>amplified</Term> likely automated accounts, meaning it liked, reposted or quoted their posts.
             </>
           )}
-          {!sig.length && " Every group’s interval crosses “no difference”, so we can’t say any one type of person spreads automation more than another."}
+          {!sig.length && !low.length && " Every group’s interval crosses “no difference”, so we can’t say any one type of person spreads automation more than another."}
+          {!sig.length && low.length > 0 && (
+            <>
+              {" "}No group was clearly more likely to pass them on. {low.length === 1 ? "One was less likely" : `${countWord(low.length)} were less likely`}: “{low[0].label.toLowerCase()}”, {low[0].lift.toFixed(2)}× ({low[0].ci![0].toFixed(2)} to {low[0].ci![1].toFixed(2)}). Groups shift between model runs, so treat this as exploratory.
+            </>
+          )}
         </p>
       </Head>
       <figure className="g-fig">

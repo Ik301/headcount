@@ -54,7 +54,7 @@ export function Method({ m }: { m: Model }) {
       <FindingBar finding={m.findings.method} fallback={fallback} source="Validation on held-out labeled data" view="method" />
       <div className="panel metrics">
         <div className="metric">
-          <div className="v">{r100 != null ? r100.toFixed(2) : "·"}</div>
+          <div className="v">{r100 != null ? r100.toFixed(3) : "·"}</div>
           <div className="k">bot model recall@100</div>
           <p>
             Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated.

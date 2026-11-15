@@ -11,6 +11,7 @@
 .sorter-steps .on:hover{background:var(--ink);color:var(--paper)}
 .sorter-steps .on .n{border-color:var(--paper)}
 .sorter-steps .past{color:var(--ink)}
+@media (pointer:coarse){.sorter-steps button{min-height:44px;min-width:44px;justify-content:center}}
 .sorter-replay{border-left:1px solid var(--rule)!important;border-radius:0 7px 7px 0!important;margin-left:2px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
 .sorter-read{margin:18px 0 4px;min-height:84px;max-width:62ch}
 .sorter-big{margin:0;font:500 26px/1.2 var(--serif);letter-spacing:-.01em;color:var(--ink);text-wrap:balance}

@@ -1,6 +1,15 @@
 /* Story dashboard: ported from web/mockups/dashboard.html (approved direction).
  * The mockup was a fixed 1440x900 frame; here the page scrolls and the views size to content. */
-.story{font-size:14px;line-height:1.45;min-width:1100px}
+.story{font-size:14px;line-height:1.45}
+/* Explore keeps its 1,100px desktop layout. Narrower screens pan it inside its own scroller, so the top bar
+ * and the note above it stay at the screen's width (no sideways page scroll). */
+.explore-pan>*{min-width:1100px}
+.explore-note{display:none}
+@media (max-width:1099px){
+  .explore-pan{overflow-x:auto;overscroll-behavior-x:contain}
+  .explore-note{display:block;margin:0;padding:12px 20px;border-bottom:1px solid var(--rule);background:var(--panel);font-size:14px;line-height:1.45;color:var(--ink-2)}
+  .explore-note a{color:var(--ink);font-weight:500;display:inline-block;padding:4px 0}
+}
 .story h1,.story h2,.story h3{margin:0;font-weight:500}
 .story :focus-visible{border-radius:2px;outline-offset:2px}
 .story .btn{min-height:0;height:30px;padding:0 11px;border:1px solid var(--rule);background:var(--card);border-radius:4px;font-size:13px;font-weight:400;color:var(--ink);gap:7px}
@@ -253,7 +262,7 @@ dd .mono{font-size:12.5px}
 /* ---------- drawer ---------- */
 .scrim{position:fixed;inset:0;background:rgba(17,24,20,.16);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
 .scrim.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:620px;background:var(--card);border-left:1px solid var(--rule);box-shadow:-12px 0 32px -12px rgba(17,24,20,.22);transform:translateX(102%);transition:transform .3s var(--ease);z-index:41;display:flex;flex-direction:column}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(620px,100vw);background:var(--card);border-left:1px solid var(--rule);box-shadow:-12px 0 32px -12px rgba(17,24,20,.22);transform:translateX(102%);transition:transform .3s var(--ease);z-index:41;display:flex;flex-direction:column}
 .drawer.on{transform:none}
 .drawer:focus{outline:none}
 .dh{padding:16px 24px 12px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:4px 16px}

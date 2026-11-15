@@ -21,7 +21,7 @@
 .story .title .explore-mode{margin-left:auto;font-family:var(--sans)}
 
 .guide .g-steps{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:10px}
-.guide .g-steps ol{display:flex;gap:0;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none}
+.guide .g-steps ol{display:flex;gap:0;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;min-width:0}
 .guide .g-steps li{position:relative;flex:none}
 .guide .g-steps ol::-webkit-scrollbar{display:none}
 .guide .g-steps a{display:flex;align-items:center;gap:9px;padding:10px 12px 13px;font-size:14.5px;color:var(--cap);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
@@ -87,6 +87,7 @@
 .guide .g-link:hover{text-decoration-color:var(--human)}
 .guide .g-link svg{width:16px;height:16px;flex:none}
 
+
 /* ---------- row charts (narratives, hedging, archetypes) ---------- */
 .guide .g-rows{max-width:1000px}
 .guide .g-row{display:grid;grid-template-columns:minmax(200px,320px) minmax(0,1fr) 128px;column-gap:24px;align-items:center;padding:7px 0;border-top:1px solid var(--rule-2)}
@@ -139,7 +140,7 @@
 .guide .g-tip .mono{color:#F9FAF6}
 .guide .g-tip-s{color:#B5BCAE}
 .guide .g-timeline{margin-top:10px}
-.guide .g-tl-svg svg{display:block;cursor:ew-resize;touch-action:none;overflow:visible}
+.guide .g-tl-svg svg{display:block;cursor:ew-resize;touch-action:pan-y;overflow:visible}
 .guide .g-tl-svg svg:focus-visible{outline-offset:4px}
 .guide .g-tl-key{font-size:14px;color:var(--cap);margin:8px 0 0}
 .guide .g-events{list-style:none;counter-reset:ev;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px 22px}
@@ -277,3 +278,12 @@
 }
 @media (max-width:719px){.guide .g-h{font-size:30px;letter-spacing:-.026em}}
 .guide .g-play{border-radius:4px;font-weight:600}
+
+/* touch: 44px tap targets (kept last so they win over the base sizes above) */
+@media (pointer:coarse){
+  .guide .g-link{min-height:44px}
+  .guide .g-play{height:44px;border-radius:22px}
+  .guide .g-switch{min-height:44px}
+  .guide .g-steps a{min-width:44px;justify-content:center}
+  .g-mode a{display:inline-flex;align-items:center;min-height:44px}
+}

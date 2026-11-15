@@ -224,6 +224,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .side-links a{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
 .side-links a:hover{color:var(--ink)}
 .side-links svg.i{width:16px;height:16px}
+@media (pointer:coarse){.side-links a{min-height:44px}}
 .au-val .xb{display:block;font-size:12px;color:var(--signal-ink);font-weight:500}
 .au-val .xb.vs-same,.au-val .xb.vs-below{color:var(--cap)}
 .legend.flush{margin-left:0}
@@ -234,6 +235,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .heads{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
 .heads li{padding:11px 0;border-bottom:1px solid var(--rule);display:grid;gap:3px}
 .heads .out{font-size:13px;color:var(--cap)}
+.heads .out time{white-space:nowrap}
 .heads a,.heads li>span:last-child{font:400 16px/1.4 var(--serif);color:var(--ink);text-decoration:none}
 .heads a:hover{text-decoration:underline}
 .coord p{margin:0 0 6px}

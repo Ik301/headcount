@@ -474,7 +474,7 @@ function Reveal({ a, call, r100, last, onNext, onStop }: { a: Acct; call?: Call;
         {r100 != null && (
           <>
             {" "}
-            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(2)}).
+            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(3)}).
           </>
         )}{" "}
         A score is a sign, not proof, and never says who runs an account.
