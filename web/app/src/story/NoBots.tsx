@@ -22,7 +22,7 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
   const moved = N.map((n) => ({ n, from: before.indexOf(n.id) + 1, to: after.indexOf(n.id) + 1 })).filter((x) => x.from !== x.to);
 
   const fallback = top
-    ? `${pct(top.bot)} of posts in “${top.label}”${top.ci ? ` (95% interval ${ci(top.ci)})` : ""} came from likely automated accounts${ratio(top) ? `, ${ratio(top)!.toFixed(1)} times the story’s baseline` : ""}.${
+    ? `${pct(top.bot)} of posts in “${top.label}”${top.ci ? ` (95% interval ${ci(top.ci)})` : ""} came from likely automated accounts, the highest point estimate${m.baseline != null && top.ci && top.ci[0] <= m.baseline ? "; the interval overlaps the story baseline, so it is suggestive only" : ""}.${
         moved.length ? ` Without them, “${moved[0].n.label}” moves from ${ordinal(moved[0].from)} to ${ordinal(moved[0].to)}.` : " Without them, the ranking does not change."
       }`
     : undefined;

@@ -244,11 +244,15 @@ function Where({ m, g, openDrawer, explore }: ChapterProps) {
   const base = g.baseline?.share;
   const d = g.defend;
   const dv = d && base != null ? against(d.ci, base) : null;
+  const topVs = base != null ? against(top.ci, base) : null;
   const newsy = N.slice(0, 3).every((n) => n.side === "neutral_news");
   const wapo = g.events.find((e) => /washington post/i.test(e.label)) || g.findings.wapo;
   const headline =
     newsy && d && dv && dv !== "above" ? (
-      <>Automation was highest in posts relaying the news, up to {pc(top.bot)}, and no higher than usual in posts defending Huang.</>
+      <>
+        Posts relaying the news had the highest point estimates, up to {pc(top.bot)}
+        {topVs === "above" ? "" : " (suggestive: the interval overlaps the story-wide share)"}. Posts defending Huang were no higher than usual.
+      </>
     ) : (
       <>
         Likely automated accounts wrote {pc(top.bot)} of “{top.label}” posts, and {pc(low.bot)} of “{low.label}” posts.

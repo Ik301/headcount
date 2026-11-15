@@ -296,6 +296,10 @@ export interface SiteData {
   public_accounts?: { handle: string; narratives?: string[]; p_automated?: number; top_posts?: unknown[] }[];
   validation?: {
     recall_at_k?: Record<string, number>;
+    /** spread (sd) of recall_at_k across the report's splits, when recall_at_k is a mean */
+    recall_at_k_sd?: Record<string, number> | null;
+    recall_splits?: number | null;
+    recall_at_k_one_split?: Record<string, number>;
     retrieval_recall_at_k?: Record<string, number>;
     ablation?: Record<string, unknown>;
     gold_accuracy?: number | null;

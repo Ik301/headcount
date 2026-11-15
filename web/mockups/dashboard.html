@@ -274,7 +274,7 @@ dd .mono{font-size:12.5px}
   <div class="sample"><span class="mono">Check JH-1112</span> · data through Nov 13, 23:59 UTC · Mockup with sample data.</div>
   <div class="meta">
     <span><b>46,656</b>posts</span>
-    <span><b>20,482</b>accounts</span>
+    <span><b>20,495</b>accounts</span>
     <span><b>380,164</b>likes, reposts and quotes</span>
     <span><b>4.1%</b>likely automated (story baseline)</span>
   </div>
@@ -410,7 +410,7 @@ dd .mono{font-size:12.5px}
           <dt>Platform</dt><dd>Bluesky public API, no login, no private data.</dd>
           <dt>Window</dt><dd class="mono">2026-11-05 00:00 to 11-13 23:59 UTC</dd>
           <dt>Posts</dt><dd><span class="mono">46,656</span> from keyword and link search</dd>
-          <dt>Accounts</dt><dd><span class="mono">20,482</span> authors and engagers</dd>
+          <dt>Accounts</dt><dd><span class="mono">20,495</span> authors and engagers</dd>
           <dt>Engagement</dt><dd><span class="mono">380,164</span> likes, reposts and quotes</dd>
           <dt>Self-labels</dt><dd><span class="mono">287</span> accounts carry a bot label; counted apart from model scores</dd>
           <dt>Events</dt><dd>Times from WSJ, the Nvidia filing and the Washington Post</dd>
@@ -629,7 +629,7 @@ function setT(h) {
   $('#now').innerHTML = dateStr(T) + '<small>UTC</small>';
   let P = 0, A = 0, p6 = 0, a6 = 0;
   N.forEach(n => { const p = cum(n.p, T), a = cum(n.a, T); P += p; A += a; p6 += p - cum(n.p, Math.max(0, T - 6)); a6 += a - cum(n.a, Math.max(0, T - 6)); $('#np-' + n.k).textContent = fmt(p); $('#na-' + n.k).textContent = p > 0 ? (a / p * 100).toFixed(1) + '%' : '·'; });
-  $('#s-posts').textContent = fmt(P); $('#s-accts').textContent = fmt(vis / nodes.length * 20482);
+  $('#s-posts').textContent = fmt(P); $('#s-accts').textContent = fmt(vis / nodes.length * 20495);
   $('#s-auto').textContent = p6 > 0 ? (a6 / p6 * 100).toFixed(1) + '%' : '·';
   $('#gcount').textContent = `${vis} of ${nodes.length} sampled accounts visible. Dots sized by followers; click a cluster for evidence.`;
 }

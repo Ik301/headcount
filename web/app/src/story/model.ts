@@ -284,7 +284,7 @@ function findingKey(text: string, i: number): string {
   if (t.includes("washington post")) return "wapo";
   if (t.includes("archetype")) return "archetype";
   if (t.includes("headline") && t.includes("hedge")) return "news";
-  if (t.includes("most automated narrative")) return "spread";
+  if (t.includes("highest point estimate") || t.includes("most automated narrative")) return "spread";
   if (t.startsWith("removing")) return "without";
   if (t.includes("posts about the story")) return "story";
   return `f${i}`;

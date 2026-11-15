@@ -11,14 +11,14 @@ Built at HackPrinceton Fall 2026 for the Arlequin AI track, Social Media Analysi
 - Spot the automation, a game with 20 real accounts: https://demoyk.com/challenge
 - You can also text the agent a claim over iMessage (Photon). The number is on the Devpost page and in the demo.
 
-![Findings from the Jensen Huang week: automation relays the news and does not defend Huang](docs/architecture/04-findings.png)
+![Findings from the Jensen Huang week: no bot campaign defends Huang](docs/architecture/04-findings.png)
 
 ## What we found
 
-We ran it on the week Jensen Huang left Nvidia (Nov 5 to 13, 2026): 46,656 Bluesky posts from about 20,500 accounts, plus the last 50 posts of each account.
+We ran it on the week Jensen Huang left Nvidia (Nov 5 to 13, 2026): 46,656 Bluesky posts from 20,495 accounts, plus the last 50 posts of each account.
 
 - 4.5% of story posts (95% interval 3.1% to 6.2%) come from likely automated accounts. The Washington Post reported that "online bots" were defending Huang. On Bluesky that does not show: Defending Huang is 4.8% (2.0% to 8.7%), not different from the baseline.
-- Automation concentrates in the narratives that relay news. Board, resignation and succession is highest at 7.7% (5.1% to 11.0%). The order holds at all four score cutoffs we tried.
+- Among narratives, board, resignation and succession has the highest point estimate at 7.7% (5.1% to 11.0%), against the 4.5% baseline. The intervals overlap, so we call that suggestive, not a clear difference. Jokes and memes are clearly lowest at 0.4%. The order of the point estimates holds at all four score cutoffs we tried.
 - Caution gets lost in the retelling. 54% of newsroom spy-claim headlines hedge ("alleged", "suspected", "claims"). Bluesky posts that share a link keep it (50%). Posts in people's own words mostly drop it (29%).
 
 We also tested whether some kind of real account is more likely to amplify automation. After matching on narrative, time window, reach and activity, none was. That null result is in the report.

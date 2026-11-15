@@ -47,7 +47,7 @@ One line for the pitch: volume is not consensus. We show how much of the volume 
 ## Features (MVP)
 
 - Any-story live check on Bluesky (search, narratives, automation scores, amplifiers) in under 60 s.
-- Deep demo story: Jensen Huang leaving Nvidia, Nov 5 to 13, 2026: 46,656 posts, 20,482 accounts, 380,164 likes, reposts and quotes, 287 self-labeled bots.
+- Deep demo story: Jensen Huang leaving Nvidia, Nov 5 to 13, 2026: 46,656 posts, 20,495 accounts, 380,164 likes, reposts and quotes, 287 self-labeled bots.
 - Narratives with a side (defends Huang, attacks Huang, neutral news, humor). Fixed taxonomy for the demo story: spy plot and national security; the affairs as personal misconduct; Trump and politics; board, resignation and succession; stock, market and lawsuits; defending Huang; jokes and memes.
 - Likely-automated share per narrative with a 95% interval, a baseline, and a sensitivity strip at four score cutoffs (0.3, 0.5, 0.7, 0.9).
 - "Story without the bots": the narrative ranking recomputed with likely automated accounts and their engagement removed.

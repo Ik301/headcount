@@ -39,7 +39,7 @@ Type: "Newsreader" (Google Fonts) for headlines and big numbers, "IBM Plex Sans"
 
 ## Sample data (use these numbers; they are sample data)
 
-Demo story: Jensen Huang leaving Nvidia, Nov 5 to 13, 2026. 46,656 Bluesky posts, 20,482 accounts, 380,164 likes, reposts and quotes. Baseline likely-automated share across the story: 4.1%.
+Demo story: Jensen Huang leaving Nvidia, Nov 5 to 13, 2026. 46,656 Bluesky posts, 20,495 accounts, 380,164 likes, reposts and quotes. Baseline likely-automated share across the story: 4.1%.
 
 Events: Nov 5 congressional briefing request; Nov 8 Huang admits affair, board probe; Nov 11 22:43 UTC WSJ reports board preparing to oust him; Nov 12 13:55 UTC resignation, CFO Colette Kress interim CEO; Nov 12 20:15 UTC Washington Post reports "online bots" defending him.
 

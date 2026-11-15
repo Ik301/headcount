@@ -12,7 +12,7 @@ Line to land: volume is not consensus.
 
 ## The 2-minute demo
 
-1. (10 s) "Jensen Huang resigned November 12. Bluesky had 46,656 posts about it from 20,482 accounts. How much of that was real?"
+1. (10 s) "Jensen Huang resigned November 12. Bluesky had 46,656 posts about it from 20,495 accounts. How much of that was real?"
 2. (30 s) Dashboard replay: the network builds hour by hour; likely automated accounts in red; the three events on the timeline (WSJ ouster report, resignation, the Post's bots report).
 3. (20 s) The story without the bots: bars per narrative with the likely automated share; flip the toggle and the ranking changes. The cutoff strip shows the result does not depend on where we drew the line.
 4. (20 s) The news baseline: 54% of these outlets' spy headlines hedge ("alleged", "suspected", "claims"). On Bluesky, posts that share a link mostly keep the headline's wording (50% hedge), but posts written in people's own words drop it: 29% hedge. The caution survives the share button and disappears in the retelling. The only "smear campaign" headlines in that coverage attribute the claim to Beijing.
@@ -57,7 +57,7 @@ Who built what: Hermes (Isaac's agent on his VM) runs the data pipeline, narrati
 
 ### 1. Data
 
-All public, read-only, no login. For the Jensen week (Nov 5 to 13): 46,656 posts mentioning him, 20,482 accounts, the last 50 posts of every one of those accounts (about 1 million posts), and 380,164 likes, reposts and quotes on the story posts. `make data` rebuilds it from scratch in about 15 minutes. For any other story, the live path searches Bluesky at the moment you ask.
+All public, read-only, no login. For the Jensen week (Nov 5 to 13): 46,656 posts mentioning him, 20,495 accounts (20,482 returned a profile and are scored), the last 50 posts of every one of those accounts (about 1 million posts), and 380,164 likes, reposts and quotes on the story posts. `make data` rebuilds it from scratch in about 15 minutes. For any other story, the live path searches Bluesky at the moment you ask.
 
 ### 2. Narratives
 
@@ -121,14 +121,14 @@ Across the story, 4.5% of posts (3.1 to 6.2%) come from likely automated account
 | Trump and politics | 3,732 | 3.3% (1.7 to 5.6%) |
 | Jokes and memes | 10,421 | 0.4% (0.2 to 0.6%) |
 
-The finding: on Bluesky, automation is not defending Huang. It concentrates in the narratives that relay news (board, market, spy plot), at up to 1.7 times the baseline, while posts defending him are 4.8% likely automated (2.0 to 8.7%), not different from the 4.5% baseline. The Washington Post's "online bots" defending him (reported on X) do not show up on Bluesky. Caveat to say out loud: the model learned from self-labeled bots, which are mostly news-relay feeds, so it is best at that kind of automation; campaign-style accounts show up through the coordination evidence. The ranking holds at all four cutoffs.
+The finding: on Bluesky, automation is not defending Huang. The narratives that relay news (board, market, spy plot) have the highest point estimates, up to 7.7% for board and succession (5.1 to 11.0%), but their intervals overlap the 4.5% baseline, so say "suggestive", not "1.7 times". Jokes and memes are clearly lowest at 0.4%. Posts defending him are 4.8% likely automated (2.0 to 8.7%), not different from the 4.5% baseline. The Washington Post's "online bots" defending him (reported on X) do not show up on Bluesky. Caveat to say out loud: the model learned from self-labeled bots, which are mostly news-relay feeds, so it is best at that kind of automation; campaign-style accounts show up through the coordination evidence. The ranking of point estimates holds at all four cutoffs.
 
 ## Why it fits each prize
 
 Arlequin Track 2 (content and connectivity):
 - Both layers matter: narratives and repetition come from content; coordination, amplification and the replay come from who interacts with whom. The ablation is in the method view.
 - Sound pipeline with metrics: recall@k on held-out bots against a baseline; claim retrieval recall@20 = 0.787 on Muse's first 20 hand-checked claims with the adopted embedding plus keyword hybrid (0.646 on all 50; embeddings alone: 0.575); narrative agreement with hand labels pending.
-- Non-obvious insight: the hedge survives when people share a link and disappears when they retell it in their own words; automation relays news instead of defending Huang; no type of real account stands out as an amplifier once you match on narrative.
+- Non-obvious insight: the hedge survives when people share a link and disappears when they retell it in their own words; no bot campaign defending Huang shows up on Bluesky; no type of real account stands out as an amplifier once you match on narrative.
 - Efficient compute: CPU only, small embedding model, one cheap language-model call per 25 posts; a live check runs in under a minute.
 - Responsible data: public API only, read-only, private accounts never named, no truth verdicts.
 

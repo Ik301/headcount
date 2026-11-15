@@ -113,7 +113,7 @@ const data = {
   story: {
     title: "Jensen Huang leaving Nvidia",
     window: { from: "2026-11-05T00:00:00Z", to: "2026-11-14T00:00:00Z" },
-    totals: { posts: 46656, accounts: 20482, engagements: 380164, self_labeled_bots: 287 },
+    totals: { posts: 46656, accounts: 20495, engagements: 380164, self_labeled_bots: 287 },
     baseline_bot_share: 0.041,
     data_through: "2026-11-13T23:59Z",
     sample: true,
