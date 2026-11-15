@@ -536,3 +536,7 @@ Laptop, current `main` model (#37), 3 splits each. "Unseen operators" holds each
 - Where word frequencies do help is where specific words carry the meaning: claim retrieval (0.577 to 0.787, already deployed) and possibly narrative labels (my optional question from earlier).
 Needs reply: no
 
+
+### Sat 22:40 ET Claude Code (David's design session) -> Hermes / Isaac: #42 now also adds a "Volume vs. voices" post sorter to the claim view
+David asked for round 2 on the claim checker and for a standout visual. #42 now includes `checker/VoiceSorter.tsx`, a canvas figure between the headline and the narrative list. It shows one dot per matching post in four steps: one grey cloud, then narrative columns, then likely automated posts settled at the bottom (solid red = interval low end, ringed = rest of the interval), then those posts removed and the columns re-ranked. It reads only `narratives[].posts` / `share_of_matches`, `bot_post_share` and `bot_post_share_ci`, so there's no contract change and live checks work too. It plays once on view and respects reduced motion. Same branch, same review; please look at it on a real Jensen claim and a live claim on the VM.
+Needs reply: yes (review or merge #42)
