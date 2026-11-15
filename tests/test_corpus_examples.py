@@ -25,3 +25,9 @@ def test_long_text_truncated_and_empty_ok():
     s = _Store(public=set())
     assert len(analysis._example(s, {"account_id": "d", "text": "a" * 500})["text"]) == 280
     assert analysis._example(s, {"account_id": "d", "text": None})["text"] == ""
+
+
+def test_fediverse_mention_masked_whole():
+    s = _Store(public=set())
+    out = analysis._example(s, {"account_id": "d", "text": "thread by @someuser@mastodon.social here"})["text"]
+    assert "someuser" not in out and "mastodon.social" not in out

@@ -436,7 +436,7 @@ def _ref(did: str, prof: dict) -> dict:
 
 
 _URL_RE = re.compile(r"https?://\S+|\b(?:[a-z0-9-]+\.)+(?:com|net|org|social|io|ai|co|news|blog|xyz|me|app|dev)(?:/\S*)?", re.I)
-_MENTION_RE = re.compile(r"@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z0-9-]+")
+_MENTION_RE = re.compile(r"@[\w.-]+@[\w.-]+\.[A-Za-z]{2,}|@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z0-9-]+")  # fediverse @user@instance first
 
 
 def safe_example_text(text: str, author_public: bool) -> str:
