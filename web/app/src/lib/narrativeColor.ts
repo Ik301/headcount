@@ -1,6 +1,7 @@
 /* Narrative colours: the fixed demo taxonomy gets the brief's tokens; anything else (live checks)
  * cycles through the same muted set in order of appearance. */
 const BY_ID: Record<string, string> = {
+  n0: "var(--n-none)",
   n1: "var(--n-spy)",
   n2: "var(--n-affairs)",
   n3: "var(--n-politics)",
@@ -10,10 +11,11 @@ const BY_ID: Record<string, string> = {
   n7: "var(--n-jokes)",
 };
 const HEX: Record<string, string> = {
-  "var(--n-spy)": "#4B4F93",
+  "var(--n-none)": "#AEB5AA",
+  "var(--n-spy)": "#34488C",
   "var(--n-affairs)": "#A8772A",
   "var(--n-politics)": "#5B7A2C",
-  "var(--n-board)": "#8A6446",
+  "var(--n-board)": "#6F5E96",
   "var(--n-market)": "#2C7C86",
   "var(--n-defend)": "#C0612B",
   "var(--n-jokes)": "#7C867F",

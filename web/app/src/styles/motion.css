@@ -36,3 +36,7 @@
 @media (prefers-reduced-motion:reduce){
   .in,.h-rise,.in-wipe,.grow,.hatch-in,.stamp,.drop{animation:c-fade 180ms ease-out both!important;animation-delay:0ms!important}
 }
+
+/* blocks below the fold play their entrance when scrolled into view (lib/motion.ts useReveal) */
+.reveal.is-armed :is(.in,.in-wipe,.grow,.hatch-in,.stamp,.drop,.g-hatch,.g-dot){animation-play-state:paused}
+.reveal:not(.is-armed):not(.is-live) :is(.in,.in-wipe,.grow,.hatch-in,.stamp,.drop,.g-hatch,.g-dot){animation:none}

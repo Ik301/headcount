@@ -1,4 +1,4 @@
-import { seq } from "../../lib/motion";
+import { seq, useReveal } from "../../lib/motion";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Narr } from "../model";
 import { pc, type Arch, type HedgeRow } from "./data";
@@ -99,8 +99,9 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
   const L = 8, R = 8, H = 34;
   const x = (v: number) => L + (v / max) * (w - L - R);
   const ticks = niceTicks(max).filter((t) => t <= max);
+  const [rv, rvCls] = useReveal<HTMLDivElement>();
   return (
-    <div className="g-rows" role="table" aria-label="Share of posts from likely automated accounts, by narrative, with 95% intervals">
+    <div ref={rv} className={`g-rows ${rvCls}`} role="table" aria-label="Share of posts from likely automated accounts, by narrative, with 95% intervals">
       {narr.map((n, i) => {
         // Reuters-style: the verdict is drawn, not left to the reader. Solid when the interval clears the
         // whole-story line, hollow and lighter when it doesn't, and the words say which.

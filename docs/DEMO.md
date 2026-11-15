@@ -425,6 +425,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 23:10: design round 4, stacked on #42: "returns desk" world documented in `DESIGN.md` (tally-sheet paper, magenta reserved for likely automated, counting-room green landing band), Schibsted Grotesk + Fragment Mono replace Newsreader / IBM Plex, narratives on the claim view as a returns table with a call column, "the count comes in" entrance motion with a reduced-motion path, chapter kickers removed; numbers, copy claims and data unchanged (Hermes, `hermes/design-r2`).
 - Sat 21:50: design round 1 on `/story`, the claim view, explore and `/challenge`: chapter kickers, a source line under every chart, interval verdicts in words, chapter 2 compact grid with the cutoff check beside it; fixes for the chapter 5 lift chart (NaN when an interval starts at 0), explore river label overlap (bug 22), the checker hero losing its padding at 1080 px and up, and empty `/challenge` stat boxes; redaction placeholders styled (Claude Code for David, `claude/design-r1`).
 - Sat 21:30: challenge mode built at `/challenge` (fallback 1); export reads the VM evaluation reports and M5's matched archetypes, ships the news module's hedging split (54% news, 50% link, 29% own words), masks every @mention that isn't a nameable Bluesky account (Hermes, `hermes/export-fixes`).
 - Sat 17:05: the "why" pitch spine; news baseline (H10) from wire services and public broadcasters (Isaac's request) (Hermes).

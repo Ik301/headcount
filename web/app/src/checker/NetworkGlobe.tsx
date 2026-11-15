@@ -4,8 +4,8 @@ import type { GraphEdge, GraphNode } from "../api/types";
 
 /* The checker's hero: the real Jensen Huang story network (site_data.json graph: the accounts the replay
  * draws and who engaged with whom) on a slowly turning globe. Likely automated accounts (score 0.5+) are
- * magenta; everything else is a quiet pale point. On load the accounts come in from the top of the globe
- * down, like returns reporting in (static under reduced motion). Positions on the sphere are arbitrary; the caption says so.
+ * magenta; everything else is a quiet pale point. On load the accounts come in from the bottom of the globe
+ * up (the tilt puts the first latitude at the bottom), like a count filling in (static under reduced motion). Positions on the sphere are arbitrary; the caption says so.
  * mode "scan" (while a check runs) turns faster and sweeps a band across the globe. It never turns anything
  * magenta during a scan: that would suggest results the check hasn't returned. No handles are drawn. */
 
@@ -85,7 +85,7 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
     const ctx = c.getContext("2d")!;
     let raf = 0, angle = 0.6, last = performance.now(), speed = 0.07;
     const t0 = performance.now();
-    // arrival 0..1 per node: top latitude first, 1.3 s for the whole globe, 260 ms per node
+    // arrival 0..1 per node: one latitude after another (bottom first on screen), 1.3 s for the globe, 260 ms per node
     const arrive = (k: number, now: number) => (reduced ? 1 : Math.max(0, Math.min(1, (now - t0 - 120 - k * 1300) / 260)));
     const tilt = 0.38;
     const draw = (now: number) => {

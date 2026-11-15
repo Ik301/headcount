@@ -20,13 +20,14 @@
   /* the counting-room band: the checker's landing and running screens */
   --band: #10261F;
 
-  --n-spy: #4B4F93;
+  --n-spy: #34488C;
   --n-affairs: #A8772A;
   --n-politics: #5B7A2C;
-  --n-board: #8A6446;
+  --n-board: #6F5E96;
   --n-market: #2C7C86;
   --n-defend: #C0612B;
   --n-jokes: #7C867F;
+  --n-none: #AEB5AA;        /* posts that fit no narrative */
 
   /* One family for every word and figure; the mono only for receipts, timestamps and ids. */
   --serif: "Schibsted Grotesk Variable", "Helvetica Neue", Arial, sans-serif; /* display role */

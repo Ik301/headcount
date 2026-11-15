@@ -131,6 +131,6 @@ Design round 1 conventions (`[demo]` PR from `claude/design-r1`):
 - `src/styles/checker.css`: everything under `.checker` (ported from the checker mockup).
 - `src/styles/story.css`: everything under `.story` (ported from the dashboard mockup; the 1440×900 fixed frame became a scrolling page with a 1100 px minimum width).
 - Canvas colours for the network are hex constants at the top of `Network.tsx`; narrative colours live in `src/lib/narrativeColor.ts` (`n1` to `n7` map to the brief's narrative tokens; other ids cycle through the same set).
-- Fonts are self-hosted through `@fontsource` (Newsreader, IBM Plex Sans, IBM Plex Mono), so the app works offline at the judging table.
+- Fonts are self-hosted through `@fontsource` (Schibsted Grotesk variable and Fragment Mono, both SIL OFL 1.1), so the app works offline at the judging table. Design tokens, type and motion rules: `DESIGN.md` at the repo root.
 
 Why canvas and not sigma.js: the export caps the replay graph at about 3,000 nodes, which canvas 2D draws at 60 fps; it renders in headless screenshots without GPU flags; and the node styling (rings, dashed self-labels, amplifier colour change) is a few lines of plain code. Swapping in sigma later only touches `Network.tsx`.

@@ -11,7 +11,7 @@ import { Redacted } from "../components/Redacted";
 import { VoiceSorter } from "./VoiceSorter";
 import { CountUp } from "../components/CountUp";
 import { Receipt, type ReceiptLine } from "../components/Receipt";
-import { seq } from "../lib/motion";
+import { seq, useReveal } from "../lib/motion";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -202,8 +202,9 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
   const max = Math.max(0.1, baseline ?? 0, ...narr.map((n) => n.bot_post_share_ci?.[1] ?? n.bot_post_share)) * 1.15;
   const pos = (v: number) => `${Math.min(100, (v / max) * 100)}%`;
   const word = countWord(narr.length);
+  const [rv, rvCls] = useReveal<HTMLElement>();
   return (
-    <section className="blk narr" aria-labelledby="narr-h">
+    <section ref={rv} className={`blk narr ${rvCls}`} aria-labelledby="narr-h">
       <h2 id="narr-h">{narr.length === 1 ? "One way people are telling it" : `${word} ways people are telling it`}</h2>
       <p className="sub">Share of all {fmtInt(r.matched_posts)} matching posts, then the share written by likely automated accounts.</p>
       <div className="stack" role="img" aria-label={narr.map((n) => `${n.label} ${pct(n.share_of_matches)}`).join(", ")}>
@@ -282,8 +283,9 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
 
 function CommonBlock({ r, top }: { r: ClaimResult; top: ClaimNarrative | null }) {
   const items = r.bot_commonalities ?? [];
+  const [rv, rvCls] = useReveal<HTMLElement>();
   return (
-    <section className="blk common" aria-labelledby="common-h">
+    <section ref={rv} className={`blk common ${rvCls}`} aria-labelledby="common-h">
       <h2 id="common-h">What the likely automated accounts have in common</h2>
       {items.length ? (
         <>
@@ -313,8 +315,9 @@ function AmpBlock({ r }: { r: ClaimResult }) {
   const mix = a?.archetype_mix ?? [];
   const maxL = Math.max(3, ...mix.map((m) => m.lift_ci?.[1] ?? m.lift ?? 0)) * 1.1;
   const x = (v: number) => `${Math.min(100, (v / maxL) * 100)}%`;
+  const [rv, rvCls] = useReveal<HTMLElement>();
   return (
-    <section className="blk amp" aria-labelledby="amp-h">
+    <section ref={rv} className={`blk amp ${rvCls}`} aria-labelledby="amp-h">
       <h2 id="amp-h">Who amplifies them</h2>
       {a && a.n_humans > 0 && mix.length ? (
         <>
