@@ -9,8 +9,10 @@ and for each new text: typing indicator, "checking" text, POST /agent, the answe
 attachment, then the menu text (numbered follow-ups and the dashboard link). Replies reuse the incoming space.id and receivedBy.id with a stable
 idempotency key per incoming message, as the Photon docs require. Never answers its own outbound messages.
 """
+import json
 import os
 import sys
+import uuid
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -49,12 +51,23 @@ def send_text(photon: Photon, project: str, space: str, sender: str, parent: str
     )
 
 
+def multipart_related(png: bytes, filename: str = "chart.png", content_type: str = "image/png") -> tuple[str, bytes]:
+    """Photon's uploadAttachment wants exactly two parts: JSON metadata (contentType, sizeBytes, filename), then the file bytes."""
+    boundary = uuid.uuid4().hex
+    meta = json.dumps({"contentType": content_type, "sizeBytes": len(png), "filename": filename})
+    body = (
+        f"--{boundary}\r\nContent-Type: application/json\r\n\r\n{meta}\r\n--{boundary}\r\nContent-Type: {content_type}\r\n\r\n"
+    ).encode() + png + f"\r\n--{boundary}--\r\n".encode()
+    return f'multipart/related; boundary="{boundary}"', body
+
+
 def send_image(photon: Photon, project: str, space: str, sender: str, parent: str, key: str, png: bytes) -> None:
+    ctype, body = multipart_related(png)
     att = photon.projects.upload_attachment(
         UploadAttachmentInput(
             path=UploadAttachmentPath(id=project),
-            headers=UploadAttachmentHeader(content_length=str(len(png)), content_type="image/png", idempotency_key=key + ":upload"),
-            body=png,
+            headers=UploadAttachmentHeader(content_length=str(len(body)), content_type=ctype, idempotency_key=key + ":upload"),
+            body=body,
         )
     )
     photon.projects.send_message(
