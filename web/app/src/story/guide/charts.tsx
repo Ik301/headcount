@@ -92,7 +92,7 @@ function niceTicks(max: number): number[] {
 
 /* ---------------- likely automated share by narrative ---------------- */
 
-export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline?: number; note?: Record<string, string> }) {
+export function NarrativeRows({ narr, baseline, baselineCi, note }: { narr: Narr[]; baseline?: number; baselineCi?: [number, number]; note?: Record<string, string> }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
   const hid = safeId(useId());
   const max = Math.max(0.05, ...narr.map((n) => n.ci?.[1] ?? n.bot), (baseline ?? 0) * 1.4) * 1.08;
@@ -105,7 +105,10 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
       {narr.map((n, i) => {
         // Reuters-style: the verdict is drawn, not left to the reader. Solid when the interval clears the
         // whole-story line, hollow and lighter when it doesn't, and the words say which.
-        const v = baseline != null && n.ci ? (n.ci[0] > baseline ? "above" : n.ci[1] < baseline ? "below" : "same") : null;
+        // "above"/"below" only when the narrative's interval clears the whole-story interval, not just its point
+        // estimate (red-team R-08: board 5.1-11.0% vs story 3.1-6.2% is suggestive, not a clear difference).
+        const hiB = baselineCi?.[1] ?? baseline, loB = baselineCi?.[0] ?? baseline;
+        const v = baseline != null && n.ci ? (n.ci[0] > hiB! ? "above" : n.ci[1] < loB! ? "below" : "same") : null;
         const solid = v !== "same";
         return (
           <div key={n.id} className={`g-row in-wipe is-${v ?? "na"}`} style={seq(i, 160)} role="row">
