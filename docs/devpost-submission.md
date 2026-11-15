@@ -37,7 +37,7 @@ Our first idea, Narrative Range, was an open training range for information oper
 
 You text a claim to an iMessage line, or type it into the web checker. Headcount finds the matching Bluesky posts (from our corpus of 46,656 posts from 20,495 accounts, Nov 5 to 13, 2026, or from a live search for any other story), groups them into narratives, scores each account for automation, and reports the likely automated share of each narrative with a 95% interval and the story-wide baseline. It sets the result beside what wire services and public broadcasters reported.
 
-The text reply leads with the whole claim. For "Was Jensen Huang's mistress a Chinese spy?" it says 2% of the 443 matching posts come from likely automated accounts, against 4.5% for the story overall. The web checker leads with the largest narrative it can measure, here the spy plot at 4%, which is not clearly different from the baseline. Headcount never rules on whether a claim is true and never says who runs an account. Private accounts are counted and never named.
+The text reply leads with the whole claim. For "Was Jensen Huang's mistress a Chinese spy?" it says 2% of the 443 matching posts come from likely automated accounts, against 4.5% for the story overall. The web checker leads with the largest narrative it can measure, here the spy plot at 4%, which is not clearly different from the baseline. On the phone, the answer comes as three bubbles: two lines of text, one image card with the narratives and the newsroom comparison, and a numbered menu (reply 1 to 4 for what people are saying, what the automated accounts share, who spreads them, and how newsrooms covered it). The site also has a guided six-chapter story of the Huang week and a game where you try to spot the automated accounts before the model does. Headcount never rules on whether a claim is true and never says who runs an account. Private accounts are counted and never named.
 
 ## How we built it
 
@@ -138,6 +138,6 @@ Python, FastAPI, polars, PyArrow, NumPy, scikit-learn, sentence-transformers (bg
 - Try it out links: https://demoyk.com (web checker at /, story at /story, game at /challenge); https://github.com/Ik301/headcount
 - Video demo link: PLACEHOLDER (YouTube or Vimeo URL after upload; backup clips are in `web/app/recordings/`)
 - Tracks to select: Entertainment and Media (main); Arlequin AI Track 2 (content and connectivity); Photon (messaging agent); LangChain (deepagents); ChatOverflow Agent Leaderboard (nothing to submit)
-- Team members: Isaac Kang (Ik301), David (DHyukjuK), ch4nbin, [fourth teammate]
+- Team members: Isaac Kang (Ik301), David Kwon (DHyukjuK), Chanbin Park (ch4nbin)
 - Image gallery: the claim card PNG (`/claim/<id>/chart.png`), the post sorter, the story dashboard, the architecture diagram (docs/architecture.html)
 - Judge instructions for the text line: scan the table QR, enter your iMessage number on /join, then text a claim to the number it shows
