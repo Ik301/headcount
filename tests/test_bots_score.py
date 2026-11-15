@@ -93,3 +93,20 @@ def test_missing_model_falls_back_to_stub(tmp_path):
     prof, items = make_account(3, False)
     out = S.score_accounts(m, [prof], {prof["did"]: items})
     assert out[0]["did"] == prof["did"]
+
+
+def test_handcheck_only_quoted_for_the_reviewed_list(tmp_path):
+    import csv, json
+    from src.bots.train import handcheck_lines, list_fingerprint
+
+    hc = tmp_path / "handcheck.csv"
+    with open(hc, "w", newline="") as f:
+        w = csv.writer(f); w.writerow(["rank", "account", "p_automated", "verdict"])
+        for i in range(10):
+            w.writerow([i + 1, "private account", 1.0, "automated: news feed" if i < 9 else "unclear: x"])
+    fp = list_fingerprint([f"did:plc:{i}" for i in range(10)])
+    (tmp_path / "handcheck_meta.json").write_text(json.dumps({"list_fingerprint": fp, "model_version": "v-test"}))
+    same = "\n".join(handcheck_lines(hc, fp))
+    assert "9 of 10" in same
+    other = "\n".join(handcheck_lines(hc, list_fingerprint(["did:plc:x"])))
+    assert "have not been hand-checked" in other and "v-test" in other

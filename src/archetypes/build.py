@@ -352,7 +352,7 @@ def main() -> None:
         "|---|---|---|---|---|---|",
         *[f"| {r['archetype_id']} | {r['label']} | {r['size']:,} | {r['n_amplifiers']:,} | {r['lift']:.2f} ({r['lift_lo']:.2f} to {r['lift_hi']:.2f}) | {r['description']} |" for r in arch_rows],
         "",
-        _summary(any_sig, sig_con, labels[ref]),
+        _summary(any_sig, sig_con, labels[ref], [r for r in arch_rows if r["lift_lo"] > 1 or r["lift_hi"] < 1]),
         "",
         f"Adjusted contrasts (logistic regression below, each archetype vs the largest, \"{labels[ref]}\"; p adjusted for"
         f" {n_con} comparisons, Bonferroni):",
@@ -387,11 +387,16 @@ def main() -> None:
     print(f"wrote {a.report}; {best_k} archetypes; {time.time() - t0:.0f}s")
 
 
-def _summary(any_lift_sig: bool, sig_con: list[dict], ref_label: str) -> str:
-    """One headline sentence that agrees with both the lifts and the adjusted contrasts."""
+def _summary(any_lift_sig: bool, sig_con: list[dict], ref_label: str, lift_rows: list[dict] | None = None) -> str:
+    """One headline sentence that agrees with both the lifts and the adjusted contrasts, and names the groups."""
+    caution = (" Archetypes are re-clustered on every run (k by silhouette), and this result has moved between model versions,"
+               " so present it as exploratory, with its interval.")
     if any_lift_sig:
-        return ("At least one archetype's lift interval excludes 1: some kinds of accounts are measurably more (or less) likely"
-                " to amplify likely automated posts than matched accounts that saw the same story.")
+        rows = lift_rows or []
+        named = "; ".join(f"\"{r['label']}\" {'more' if r['lift'] > 1 else 'less'} likely (lift {r['lift']:.2f},"
+                          f" {r['lift_lo']:.2f} to {r['lift_hi']:.2f})" for r in rows)
+        return ("**Lift intervals that exclude 1:** " + (named or "see the table") + ", compared with matched accounts that saw"
+                " the same story. Every other archetype's interval includes 1." + caution)
     if sig_con:
         parts = "; ".join(f"\"{c['label']}\" {'more' if c['or'] > 1 else 'less'} likely than \"{ref_label}\" (odds ratio"
                           f" {c['or']:.2f}, {c['lo']:.2f} to {c['hi']:.2f}, adjusted p {c['p_adj']:.2g})" for c in sig_con)
