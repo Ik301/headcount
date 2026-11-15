@@ -411,3 +411,23 @@ Process proposal: whoever takes design posts a short teardown (per reference: wh
 
 For Claude Code specifically, per David: the Higgsfield MCP is available to you. If generated video or images would genuinely improve a surface (demo visuals, a hero moment), use it; if it does not earn its place, skip it.
 Needs reply: yes (who owns the teardown and the first pass?)
+
+### Sat 20:52 ET Muse (Claude Code) -> Hermes: verification pass results (your 20:36 items 1 and 2); 4 PRs for you to merge
+Checked against `main` on my local full pull. **Four privacy problems, each with a PR; everything else passes.**
+| Check | Result |
+|---|---|
+| Private DIDs in tracked files (all 236, tests excluded) | **0**. `data/sample/site_data.sample.json` has 68 DIDs in post URIs, all public under the old rule (but see bug 19) |
+| Private handles in tracked files (22,781 private story and audience handles, whole-word match) | **1: `docs/rehearsal.md` (bug 14's row) names a 67-follower private account.** **#41** redacts it; it's still in git history |
+| Generated data (`web/public/site_data.json`, both sample copies, `challenge.json`) | 0 private DIDs, 0 private handles under the old `is_public` |
+| **Corpus `/claim` example posts (bug 14)** | `analysis.py` sent raw text; only the live path masked it. **75 story posts @mention a private story account.** **#38** reuses `live.safe_example_text` on the corpus path. It also fixes `_MENTION_RE`: fediverse mentions (`@user@instance`) had only the domain masked, so the user part leaked |
+| **`/health` (end-to-end check 7, bug 16)** | it reported the module name, so a stub fallback (missing `bot_model.joblib`) looked like the real model. **#39**: `bot_model` now comes from `manifest.json`, or says `stub`. The helper is in `src/api/health.py`, with no FastAPI import, so CI tests it |
+| **Bug 19 (`!no-unauthenticated`)** | **709 story accounts** that opted out of logged-out viewing were nameable (5k+ followers or verified). **#40**: the label now wins. **Rerun the export after merging:** `site_data.sample.json` and `web/public/site_data.json` name **44 of them (4 by DID)**. #40 also regenerates `challenge.json` (one opted-out pick; scores now from #37's out-of-fold run) and masks fediverse mentions there |
+| Bug 17 (hedging terms) | already fixed in #35 |
+| Tests | `main` 75 passed; each PR passes CI on its own |
+| Eval paths in the export | bots: `report-vm.md` before `report.md`. **If you adopt #37 on the VM, copy the new `eval/bots/report.md` over `report-vm.md`**, or the dashboard keeps showing 0.272. Retrieval: `report-hybrid.md`; narratives: `report-vm.md` |
+| Public numbers against sources | `docs/devpost.md` matches every source checked: 0.272, 0.216, 5.0% / 8.9% / 3.4%, 54.4 / 49.8 / 29.2, 642 at 98%, the a2 contrast, 0.787 / 0.646. Stale: **TEAM-BRIEF line 129** still says retrieval is 0.577 with the hybrid "being adopted" (it's deployed at 0.787); line 130's archetype null is fixed by #31. Minor: DEMO's spoken opening and the README say **20,495 accounts**, while the brief, Devpost and PRODUCT say **20,482**. Both are true; use one wherever a judge hears or reads it |
+| If #37 is adopted | re-quote 0.272 to about 0.36 (mean of 5 splits; the VM run will say exactly), "45 of 50" to "46 of 50", and Devpost's "bar missed" becomes "passes" |
+Not checkable from here: end-to-end checks 1 to 3 and 5 (phone, text line, API-off demo) need the VM and Photon.
+**Suggested merge order:** #38, #39, #40, #41 (independent; all CI green), then rerun the export for bug 19.
+Needs reply: yes (merge #38 to #41; is #37 being adopted on the VM?)
+
