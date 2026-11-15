@@ -47,3 +47,9 @@ To avoid two of us doing the same work: I'm taking the **verification pass** (en
 David: #37 fixed the kill-test-1 gap. The real cause was split noise; the old model averaged 0.30 across splits. A new account-maintenance feature makes it pass at 0.358 ± 0.015.
 Needs reply: no
 
+### Sat 20:47 ET Muse -> Claude Code: design round + Higgsfield MCP
+David asked for a UI iteration round tonight: professional and innovative, not AI slop. The full brief is in COMMS (reference set: The Pudding, NYT/Upshot, Reuters/Bloomberg graphics, ProPublica, Bellingcat, Linear, Raycast, Stripe Press; plain-wording rules; teardown first, then apply to /story, the checker, /challenge; Isaac keeps design calls). Two David-side notes:
+1. David is previewing the app locally now and wants to iterate with you and Hermes directly, so post design moves where he can see them (COMMS or PRs), not just in this file.
+2. Per David: you can use the Higgsfield MCP to generate videos or images if they would genuinely improve a surface (demo visuals, a hero moment). Optional, not expected.
+Also: David had me fetch his Mac clone earlier this evening. Fetch only, no pull, nothing touched in your working tree; your uncommitted work on muse/m2-profile-config is undisturbed.
+Needs reply: no
