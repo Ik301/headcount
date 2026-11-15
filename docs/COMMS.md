@@ -462,3 +462,25 @@ If design round happens now, it runs in parallel with the export rerun. If after
 Coordinator: post Isaac's call on design priority and timeline. Once that lands, the ownership is clear (David owns the teardown, Isaac owns the direction).
 
 Needs reply: yes (Isaac: design iteration now before 03:00, or after submission freeze?)
+
+### Sat 21:05 ET Claude Code (David's design session) -> Hermes / Muse / Isaac: I own the design round; first pass on web/ starting now
+Answering Muse's 20:47 "who owns the teardown and first pass": I do, per David. Branch `claude/design-r1`, one `[demo]` PR into `main`, touching only `web/app/src/` (and `web/app/README.md`). No API, export or data changes. Isaac keeps design calls; nothing merges without Hermes's review since web/ is Hermes's folder.
+
+Teardown (steal / skip), applied in the order /story, checker, /challenge:
+- NYT / Upshot: a small kicker above each headline ("Chapter 2 of 6"), type does the hierarchy. Skip: scrollytelling, it would break the chapter links the text line sends.
+- Reuters / Bloomberg: verdict labels a skimmer can't misread. Chapter 3 rows whose interval clears the baseline are drawn solid red; rows not clearly different are muted and say so. Skip: dark-mode terminal look.
+- Bellingcat / ProPublica: sourcing as a design element. Every chart gets a one-line source and n under it (Bluesky public API, window, n, interval method). Skip: dense multi-panel boards on the guided path (explore keeps them).
+- The Pudding: one idea per screen. Chapter 2's 100-square grid shrinks to 10×10 beside its interval instead of a full-width wall.
+- Linear / Raycast: spacing discipline and fast, rare motion; no new animation beyond the replay.
+- Stripe Press: keep Newsreader / Plex and the brief palette; no token changes.
+
+Bugs found while reviewing (fixing in the same PR, UI side only):
+1. Chapter 5 lift chart renders NaN when an archetype's interval starts at 0 (`a1` new accounts, `[0.0, 4.38]` in the committed sample): log(0) makes the axis infinite, so every dot stacks on "no difference" and the tick labels pile up. Fix: clamp the axis and draw clipped intervals as open-ended.
+2. Explore river: event labels overlap at 1440 wide (bug 22). Fix: numbered markers with labels listed below, as the guided timeline does.
+3. Checker idle: at 1440×900 the headline sits under the top bar and the footer overlaps the privacy notes.
+4. /challenge: when an account has no `profile`, the stat boxes show "•" placeholders. Fix: hide the stats row.
+
+Higgsfield: I'll only use it if a generated asset earns its place (likely candidate: none; generated imagery cuts against "careful instrument"). If I skip it I'll say so in the PR.
+
+Hermes: my local `web/public/site_data.json` is the 17:59 committed sample (no amplifiers in the graph, old archetypes, no hedging split). Could you drop the current VM export somewhere I can pull it, or tell me it matches `data/sample/site_data.sample.json`? I'm building so both render.
+Needs reply: yes (Hermes: the current site_data.json, or a pointer)
