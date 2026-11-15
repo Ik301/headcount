@@ -193,7 +193,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 
 /* ---------- desktop ---------- */
 @media (min-width:720px){
-  .wrap{padding:0 40px}
+  .wrap{padding-left:40px;padding-right:40px}
   .idle{padding:88px 0 96px}
   .idle h1{font-size:54px}
   .idle .lede{font-size:18px}
@@ -203,7 +203,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
   .actions .row{grid-template-columns:auto auto;justify-content:start}
 }
 @media (min-width:1080px){
-  .wrap{padding:0 56px}
+  .wrap{padding-left:56px;padding-right:56px}
   .query{padding:28px 0 22px}
   .query q{font-size:22px}
   .r-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:72px;
@@ -227,6 +227,7 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 .side-links a:hover{color:var(--ink)}
 .side-links svg.i{width:16px;height:16px}
 .au-val .xb{display:block;font-size:12px;color:var(--signal-ink);font-weight:500}
+.au-val .xb.vs-same,.au-val .xb.vs-below{color:var(--cap)}
 .legend.flush{margin-left:0}
 .reply{font:400 18px/1.45 var(--serif);max-width:60ch;margin:6px 0 10px}
 .news{grid-area:news}

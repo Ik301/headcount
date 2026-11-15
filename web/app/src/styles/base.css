@@ -49,8 +49,8 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .foot{border-top:1px solid var(--rule);margin-top:8px}
 .foot .wrap{padding-top:16px;padding-bottom:28px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--cap)}
 
-@media (min-width:720px){ .wrap{padding:0 40px} }
-@media (min-width:1080px){ .wrap{padding:0 56px} }
+@media (min-width:720px){ .wrap{padding-left:40px;padding-right:40px} }
+@media (min-width:1080px){ .wrap{padding-left:56px;padding-right:56px} }
 @media (max-width:520px){
   .topnav a{padding:8px 6px;font-size:13px}
   .topnav a:first-child{display:none}
@@ -61,3 +61,5 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+/* privacy redactions inside quoted posts (see components/Redacted.tsx) */
+.redacted{display:inline-block;padding:0 6px;margin:0 1px;border-radius:4px;background:var(--panel);border:1px dashed var(--rule);font:500 .82em/1.5 var(--sans);font-style:normal;color:var(--cap);white-space:nowrap;vertical-align:.04em}

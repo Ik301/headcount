@@ -7,6 +7,7 @@ import { ci, countWord, fmtInt, handle, isoSec, lift, localStamp, pct, plural, p
 import { against, pickHeadline, versusWords, type HeadlinePick } from "../lib/compare";
 import { narrativeColor } from "../lib/narrativeColor";
 import { useCopy } from "../lib/useCopy";
+import { Redacted } from "../components/Redacted";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -209,7 +210,16 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                 </div>
                 <span className="au-val">
                   <b>{pct(n.bot_post_share)}</b> {n.bot_post_share_ci && `(${ci(n.bot_post_share_ci)})`}
-                  {x && <span className="xb">{x.toFixed(1)}× baseline</span>}
+                  {x ? (
+                    <span className="xb">{x.toFixed(1)}× baseline</span>
+                  ) : (
+                    baseline != null &&
+                    n.bot_post_share_ci && (
+                      <span className={`xb vs-${against(n.bot_post_share_ci, baseline)}`}>
+                        {against(n.bot_post_share_ci, baseline) === "above" ? "above baseline" : against(n.bot_post_share_ci, baseline) === "below" ? "below baseline" : "not clearly different"}
+                      </span>
+                    )
+                  )}
                 </span>
               </div>
             </li>
@@ -287,7 +297,7 @@ function AmpBlock({ r }: { r: ClaimResult }) {
                       {m.lift_ci && <span className="band" style={{ left: x(m.lift_ci[0]), width: `calc(${x(m.lift_ci[1])} - ${x(m.lift_ci[0])})` }} />}
                       <span className="pt" style={{ left: x(m.lift) }} />
                     </div>
-                    <span className={`lift${m.lift < 1 ? " low" : ""}`}>
+                    <span className={`lift${m.lift_ci ? (m.lift_ci[0] > 1 ? "" : " low") : m.lift < 1 ? " low" : ""}`} title={m.lift_ci && m.lift_ci[0] <= 1 && m.lift_ci[1] >= 1 ? "Interval includes 1×: no clear difference" : undefined}>
                       <b>{lift(m.lift)}</b> {m.lift_ci && `(${m.lift_ci[0].toFixed(1)} to ${m.lift_ci[1].toFixed(1)})`}
                     </span>
                   </div>
@@ -297,7 +307,7 @@ function AmpBlock({ r }: { r: ClaimResult }) {
           </ul>
           <div className="legend flush">
             <span>
-              <span className="k-base" />1× = as likely as similar accounts to amplify
+              <span className="k-base" />1× = as likely as similar accounts to amplify; blue only when the interval clears 1×
             </span>
             <span>Percent = share of the {fmtInt(a.n_humans)} amplifiers</span>
           </div>
@@ -404,7 +414,7 @@ function EvidenceBlock({ r, narr }: { r: ClaimResult; narr: ClaimNarrative[] }) 
                     <div className="who">
                       {p.public_handle ? <span className="h">{handle(p.public_handle)}</span> : <span>a private account</span>}
                     </div>
-                    <blockquote>{p.text}</blockquote>
+                    <blockquote><Redacted text={p.text} /></blockquote>
                   </li>
                 ))}
               </ul>

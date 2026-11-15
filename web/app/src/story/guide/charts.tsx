@@ -83,24 +83,31 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
   const ticks = niceTicks(max).filter((t) => t <= max);
   return (
     <div className="g-rows" role="table" aria-label="Share of posts from likely automated accounts, by narrative, with 95% intervals">
-      {narr.map((n) => (
-        <div key={n.id} className="g-row" role="row">
-          <div className="g-row-label" role="rowheader">
-            <span className="g-row-name">{n.label}</span>
-            {note?.[n.id] && <span className="g-row-note">{note[n.id]}</span>}
+      {narr.map((n) => {
+        // Reuters-style: the verdict is drawn, not left to the reader. Solid when the interval clears the
+        // whole-story line, hollow and lighter when it doesn't, and the words say which.
+        const v = baseline != null && n.ci ? (n.ci[0] > baseline ? "above" : n.ci[1] < baseline ? "below" : "same") : null;
+        const solid = v !== "same";
+        return (
+          <div key={n.id} className={`g-row is-${v ?? "na"}`} role="row">
+            <div className="g-row-label" role="rowheader">
+              <span className="g-row-name">{n.label}</span>
+              {note?.[n.id] && <span className="g-row-note">{note[n.id]}</span>}
+            </div>
+            <div className="g-row-chart" ref={n === narr[0] ? ref : undefined} role="cell" aria-label={`${pc(n.bot)}${n.ci ? `, interval ${pc(n.ci[0])} to ${pc(n.ci[1])}` : ""}`}>
+              <svg width={w} height={H} aria-hidden="true">
+                {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />}
+                {n.ci && <line x1={x(n.ci[0])} x2={x(n.ci[1])} y1={H / 2} y2={H / 2} stroke={C.signal} strokeOpacity={solid ? 0.5 : 0.22} strokeWidth={5} strokeLinecap="round" />}
+                <circle cx={x(n.bot)} cy={H / 2} r={6} fill={solid ? C.signal : "#fff"} stroke={solid ? "#fff" : C.signal} strokeWidth={2} />
+              </svg>
+            </div>
+            <div className="g-row-val" role="cell">
+              {pc(n.bot)}
+              {v && <span className="g-verdict">{v === "above" ? "above the story" : v === "below" ? "below the story" : "not clearly different"}</span>}
+            </div>
           </div>
-          <div className="g-row-chart" ref={n === narr[0] ? ref : undefined} role="cell" aria-label={`${pc(n.bot)}${n.ci ? `, interval ${pc(n.ci[0])} to ${pc(n.ci[1])}` : ""}`}>
-            <svg width={w} height={H} aria-hidden="true">
-              {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />}
-              {n.ci && <line x1={x(n.ci[0])} x2={x(n.ci[1])} y1={H / 2} y2={H / 2} stroke={C.signal} strokeOpacity={0.45} strokeWidth={5} strokeLinecap="round" />}
-              <circle cx={x(n.bot)} cy={H / 2} r={6} fill={C.signal} stroke="#fff" strokeWidth={2} />
-            </svg>
-          </div>
-          <div className="g-row-val" role="cell">
-            {pc(n.bot)}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <div className="g-row g-row-axis" aria-hidden="true">
         <div className="g-row-label" />
         <div className="g-row-chart">
@@ -205,39 +212,58 @@ export function HedgeBars({ rows }: { rows: HedgeRow[] }) {
 
 export function LiftRows({ arch }: { arch: Arch[] }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
-  const lo = Math.min(0.67, ...arch.map((a) => a.ci?.[0] ?? a.lift)) * 0.95;
-  const hi = Math.max(1.5, ...arch.map((a) => a.ci?.[1] ?? a.lift)) * 1.05;
+  // A small group's interval can start at 0 (no amplifiers in some resamples). log(0) is -Infinity, so the
+  // axis is clamped to 1/4..4 and an interval that runs past the edge is drawn open-ended with an arrow.
+  const MIN = 0.25, MAX = 4;
+  const ok = (v: number | undefined) => v != null && isFinite(v) && v > 0;
+  const ends = arch.flatMap((a) => [a.lift, ...(a.ci ?? [])]).filter(ok) as number[];
+  const lo = Math.max(MIN, Math.min(0.67, ...ends) * 0.95);
+  const hi = Math.min(MAX, Math.max(1.5, ...ends) * 1.05);
   const span = Math.max(Math.log(1 / lo), Math.log(hi));
-  const L = 8, R = 8, H = 34;
-  const x = (v: number) => L + ((Math.log(v) + span) / (2 * span)) * (w - L - R);
-  const ticks = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2].filter((t) => Math.abs(Math.log(t)) <= span);
+  const L = 10, R = 10, H = 34;
+  const clamp = (v: number) => Math.min(Math.exp(span), Math.max(Math.exp(-span), ok(v) ? v : Math.exp(-span)));
+  const x = (v: number) => L + ((Math.log(clamp(v)) + span) / (2 * span)) * (w - L - R);
+  const ticks = [0.25, 0.5, 0.67, 1, 1.5, 2, 3, 4].filter((t) => Math.abs(Math.log(t)) <= span + 1e-9);
+  const tickLabel = (t: number) => (t === 0.67 ? "⅔" : t === 0.25 ? "¼" : t === 0.5 ? "½" : String(t)) + "×";
   return (
     <div className="g-rows g-lift" role="table" aria-label="How likely each group was to amplify likely automated accounts, compared with all real accounts, with 95% intervals">
-      {arch.map((a, i) => (
-        <div key={a.id} className="g-row" role="row">
-          <div className="g-row-label" role="rowheader">
-            <span className="g-row-name">{a.label}</span>
-            <span className="g-row-note">{a.size.toLocaleString("en-US")} accounts</span>
+      {arch.map((a, i) => {
+        const clear = a.ci ? a.ci[0] > 1 || a.ci[1] < 1 : false;
+        const cutLo = a.ci ? !ok(a.ci[0]) || a.ci[0] < Math.exp(-span) : false;
+        const cutHi = a.ci ? a.ci[1] > Math.exp(span) : false;
+        const y = H / 2;
+        return (
+          <div key={a.id} className={`g-row${clear ? " is-clear" : " is-same"}`} role="row">
+            <div className="g-row-label" role="rowheader">
+              <span className="g-row-name">{a.label}</span>
+              <span className="g-row-note">{a.size.toLocaleString("en-US")} accounts</span>
+            </div>
+            <div className="g-row-chart" ref={i === 0 ? ref : undefined} role="cell" aria-label={`${a.lift.toFixed(2)} times${a.ci ? `, interval ${a.ci[0].toFixed(2)} to ${a.ci[1].toFixed(2)}` : ""}`}>
+              <svg width={w} height={H} aria-hidden="true">
+                <line x1={x(1)} x2={x(1)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />
+                {a.ci && (
+                  <g stroke={C.human} strokeOpacity={clear ? 0.55 : 0.3} strokeWidth={5} strokeLinecap="round">
+                    <line x1={x(a.ci[0]) + (cutLo ? 6 : 0)} x2={x(a.ci[1]) - (cutHi ? 6 : 0)} y1={y} y2={y} />
+                  </g>
+                )}
+                {cutLo && <path d={`M${x(a.ci![0]) + 7} ${y - 5} L${x(a.ci![0])} ${y} L${x(a.ci![0]) + 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}
+                {cutHi && <path d={`M${x(a.ci![1]) - 7} ${y - 5} L${x(a.ci![1])} ${y} L${x(a.ci![1]) - 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}
+                <circle cx={x(a.lift)} cy={y} r={6} fill={clear ? C.human : "#fff"} stroke={clear ? "#fff" : C.human} strokeWidth={2} />
+              </svg>
+            </div>
+            <div className="g-row-val" role="cell">
+              {a.lift.toFixed(1)}×<span className="g-verdict">{!a.ci ? "" : a.ci[0] > 1 ? "more likely" : a.ci[1] < 1 ? "less likely" : "no clear difference"}</span>
+            </div>
           </div>
-          <div className="g-row-chart" ref={i === 0 ? ref : undefined} role="cell" aria-label={`${a.lift.toFixed(2)} times${a.ci ? `, interval ${a.ci[0].toFixed(2)} to ${a.ci[1].toFixed(2)}` : ""}`}>
-            <svg width={w} height={H} aria-hidden="true">
-              <line x1={x(1)} x2={x(1)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />
-              {a.ci && <line x1={x(a.ci[0])} x2={x(a.ci[1])} y1={H / 2} y2={H / 2} stroke={C.human} strokeOpacity={0.5} strokeWidth={5} strokeLinecap="round" />}
-              <circle cx={x(a.lift)} cy={H / 2} r={6} fill={C.human} stroke="#fff" strokeWidth={2} />
-            </svg>
-          </div>
-          <div className="g-row-val" role="cell">
-            {a.lift.toFixed(1)}×
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <div className="g-row g-row-axis" aria-hidden="true">
         <div className="g-row-label" />
         <div className="g-row-chart">
           <svg width={w} height={34}>
             {ticks.map((t) => (
-              <text key={t} x={x(t)} y={14} textAnchor="middle" className="g-ax">
-                {t}×
+              <text key={t} x={x(t)} y={14} textAnchor="middle" className={`g-ax${t === 1 ? " g-ax-strong" : ""}`}>
+                {tickLabel(t)}
               </text>
             ))}
             <text x={L} y={30} className="g-ax">

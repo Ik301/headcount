@@ -211,7 +211,7 @@
    Desktop: the account on the left, the decision on the right
    ========================================================= */
 @media (min-width: 1024px) {
-  .challenge .c-app { max-width: 1280px; }
+  .challenge .c-app { max-width: 1184px; } /* content edge lines up with the top bar at 176px */
   .challenge .c-top { padding: 36px 48px 28px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 56px; align-items: end; }
   .challenge .c-top .c-row { display: contents; }
   .challenge .c-top h1 { font-size: 36px; grid-column: 1; grid-row: 1; align-self: baseline; }

@@ -3,6 +3,7 @@ import type { Evidence } from "../api/types";
 import { Icon } from "../components/Icons";
 import { handle, isoSec, postRef } from "../lib/format";
 import { useCopy } from "../lib/useCopy";
+import { Redacted } from "../components/Redacted";
 
 export interface DrawerContent {
   from: string;
@@ -94,7 +95,7 @@ export function EvidenceDrawer({ content, onClose }: { content: DrawerContent | 
                         <span className="mono ref">{postRef(e.post_uri)}</span>
                         {e.p_automated != null && <span className={`score ${e.p_automated >= 0.5 ? "hi" : "lo"}`}>{e.p_automated.toFixed(2)}</span>}
                       </div>
-                      {e.text && <blockquote>{e.text}</blockquote>}
+                      {e.text && <blockquote><Redacted text={e.text} /></blockquote>}
                       {(e.note || e.trace) && <p className="why">{e.note || e.trace}</p>}
                     </li>
                   ))}

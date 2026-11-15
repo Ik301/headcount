@@ -6,7 +6,7 @@ import { narrativeDrawer } from "./drawers";
 import { FindingBar } from "./FindingBar";
 import type { Model } from "./model";
 import { Network } from "./Network";
-import { River } from "./River";
+import { River, RiverEvents } from "./River";
 
 const SPEED = 18; // story hours per second of playback
 
@@ -184,6 +184,7 @@ export function Replay({ m, openDrawer }: { m: Model; openDrawer: (c: DrawerCont
           </span>
         </div>
         <River m={m} T={T} onScrub={scrub} />
+        <RiverEvents m={m} T={T} onScrub={scrub} />
       </div>
     </section>
   );

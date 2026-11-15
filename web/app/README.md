@@ -112,6 +112,15 @@ Until the export writes `web/public/site_data.json`, `npm run sample-data` copie
 
 ## Restyling
 
+Design round 1 conventions (`[demo]` PR from `claude/design-r1`):
+
+- Every guided chapter opens with a kicker (`Chapter n of 6 · title`, rendered in `Guide.tsx`) and puts a one-line `Source` under its chart (`Source` in `chapters.tsx`): where the numbers come from, n, and how the interval was computed. Every value in a source line is read from `site_data.json`.
+- Interval charts state their verdict in words under the value (`g-verdict`): narratives say "above the story / not clearly different / below the story" against the baseline; archetype lifts say "more likely / no clear difference / less likely" against 1×. Dots are filled only when the interval clears the comparison line. The claim view uses the same rule (`xb vs-*`, muted lift colour when the interval includes 1×).
+- The lift axis is clamped to ¼× to 4×; an interval that runs past the edge (or starts at 0) is drawn open-ended with an arrow.
+- Explore river: events are numbered on the chart and listed under it (`RiverEvents`), so labels never overlap.
+- Privacy masks in quoted posts (`@[account]`, `@[a private account]`, `[link]`) render as placeholder chips through `components/Redacted.tsx` in the claim evidence, the drawer and `/challenge`.
+- `.wrap` breakpoints set only horizontal padding, so they never reset a page's vertical spacing.
+
 - Tokens: `src/styles/tokens.css` (exactly the brief's palette, plus `--signal-ink` and `--cap` for small text contrast).
 - `src/styles/base.css`: body, top bar, buttons, focus, selection, scrollbars.
 - `src/styles/checker.css`: everything under `.checker` (ported from the checker mockup).

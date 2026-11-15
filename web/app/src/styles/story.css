@@ -113,7 +113,7 @@ table{border-collapse:collapse;width:100%}
 .tbar .lbl{font-size:12.5px;color:var(--ink-2)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);padding:6px 16px 0;flex-wrap:wrap}
 .legend span{display:flex;align-items:center}
-.river{display:block;width:100%;height:270px;cursor:ew-resize;touch-action:none;user-select:none}
+.river{display:block;width:100%;height:244px;cursor:ew-resize;touch-action:none;user-select:none}
 .river:focus-visible{outline-offset:-2px}
 
 .node{transition:opacity .25s var(--ease)}
@@ -287,3 +287,13 @@ dd .mono{font-size:12.5px}
 
 .story .v-nobots .aside{position:sticky;top:12px}
 .story .ev-major .ev-ts{font-size:12px}
+
+/* river events: numbered on the chart, spelled out here (no overlapping labels) */
+.ev-n{font:600 10.5px var(--sans)}
+.river-evs{list-style:none;margin:4px 0 0;padding:10px 0 2px;border-top:1px solid var(--rule-2);display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:2px 20px}
+.river-evs button{display:grid;grid-template-columns:20px 1fr;column-gap:8px;row-gap:1px;width:100%;text-align:left;border:0;background:none;padding:5px 0;cursor:pointer;font:inherit;border-radius:4px}
+.river-ev-n{grid-row:span 2;width:18px;height:18px;border-radius:50%;border:1px solid var(--ink);display:grid;place-items:center;font-size:10.5px;font-weight:600;margin-top:1px}
+.river-evs .is-past .river-ev-n{background:var(--ink);color:#fff}
+.river-ev-t{font:12px var(--mono);color:var(--cap)}
+.river-ev-l{font-size:13px;line-height:1.35;color:var(--ink)}
+.river-evs button:hover .river-ev-l{text-decoration:underline;text-decoration-color:var(--ink-3);text-underline-offset:3px}

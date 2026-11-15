@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { getSiteData } from "../api/client";
 import type { ChallengeItem, SiteData } from "../api/types";
 import { TopBar } from "../components/Shell";
 import { fmtInt, handle, parseT } from "../lib/format";
+import { Redacted } from "../components/Redacted";
 
 /* Route "/challenge": "Spot the automation", ported from the approved mockup (web/mockups/challenge.html).
  * Data: site_data.json's `challenge` (the export copies data/sample/challenge.json and adds each public account's
@@ -129,23 +130,29 @@ const ppd = (x: number) => (x >= 10 ? fmtInt(x) : x.toFixed(1).replace(/\.0$/, "
 function Stats({ a }: { a: Acct }) {
   const pr = a.profile;
   const age = pr.account_age_days;
-  return (
-    <dl className="c-stats">
-      <div>
-        <dt>Account age</dt>
-        <dd>{age == null ? "·" : age < 60 ? <>{age}<small>days</small></> : age < 730 ? <>{Math.round(age / 30.4)}<small>months</small></> : <>{(age / 365).toFixed(1).replace(/\.0$/, "")}<small>years</small></>}</dd>
-      </div>
-      <div>
-        <dt>Posts per day</dt>
-        <dd>{pr.posts_per_day == null ? "·" : ppd(pr.posts_per_day)}</dd>
-      </div>
-      <div>
-        <dt>Follows / followers</dt>
-        <dd>
+  // Only the facts we have: an account without a profile shows its posts, not a row of placeholders.
+  const cells: { k: string; v: ReactNode }[] = [];
+  if (age != null) cells.push({ k: "Account age", v: age < 60 ? <>{age}<small>days</small></> : age < 730 ? <>{Math.round(age / 30.4)}<small>months</small></> : <>{(age / 365).toFixed(1).replace(/\.0$/, "")}<small>years</small></> });
+  if (pr.posts_per_day != null) cells.push({ k: "Posts per day", v: ppd(pr.posts_per_day) });
+  if (pr.follows != null && pr.followers != null)
+    cells.push({
+      k: "Follows / followers",
+      v: (
+        <>
           {fmtInt(pr.follows)}
           <small>/ {fmtInt(pr.followers)}</small>
-        </dd>
-      </div>
+        </>
+      ),
+    });
+  if (!cells.length) return null;
+  return (
+    <dl className="c-stats" style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}>
+      {cells.map((c) => (
+        <div key={c.k}>
+          <dt>{c.k}</dt>
+          <dd>{c.v}</dd>
+        </div>
+      ))}
     </dl>
   );
 }
@@ -194,7 +201,7 @@ function Posts({ a }: { a: Acct }) {
                 Quote post
               </span>
             )}
-            <p className="c-pt">{p.text}</p>
+            <p className="c-pt"><Redacted text={p.text} /></p>
           </li>
         );
       })}
@@ -349,7 +356,7 @@ export default function ChallengePage() {
           {phase !== "final" && a && (
             <div className="c-play">
               <AccountCard a={a} i={i} n={n} />
-              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
+              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} hasProfile={a.profile.account_age_days != null || a.profile.posts_per_day != null || !!a.profile.hours_utc} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
             </div>
           )}
           {phase === "final" && <Final accts={labeled} answered={answered} calls={calls} left={n - done} onResume={resume} />}
@@ -359,13 +366,13 @@ export default function ChallengePage() {
   );
 }
 
-function Decide({ i, n, onAnswer }: { i: number; n: number; onAnswer: (c: Call) => void }) {
+function Decide({ i, n, onAnswer, hasProfile }: { i: number; n: number; onAnswer: (c: Call) => void; hasProfile: boolean }) {
   return (
     <section className="c-view" aria-label={`Your call on account ${i + 1} of ${n}`}>
       <div className="c-spacer" />
       <div className="c-decide">
         <h2 className="c-ask">Is this account likely automated?</h2>
-        <p className="c-ask-sub">Look at its age, how often it posts and when.</p>
+        <p className="c-ask-sub">{hasProfile ? "Look at its age, how often it posts and when." : "Read its most recent posts: how they are written, and how far apart."}</p>
         <div className="c-choices">
           <button className="c-choice c-auto" type="button" onClick={() => onAnswer("auto")}>
             <span className="c-sw" aria-hidden="true" />

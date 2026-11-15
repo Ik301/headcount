@@ -59,7 +59,7 @@ export interface GuideData {
   peak?: { h: number; posts: number };
   postsPerHour: number[];
   autoPerHour: number[];
-  baseline?: { share: number; ci?: [number, number]; accountShare?: number; strip?: Record<string, number> };
+  baseline?: { share: number; ci?: [number, number]; accountShare?: number; strip?: Record<string, number>; nPosts?: number; nAccounts?: number };
   narr: Narr[]; // named narratives, by likely automated share, highest first
   unassigned?: Narr;
   defend?: Narr;
@@ -90,7 +90,8 @@ export function buildGuide(d: SiteData, m: Model): GuideData {
   let peak: GuideData["peak"];
   postsPerHour.forEach((v, h) => (!peak || v > peak.posts) && v > 0 && (peak = { h, posts: v }));
 
-  const baseline = m.baseline != null ? { share: m.baseline, ci: m.baselineCi, accountShare: m.baselineAccountShare, strip: m.baselineStrip } : undefined;
+  const bm = d.narratives_meta?.baseline;
+  const baseline = m.baseline != null ? { share: m.baseline, ci: m.baselineCi, accountShare: m.baselineAccountShare, strip: m.baselineStrip, nPosts: bm?.n_posts, nAccounts: bm?.n_accounts } : undefined;
 
   const named = m.narratives.filter((n) => n.id !== "n0" && n.posts > 0);
   const narr = [...named].sort((a, b) => b.bot - a.bot);
