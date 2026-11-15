@@ -99,7 +99,7 @@ An amplifier is a real account (score under 0.3) that reposted, quoted or liked 
 
 ### 5. The news baseline
 
-Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, so through Google News search, fine for a demo), BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian. 198 headlines about Huang in the window. None of them is neutral and none is "the truth"; they are accountable, edited and comparable. Findings: 54% of these outlets' spy headlines hedge ("alleged", "suspected", "claims"). On Bluesky, posts that share a link mostly keep the headline's wording (50% hedge), but posts written in people's own words drop it: 29% hedge. The caution survives the share button and disappears in the retelling. The only "smear campaign" headlines in that coverage attribute the claim to Beijing.
+Ten outlets, each labeled with who funds it: Reuters, AP, AFP (no public feeds, so through Google News search, fine for a demo), BBC, NPR, PBS, DW, France24, Al Jazeera, The Guardian. 340 story headlines in the window (eval/news/report.md). None of them is neutral and none is "the truth"; they are accountable, edited and comparable. Findings: 54% of these outlets' spy headlines hedge ("alleged", "suspected", "claims"). On Bluesky, posts that share a link mostly keep the headline's wording (50% hedge), but posts written in people's own words drop it: 29% hedge. The caution survives the share button and disappears in the retelling. The only "smear campaign" headlines in that coverage attribute the claim to Beijing.
 
 ### 6. How the answer reaches people
 

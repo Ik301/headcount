@@ -25,13 +25,13 @@ Look and feel:
 |---|---|---|---|
 | 0:00-0:07 | Cold open | Phone: the text "Was Jensen Huang's mistress a Chinese spy?" being sent | tight on the bubble |
 | 0:07-0:18 | The flood | Real Bluesky posts about the story scrolling fast, a counter ticking to 46,656. Only posts from public accounts (the export's `public_accounts`, the nameable set); otherwise blur handles, avatars and links | slow push in on the counter |
-| 0:18-0:24 | Title | Product name and the line "How much of this is real?" | static |
+| 0:18-0:24 | Title | "Headcount" and the line "How much of this is real?" | static |
 | 0:24-0:44 | The answer, by text | Phone: "Checking who is pushing that", then the real reply, then the chart image | ease in on the reply lines, then the chart |
 | 0:44-1:04 | Where the automation was | Dashboard chapter 2 then 3: 4.5% overall, narratives ranked, "Defending Huang" at 4.8%, click the remove-likely-automated toggle | zoom to the headline sentence, then to the toggle and bars |
 | 1:04-1:20 | Newsrooms vs Bluesky | Dashboard chapter 4: 54% / 50% / 29% hedging bars | zoom on the three bars, hold on 29% |
 | 1:20-1:38 | Any story, live | Web checker: type a current story, the live steps run (sped up, marked "sped up"), the result headline | zoom on the progress steps, then the headline |
 | 1:38-1:52 | How we know | Evidence drawer with timestamps and reasons (public accounts only, or handles, avatars and links blurred); method chapter numbers (36% vs 4.5%: recall@100 against posting rate alone; 79%: claim retrieval recall@20 on the first 20 hand-checked claims); privacy line | quick zooms, one per proof |
-| 1:52-2:00 | Close | "Volume is not consensus." Product name, team, tracks | static, music out |
+| 1:52-2:00 | Close | "Volume is not consensus." Headcount, team, tracks | static, music out |
 
 Privacy: the video is public, so no frame may show a private account's post, handle, avatar or link (README rule 4). The flood and every evidence frame use public accounts' posts only (the export's `public_accounts` / nameable set), or blur handles, avatars and links.
 
@@ -69,6 +69,5 @@ Numbers in the script and where they come from: 46,656 posts (posts.parquet); th
 
 ## Open decisions for Isaac
 
-- Product name (Devpost draft options: Who's Pushing This, Volume Check, Echo Count).
 - Voice: River (neutral, calm) or Eric (smooth, trustworthy), after hearing the test lines.
 - Real phone recording or re-creation for the text-message shots.
