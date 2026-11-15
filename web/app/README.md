@@ -6,9 +6,9 @@ Vite + React + TypeScript. Three routes, ported from the approved mockups (`web/
 |---|---|---|
 | `/` | Claim checker: input, example chips, progress, then the result | `POST {API_BASE}/claim` with `{"text", "mode": "auto"}` |
 | `/claim/:id` | One check's result. This is the link the text line sends | Router state handed over by `/` when you just ran it, else `GET {API_BASE}/claim/{id}` |
-| `/story` | Newsroom dashboard for the Jensen Huang week: replay, without likely automated, archetypes, evidence, method | `GET /site_data.json` (static, served from `web/public/site_data.json`). No API calls |
+| `/story` | The Jensen Huang week as a guided story in six chapters; `?mode=explore` opens the full dashboard (replay, without likely automated, archetypes, evidence, method) | `GET /site_data.json` (static, served from `web/public/site_data.json`). No API calls |
 
-Screenshots of the current build are in `shots/`.
+Screenshots of the current build are in `shots/v2/` (guided story, 1440x900 and 390 wide, plus explore mode). Regenerate with `python3 scripts/shots-v2.py shots/v2` while `npx vite preview --port 4174` runs. Older dashboard shots are in `shots/`.
 
 ## Run it
 
@@ -58,7 +58,22 @@ Code: `src/config.ts`. The share link is built from `window.location.origin` + `
   - fewer than 30 matches: shows `reply_text` (the API's insufficient-data or decline wording) instead of shares
 - `CheckError.tsx`: API unreachable, error JSON (`{"error": "..."}`), or an unknown id (404: the API keeps checks in memory, so a restart clears old links). Shows the rules and a way back, never a blank page.
 
-### `/story` (`src/story/`)
+### `/story`, guided story (`src/story/guide/`)
+
+The default view. Each chapter leads with one plain-language headline, then one chart that proves it, then details folded into `<details>`. `?ch=1..6` picks a chapter (left and right arrow keys step through); `?still=1` turns off the first-view autoplay (for screenshots). Old `?view=` links open explore mode.
+
+| Chapter | Headline reads | Chart |
+|---|---|---|
+| 1 What happened | `story.posts/accounts`, the window, the busiest hour from `timeline`, the event before it from `story.events` | Replay: only likely automated accounts (`role: likely_automated` or score 0.5+), the real accounts that amplified them (`role: amplifier`, appearing at `first_amplified`), and up to 40 public accounts linked to them. Plays once on a visitor's first view (`localStorage["sbt.replaySeen.v1"]`, skipped under reduced motion) |
+| 2 How much was automated | `narratives_meta.baseline.bot_post_share` as "about 1 in N" | 100 squares plus the estimate with its interval; cutoffs from `baseline.threshold_strip`, accounts vs posts from `bot_account_share` |
+| 3 Where the automation was | named narratives (not `n0`) by `bot_post_share`; the `side: pro_huang` narrative against the baseline (the Post's claim) | Dot and interval per narrative against a dashed "whole story" line; the remove-likely-automated toggle re-ranks by `without_automated.volume_share(_without)` |
+| 4 Newsrooms vs Bluesky | `news.spy_claim` hedged shares | Bars with intervals. If the export adds `bluesky_link_hedged_share` and `bluesky_own_words_hedged_share` (+ `_posts`, `_ci`), the chapter shows three bars and the "caution survives the share button" headline |
+| 5 Who spread it | `archetypes[].lift_ci`: null result when every interval includes 1 | Lift per archetype on a log scale centred on "no difference" |
+| 6 How we know | `validation.handcheck_precision`, `recall_at_k` vs `baseline_recall_at_k` | 50-square hand-check grid; recall curve, glossary, data and privacy in details |
+
+Each chapter's "Copy this finding" copies the matching sentence from the export's `findings` list verbatim. Styles: `src/styles/guide.css`, all under `.guide`.
+
+### `/story?mode=explore` (`src/story/`)
 
 `model.ts` turns `site_data.json` into one `Model` object; every view reads the model, never raw JSON. Every section is optional: a missing table becomes an empty state, not a crash (tested with `{}` and with a narratives-only file).
 

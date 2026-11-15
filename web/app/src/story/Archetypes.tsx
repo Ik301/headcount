@@ -6,9 +6,12 @@ import { FindingBar } from "./FindingBar";
 import type { Model } from "./model";
 
 function features(a: SiteArchetype): { v: string; l: string }[] {
+  // the export describes each group in words ("82% reposts; 6% replies"); raw feature values are model internals
+  if (a.description) return a.description.split(/;\s*/).filter(Boolean).slice(0, 3).map((s) => ({ v: "", l: s }));
   if (!a.features) return [];
   if (Array.isArray(a.features)) return a.features.slice(0, 3).map((f) => ({ v: String(f.value), l: f.label }));
   return Object.entries(a.features)
+    .filter(([, v]) => v != null)
     .slice(0, 3)
     .map(([l, v]) => ({ v: typeof v === "number" ? (Math.abs(v) < 1 && v !== 0 ? pct(v) : fmtInt(v)) : String(v), l: l.replace(/_/g, " ") }));
 }
@@ -84,7 +87,7 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
               <div className="share">
                 <b>{share != null ? pct(share) : fmtInt(a.size)}</b>
                 <span>
-                  {share != null ? "of amplifiers · " : ""}
+                  {share != null ? (a.interacting_humans != null ? "of engaged real accounts · " : "of amplifiers · ") : ""}
                   <span className="mono">{fmtInt(a.size)}</span> accounts
                 </span>
               </div>
@@ -101,8 +104,8 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
               {!!f.length && (
                 <ul className="feat">
                   {f.map((x) => (
-                    <li key={x.l}>
-                      <span className="mono">{x.v}</span>
+                    <li key={x.l} className={x.v ? "" : "solo"}>
+                      {x.v && <span className="mono">{x.v}</span>}
                       <span>{x.l}</span>
                     </li>
                   ))}
@@ -132,9 +135,9 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
                 </div>
               )}
               <div className="pub">
-                {a.public_examples?.length ? (
+                {(a.public_examples ?? a.examples_public)?.length ? (
                   <>
-                    Public examples: <span className="mono">{a.public_examples.slice(0, 3).map((h) => handle(h)).join(", ")}</span>.{" "}
+                    Public examples: <span className="mono">{(a.public_examples ?? a.examples_public)!.slice(0, 3).map((h) => handle(h)).join(", ")}</span>.{" "}
                   </>
                 ) : (
                   "No public accounts in this group. "
