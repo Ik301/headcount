@@ -44,9 +44,11 @@ export interface ArchetypeMix {
 }
 
 export interface ClaimNews {
-  headlines?: { t?: string; outlet?: string; title: string; url?: string; funding?: string; narrative?: string; hedged?: boolean }[];
+  /** The API (src/news/baseline.py news_for_claim) sends source/link/published; older shapes used outlet/url/t. */
+  headlines?: { t?: string; published?: string; outlet?: string; source?: string; title: string; url?: string; link?: string; funding?: string; narrative?: string; hedged?: boolean }[];
   hedging_rate?: number;
   social_hedging_rate?: number;
+  hedging?: { news_share?: number | null; social_share?: number | null; n_news?: number; n_social?: number };
   narratives_in_news?: string[];
   social_only?: string[];
 }
@@ -200,6 +202,7 @@ export interface SiteNews {
   outlets?: { name?: string; source?: string; funding?: string; headlines?: number; spy_headlines?: number; spy_hedged?: number }[];
   spy_claim?: SpyClaim;
   method?: string;
+  hedge_terms?: string[];
   /** Same split in the story_baseline.json shape. */
   social_with_link?: { share?: number; n?: number };
   social_without_link?: { share?: number; n?: number };
@@ -212,10 +215,23 @@ export interface SiteNews {
 export interface ChallengeItem {
   account_ref: string;
   public_handle?: string | null;
-  posts?: (string | { t?: string; text: string })[];
+  tier?: string;
+  posts?: (string | { t?: string; text: string; kind?: string })[];
   p_automated?: number;
   reasons?: string[];
+  /** Isaac's call ("automated" or "human"); missing until he labels it, and then the reveal shows only the model */
   hand_label?: string | null;
+  profile?: {
+    account_age_days?: number;
+    followers?: number;
+    follows?: number;
+    lifetime_posts?: number;
+    posts_per_day?: number;
+    self_label_bot?: boolean;
+    hours_utc?: number[];
+    hours_posts?: number;
+    hours_span?: { from?: string; to?: string };
+  };
 }
 
 export interface SiteData {
@@ -260,7 +276,19 @@ export interface SiteData {
     meta?: { accounts_with_engagement?: number; roles?: Record<string, number>; selection?: string };
   };
   archetypes?: SiteArchetype[];
-  archetypes_meta?: { interacting_humans_profiled?: number; definition?: string; base_amplifier_rate?: number };
+  archetypes_meta?: {
+    interacting_humans_profiled?: number;
+    definition?: string;
+    base_amplifier_rate?: number;
+    /** true when lifts come from M5's matched comparison (src.archetypes.build) */
+    matched?: boolean;
+    amplifiers?: number;
+    amplifiers_matched?: number;
+    amplifiers_unmatched?: number;
+    controls?: number;
+    accounts?: number;
+    matching?: string;
+  };
   clusters?: Cluster[];
   coordination?: Cluster[];
   public_accounts?: { handle: string; narratives?: string[]; p_automated?: number; top_posts?: unknown[] }[];
@@ -269,6 +297,12 @@ export interface SiteData {
     retrieval_recall_at_k?: Record<string, number>;
     ablation?: Record<string, unknown>;
     gold_accuracy?: number | null;
+    /** the narrative classifier against the language-model labels (not hand labels) */
+    narrative_llm_agreement?: number | null;
+    narrative_llm_agreement_n?: number;
+    hand_label_agreement?: number | null;
+    retrieval?: { claims?: number; recall_at_20?: number; floor?: number; claims_all?: number; recall_at_20_all?: number; report?: string };
+    bot_report?: string;
     gold_by_narrative?: Record<string, number>;
     model_version?: string;
     bot_model?: string;
@@ -277,6 +311,7 @@ export interface SiteData {
   };
   sources?: { bot_model?: string; data?: string; privacy?: string };
   challenge?: ChallengeItem[] | { accounts?: ChallengeItem[] };
+  challenge_meta?: { model_version?: string; accounts?: number; hand_labeled?: number };
   findings?: (Finding | string)[] | Record<string, string | Finding>;
   news?: SiteNews;
 }

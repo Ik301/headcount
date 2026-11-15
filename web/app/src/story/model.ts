@@ -78,6 +78,7 @@ export interface Model {
   graphMeta?: NonNullable<SiteData["graph"]>["meta"];
   graphHasTime: boolean;
   archetypes: NonNullable<SiteData["archetypes"]>;
+  archetypesMeta?: SiteData["archetypes_meta"];
   clusters: Cluster[];
   findings: Record<string, Finding>;
   /** The export's findings as plain sentences, keyed by topic (story, spread, wapo, without, archetype, news). */
@@ -260,6 +261,7 @@ export function buildModel(d: SiteData): Model {
     graphMeta: d.graph?.meta,
     graphHasTime,
     archetypes: d.archetypes ?? [],
+    archetypesMeta: d.archetypes_meta,
     clusters: (d.clusters ?? d.coordination ?? []).map((c) => ({
       ...c,
       cluster_id: c.cluster_id ?? c.id ?? "",

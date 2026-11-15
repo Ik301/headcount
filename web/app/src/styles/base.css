@@ -32,6 +32,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .topnav a{color:var(--ink-2);text-decoration:none;padding:8px 10px;border-radius:6px;white-space:nowrap}
 .topnav a:hover{color:var(--ink);background:var(--panel)}
 .topnav a.active{color:var(--ink);font-weight:500}
+.topnav .nav-short{display:none}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;
   border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:500;font-size:15px;
@@ -53,7 +54,9 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 @media (max-width:520px){
   .topnav a{padding:8px 6px;font-size:13px}
   .topnav a:first-child{display:none}
-  .mark{font-size:17px}
+  .topnav .nav-long{display:none}
+  .topnav .nav-short{display:inline}
+  .mark{font-size:17px;white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { against, versusWords } from "../lib/compare";
 import { ci, fmtInt, pct } from "../lib/format";
 import type { DrawerContent } from "./Drawer";
 import { clusterDrawer, narrativeDrawer } from "./drawers";
@@ -104,7 +105,7 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
                   <div className="big">{pct(n.bot)}</div>
                   <div className="ci">{n.ci ? ci(n.ci) : "no interval"}</div>
                   <div className="ci2">
-                    {m.baseline != null ? (ratio(n) ? `${ratio(n)!.toFixed(1)}× the ${pct(m.baseline, 1)} baseline` : `near the ${pct(m.baseline, 1)} baseline`) : ""}
+                    {m.baseline != null ? vsBaseline(n, m.baseline, ratio(n)) : ""}
                   </div>
                   <CiSvg n={n} max={maxAuto} baseline={m.baseline} />
                 </div>
@@ -163,10 +164,16 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
             {hedge?.news != null && (
               <p>
                 <b className="mono">{pct(hedge.news)}</b> of wire-service and public-broadcaster headlines{hedge.topic ? ` on ${hedge.topic}` : ""} hedge (“alleged”, “suspected”)
-                {hedge.social != null && (
+                {sc?.bluesky_link_hedged_share != null && sc.bluesky_own_words_hedged_share != null ? (
                   <>
-                    , against <b className="mono">{pct(hedge.social)}</b> of Bluesky posts
+                    . On Bluesky, <b className="mono">{pct(sc.bluesky_link_hedged_share)}</b> of posts that share a link hedge, and <b className="mono">{pct(sc.bluesky_own_words_hedged_share)}</b> of posts in people’s own words
                   </>
+                ) : (
+                  hedge.social != null && (
+                    <>
+                      , against <b className="mono">{pct(hedge.social)}</b> of Bluesky posts
+                    </>
+                  )
                 )}
                 .
               </p>
@@ -194,6 +201,14 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
 }
 
 const ordinal = (n: number) => ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"][n - 1] ?? `#${n}`;
+
+/** "above the 5.0% baseline (1.8×)", "below the 5.0% baseline", "not clearly different from the 5.0% baseline": read
+ *  from the narrative's interval, so a 0.4% narrative never reads as "near" a 5% baseline. */
+function vsBaseline(n: Narr, base: number, x: number | null): string {
+  const w = versusWords(against(n.ci, base));
+  if (!w) return x ? `${x.toFixed(1)}× the ${pct(base, 1)} baseline, no interval` : `baseline ${pct(base, 1)}, no interval`;
+  return `${w} the ${pct(base, 1)} baseline${w === "above" && x ? ` (${x.toFixed(1)}×)` : ""}`;
+}
 
 function CiSvg({ n, max, baseline }: { n: Narr; max: number; baseline?: number }) {
   const w = 320, x = (v: number) => 6 + (v / max) * (w - 12);

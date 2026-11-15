@@ -425,6 +425,7 @@ New ideas go here, one paragraph each, with what they add to the judging and wha
 
 ## Changelog
 
+- Sat 21:30: challenge mode built at `/challenge` (fallback 1); export reads the VM evaluation reports and M5's matched archetypes, ships the news module's hedging split (54% news, 50% link, 29% own words), masks every @mention that isn't a nameable Bluesky account (Hermes, `hermes/export-fixes`).
 - Sat 17:05: the "why" pitch spine; news baseline (H10) from wire services and public broadcasters (Isaac's request) (Hermes).
 - Sat 16:50: live any-story check is required, not a stretch (Isaac); PRODUCT.md (product and feature list) and web/mockups/BRIEF.md (shared mockup brief) added (Hermes).
 - Sat 16:45: messaging is Photon 2.0 Beta in Python (`photonhq-api`), not Spectrum; judge onboarding through `/join` because shared lines need registered senders; `src/config.py` and `src/stats.py` added per Muse's build spec (Hermes).

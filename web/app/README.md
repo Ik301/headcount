@@ -7,8 +7,9 @@ Vite + React + TypeScript. Three routes, ported from the approved mockups (`web/
 | `/` | Claim checker: input, example chips, progress, then the result | `POST {API_BASE}/claim` with `{"text", "mode": "auto"}` |
 | `/claim/:id` | One check's result. This is the link the text line sends | Router state handed over by `/` when you just ran it, else `GET {API_BASE}/claim/{id}` |
 | `/story` | The Jensen Huang week as a guided story in six chapters; `?mode=explore` opens the full dashboard (replay, without likely automated, archetypes, evidence, method) | `GET /site_data.json` (static, served from `web/public/site_data.json`). No API calls |
+| `/challenge` | "Spot the automation" (DEMO fallback 1), ported from `web/mockups/challenge.html`: label 20 frozen accounts, then see the model's score and reasons | `site_data.json` `challenge` (the export copies `data/sample/challenge.json` and adds each public account's age, posting rate, follows and hour-of-day mix as `profile`), `validation.recall_at_k["100"]` for the footer. No API calls |
 
-Screenshots of the current build are in `shots/v2/` (guided story, 1440x900 and 390 wide, plus explore mode). Regenerate with `python3 scripts/shots-v2.py shots/v2` while `npx vite preview --port 4174` runs. Older dashboard shots are in `shots/`.
+Screenshots of the current build are in `shots/v3/` (story chapters 2 to 5, the flagship claim result, `/challenge` card, reveal and results, explore views; 1440 and 390 wide). Regenerate with `python3 scripts/shots-v3.py shots/v3` while `npx vite preview --port 4175` runs and the API answers on port 8000. Earlier shots are in `shots/v2/` (guided story, 1440x900 and 390 wide, plus explore mode). Regenerate with `python3 scripts/shots-v2.py shots/v2` while `npx vite preview --port 4174` runs. Older dashboard shots are in `shots/`.
 
 ## Run it
 
@@ -26,6 +27,7 @@ Production build and a local server that handles the SPA routes:
 ```sh
 npm run build            # tsc type-check, then vite build into web/app/dist (includes site_data.json)
 npm run preview          # http://127.0.0.1:4173
+npm test                 # node --test tests/*.test.ts: the claim headline rule and the baseline wording (src/lib/compare.ts)
 ```
 
 `dist/` is a static site. Any static host works as long as unknown paths fall back to `index.html`, so `/claim/<id>` links resolve.
@@ -48,7 +50,7 @@ Code: `src/config.ts`. The share link is built from `window.location.origin` + `
 - `CheckerPage.tsx`: idle state, example chips (`EXAMPLES`), submit. Runs the check, then navigates to `/claim/<claim_id>` with the result in router state, so the address bar is the shareable link and nothing is fetched twice.
 - `RunProgress.tsx`: the running state. The API answers once, at the end, so the four stages advance on a typical schedule while the clock is real. The last stage stays "working" until the answer arrives. If the API ever streams progress, swap the schedule for real events here.
 - `ClaimResult.tsx`: the reply-shaped result. Every number is read straight from the `/claim` JSON (`docs/DEMO.md`, "API contracts"):
-  - headline: `matched_posts` and the narrative with the highest `bot_post_share`; the "about N× the baseline" ratio uses the reply-text rule (only at 2× or more)
+  - headline: `matched_posts` and the most automated narrative among those with 30+ posts and an interval at most 25 points wide (`pickHeadline` in `src/lib/compare.ts`); if none qualifies, the overall share (narrative shares weighted by size). The "about N× the baseline" ratio uses the reply-text rule (only at 2× or more); otherwise the interval says above, below or not clearly different from the baseline
   - narratives: `share_of_matches`, `posts`, `bot_post_share`, `bot_post_share_ci`, `baseline_bot_share`
   - "What they have in common": `bot_commonalities[].signal/accounts`
   - "Who amplifies them": `amplifiers.n_humans`, `amplifiers.archetype_mix[].label/share/lift` (and `lift_ci` if the API adds it)
@@ -72,6 +74,10 @@ The default view. Each chapter leads with one plain-language headline, then one 
 | 6 How we know | `validation.handcheck_precision`, `recall_at_k` vs `baseline_recall_at_k` | 50-square hand-check grid; recall curve, glossary, data and privacy in details |
 
 Each chapter's "Copy this finding" copies the matching sentence from the export's `findings` list verbatim. Styles: `src/styles/guide.css`, all under `.guide`.
+
+### `/challenge` (`src/challenge/ChallengePage.tsx`, `src/styles/challenge.css`)
+
+Card, reveal and results states as in the mockup, with Isaac's revisions (larger type from 720 px and again from 1024 px, timestamps in the UI sans; mono only for hashed refs). Keys: A / P to answer, S to skip, N for the next account. The reveal compares the viewer's call with the model's (score 0.5 or higher counts as likely automated); Isaac's `hand_label` appears only where he has labeled the account, so unlabeled accounts reveal just the model's score and reasons. Answers stay in component state (nothing is sent anywhere). All classes are prefixed `c-` because `story.css` and `checker.css` style bare class names globally.
 
 ### `/story?mode=explore` (`src/story/`)
 

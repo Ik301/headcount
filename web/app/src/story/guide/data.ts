@@ -67,6 +67,8 @@ export interface GuideData {
   arch: Arch[];
   humans?: number;
   ampDefinition?: string;
+  /** M5's matched comparison: amplifiers, how many found a matched control, and the total sample */
+  matched?: { amplifiers: number; matched: number; accounts: number; matching?: string };
   hand?: { hits: number; n: number };
   recall?: { k: string; model: number; base?: number }[];
   modelVersion?: string;
@@ -108,7 +110,9 @@ export function buildGuide(d: SiteData, m: Model): GuideData {
   } else if (sc?.bluesky_hedged_share != null) {
     rows.push({ id: "social", label: "Bluesky posts", n: sc.bluesky_posts, share: sc.bluesky_hedged_share, ci: sc.bluesky_hedged_share_ci, tone: "social" });
   }
-  const terms = (d.news?.method?.match(/Hedged: uses ([^.]+)\./i)?.[1] ?? "").split(/,\s*|\s+or\s+/).map((s) => s.trim()).filter(Boolean);
+  const terms = d.news?.hedge_terms?.length
+    ? d.news.hedge_terms
+    : (d.news?.method?.match(/Hedged: uses ([^.]+)\./i)?.[1] ?? "").split(/,\s*|\s+or\s+/).map((s) => s.trim()).filter(Boolean);
   const outlets = (d.news?.outlets ?? []).map((o) => ({ name: o.name ?? o.source ?? "", funding: o.funding, spy: o.spy_headlines, hedged: o.spy_hedged })).filter((o) => o.name);
 
   /* archetypes */
@@ -154,6 +158,15 @@ export function buildGuide(d: SiteData, m: Model): GuideData {
     arch,
     humans: d.archetypes_meta?.interacting_humans_profiled,
     ampDefinition: d.archetypes_meta?.definition,
+    matched:
+      d.archetypes_meta?.matched && d.archetypes_meta.amplifiers != null
+        ? {
+            amplifiers: d.archetypes_meta.amplifiers,
+            matched: d.archetypes_meta.amplifiers_matched ?? d.archetypes_meta.amplifiers,
+            accounts: d.archetypes_meta.accounts ?? d.archetypes_meta.interacting_humans_profiled ?? 0,
+            matching: d.archetypes_meta.matching,
+          }
+        : undefined,
     hand,
     recall,
     modelVersion: m.validation.model_version,
@@ -168,11 +181,7 @@ export function oneIn(share: number): string | null {
   return `1 in ${Math.round(1 / share)}`;
 }
 
-/** Where an interval sits against a reference value, in words. */
-export function against(ci: [number, number] | undefined, ref: number): "above" | "below" | "same" | null {
-  if (!ci) return null;
-  return ci[0] > ref ? "above" : ci[1] < ref ? "below" : "same";
-}
+export { against } from "../../lib/compare";
 
 /* ---------------- replay graph: only the cast that matters ---------------- */
 

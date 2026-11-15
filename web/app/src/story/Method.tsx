@@ -45,7 +45,10 @@ export function Method({ m }: { m: Model }) {
   const v = m.validation;
   const r100 = v.recall_at_k?.["100"];
   const rr20 = v.retrieval_recall_at_k?.["20"];
-  const fallback = r100 != null ? `Scores are evidence, not verdicts. The model ranks ${pct(r100)} of held-out labeled bots in its top 100${v.gold_accuracy != null ? `; narrative labels match hand labels ${pct(v.gold_accuracy)} of the time` : ""}.` : undefined;
+  const handAgree = v.hand_label_agreement ?? v.gold_accuracy;
+  const llmAgree = v.narrative_llm_agreement;
+  const rt = v.retrieval;
+  const fallback = r100 != null ? `Scores are evidence, not verdicts. The model ranks ${pct(r100)} of held-out labeled bots in its top 100${handAgree != null ? `; narrative labels match hand labels ${pct(handAgree)} of the time` : ""}.` : undefined;
   return (
     <section className="view v-method" aria-label="Method and validation">
       <FindingBar finding={m.findings.method} fallback={fallback} source="Validation on held-out labeled data" view="method" />
@@ -62,7 +65,11 @@ export function Method({ m }: { m: Model }) {
         {rr20 != null && <div className="metric">
           <div className="v">{rr20.toFixed(2)}</div>
           <div className="k">claim retrieval recall@20</div>
-          <p>For hand-checked claims, the share of truly matching posts found in the first 20 results the search returns, before narrative grouping.</p>
+          <p>
+            For {rt?.claims ? `the first ${rt.claims}` : ""} hand-checked claims, the share of truly matching posts found in the first 20 results the search returns, before narrative grouping
+            {rt?.floor != null ? ` (similarity floor ${rt.floor.toFixed(2)})` : ""}.
+            {rt?.recall_at_20_all != null && rt.claims_all ? ` On all ${rt.claims_all} claims: ${rt.recall_at_20_all.toFixed(2)}.` : ""}
+          </p>
           {v.retrieval_recall_at_k && Object.keys(v.retrieval_recall_at_k).length > 1 && <Curve data={v.retrieval_recall_at_k} label="recall@k, k = results returned" />}
         </div>}
         {v.handcheck_precision?.n != null && (
@@ -74,10 +81,20 @@ export function Method({ m }: { m: Model }) {
             <p>Of the accounts the model scored highest that carry no bot label, the share that were clearly automated when checked by hand.</p>
           </div>
         )}
-        {v.gold_accuracy != null && <div className="metric">
-          <div className="v">{pct(v.gold_accuracy)}</div>
-          <div className="k">narrative label agreement</div>
-          <p>How often narrative labels agree with hand labels on a held-out set of posts from this story.</p>
+        {llmAgree != null && handAgree == null && (
+          <div className="metric">
+            <div className="v">{pct(llmAgree)}</div>
+            <div className="k">classifier agreement with the language-model labels</div>
+            <p>
+              A language model labeled every post with its narrative. The fast classifier that serves new posts agrees with those labels on {pct(llmAgree)} of held-out posts
+              {v.narrative_llm_agreement_n ? ` (${fmtInt(v.narrative_llm_agreement_n)})` : ""}. Agreement with hand labels: pending.
+            </p>
+          </div>
+        )}
+        {handAgree != null && <div className="metric">
+          <div className="v">{pct(handAgree)}</div>
+          <div className="k">narrative agreement with hand labels</div>
+          <p>How often narrative labels agree with hand labels on a held-out set of posts from this story.{llmAgree != null ? ` The classifier agrees with the language-model labels on ${pct(llmAgree)}.` : ""}</p>
           {v.gold_by_narrative && (
             <div className="agree">
               {m.narratives
@@ -203,7 +220,11 @@ export function Method({ m }: { m: Model }) {
               No ruling on truth, no attribution<span>We do not say whether a claim is true or who runs an account.</span>
             </li>
           </ul>
-          {m.challengeCount > 0 && <p className="muted mt8">Challenge set: {m.challengeCount} frozen, hand-checked accounts.</p>}
+          {m.challengeCount > 0 && (
+            <p className="muted mt8">
+              Challenge set: {m.challengeCount} frozen accounts. <a href="/challenge">Try labeling them yourself</a>.
+            </p>
+          )}
         </div>
       </div>
     </section>
