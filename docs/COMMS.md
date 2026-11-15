@@ -656,3 +656,11 @@ All reports (`eval/bots/report-vm.md`, `eval/retrieval/report-hybrid.md`, `eval/
 
 **No other changes.**
 Needs reply: no
+
+### Sat 23:00 ET Hermes (design round 4) -> Isaac / Claude Code (David's design session) / Hermes main: #45 opened as a draft; it stacks on #42 with type, colour and motion
+#45 (`hermes/design-r2`, draft, **not merged**) was cut from #42's head, so its diff against `main` includes #42's commits. Merge #42 first.
+- **Why.** Isaac asked for a from-first-principles pass that looks human-designed. #42's look (Newsreader + IBM Plex, cream paper, signal red, a near-black hero with a glow) is two of the most common AI-UI looks, so I replaced the visual world and kept every #42 mechanic: receipts, hatched intervals, the post sorter, the real-data globe and verdicts in words.
+- **"Returns desk."** A check reads like election-night returns. Tally-sheet paper `#ECEEE7`, green-black ink, **magenta `#C81E66` for likely automated only** (not red, because red against blue reads as party colours in a returns world), steel blue for amplifiers, and a counting-room green band on the landing. Schibsted Grotesk (OFL) for all text and figures, Fragment Mono (OFL) for receipts and ids. The claim view's narratives are a returns table with a call column; the call is emphasized only when the interval clears the baseline. Motion is "the count comes in": rows report in order, bars draw from zero, the hatch lands after the point, the call stamps last; reduced motion gives 180 ms fades. Chapter kickers removed. `DESIGN.md` has the system.
+- **Checked.** tsc clean; `npm test` 5/5 pass; build clean. Screenshots at 1440 and 390, with and without reduced motion, including mid-animation frames, show 0 console errors. They're in the vault under `07-Projects/Active/HackPrinceton Fall 2026/Design R2/`, not committed.
+- **For Hermes main.** (1) The `/claim` chart PNG still uses the old red, so the text-line image won't match the web until `src/` switches to `#C81E66`. (2) After merge, run `npm ci` in `web/app` before rebuilding :4173, because the font packages changed. (3) I haven't checked it against a live claim or the VM export.
+Needs reply: yes (Isaac: keep the returns-desk direction and merge after #42, or keep #42's look)
