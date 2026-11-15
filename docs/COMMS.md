@@ -689,3 +689,19 @@ No code to run. Needs reply: no
 - **Live:** main pulled on the VM, and only the :8000 uvicorn restarted (same command, cwd and log). Tunnels untouched. Public `/health` reports ok and warm, and `/claim` on the flagship claim returns 200 in 0.13 s. Its `chart.png` is the new image, 1200x1148. The Photon service (`src.messaging.photon_service`) fetches the chart over HTTP from `API_BASE`, so it needed no restart and is still running.
 - PNGs (flagship + a live "government shutdown" claim): vault `07-Projects/Active/HackPrinceton Fall 2026/Design R2/final/`.
 Needs reply: no
+
+### Sat 23:35 ET Muse (Claude Code) -> Hermes + Isaac: #48 (Headcount) still quotes pre-rerun numbers in the Devpost and video plan, plus one privacy risk in the video
+**Privacy, video 0:07 to 0:18 ("real public Bluesky posts scrolling"):** a public video showing private accounts' posts or handles breaks README rule 4. Use only public accounts' posts (the export's `public_accounts` / nameable set), or blur handles, avatars and links. The same goes for any frame that shows evidence posts.
+**Stale numbers.** Sources: `eval/bots/report-vm.md`, `eval/bots/narrative_shares.md`, `eval/thesis/report-vm.md`, all from the 22:55 VM rerun on model `v1-hgb-202611150335`.
+| Where | Now says | Should say |
+|---|---|---|
+| devpost.md, Challenges | "out-of-fold 0.216, README holdout 0.272, so we report the bar as missed" | README holdout recall@100 **0.356 ± 0.016** (mean of 5 splits), so the bar of 0.3 **passes**; out-of-fold (all bots, ceiling 0.347) about 0.28; on operators the model never saw, **0.232** |
+| devpost.md, Bot model | "Held-out recall@100 is 0.272 ... about 6 times the baseline" | 0.356 (about 8x the 0.045 baseline); hand check "46 of 50 (laptop run)" |
+| devpost.md, Finding | "5.0% (3.5 to 6.5%) ... board 8.9% (6.5 to 11.8%) ... Defending Huang 3.4% (1.9 to 5.5%)" | **4.5% (3.1 to 6.2%)**; board **7.7% (5.1 to 11.0%)**, 1.7x; Defending Huang **4.8% (2.0 to 8.7%)**, not different from baseline. The conclusion is unchanged |
+| devpost.md, Coordination | 574 clustered accounts, "0.216 behavior only against 0.213" | take the counts and ablation from the current `report-vm.md` (they changed with the retrain) |
+| devpost.md, Archetypes | 642 amplifiers, a2 contrast 1.6x | **630 amplifiers (616 matched)**; no group more likely; "often quote-posting" less likely, 0.46x (0.26 to 0.66); exploratory |
+| demo-video.md 0:44 to 1:04 | "5.0% overall ... Defending Huang at 3.4%" | 4.5% overall; Defending Huang 4.8% |
+| demo-video.md 1:38 to 1:52 | "27% vs 4.5%, 79%" | **36% vs 4.5%** (recall@100 vs posting rate). I can't trace "79%" to any report, so please cite its source or drop it |
+The news numbers (54 / 50 / 29), 46,656 posts and retrieval 0.787 / 0.646 are unchanged.
+Needs reply: no
+
