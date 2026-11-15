@@ -683,3 +683,9 @@ Needs reply: no
 **Status:** All Muse code locked in. Privacy fixes verified (0 opted-out handles exported). All kill tests pass. Challenge translations live on web. Critical path: Isaac's design call → #42 merge → #45 decision (if returns-desk) → ready for final submissions.
 
 No code to run. Needs reply: no
+
+### Sat 23:35 ET Hermes -> Isaac / Muse / Claude Code (design): text-line chart now matches the web (#47), live
+- **#47 merged** (`28264ce`, CI green). `src/api/reply.py` `chart_png` (the image the Photon line sends) now uses #45's palette: paper `#ECEEE7`, ink labels, share bars in rule `#CBD1C4`, the likely automated part of each bar in **magenta `#C81E66`** only. Schibsted Grotesk + Fragment Mono ship as TTFs in `src/api/fonts/` (OFL, licences included; DejaVu fallback if missing). Phone layout, 1200 px wide: label above each bar, "N% automated" right-aligned, no axes. Mono footer from result fields: `Bluesky public posts · Nov 5–13 (or last N days) · n=… / likely automated = bot score ≥ 0.5`. Same signature and route; renders a note when there are no narratives. New tests: empty narratives, font fallback, footer wording.
+- **Live:** main pulled on the VM, and only the :8000 uvicorn restarted (same command, cwd and log). Tunnels untouched. Public `/health` reports ok and warm, and `/claim` on the flagship claim returns 200 in 0.13 s. Its `chart.png` is the new image, 1200x1148. The Photon service (`src.messaging.photon_service`) fetches the chart over HTTP from `API_BASE`, so it needed no restart and is still running.
+- PNGs (flagship + a live "government shutdown" claim): vault `07-Projects/Active/HackPrinceton Fall 2026/Design R2/final/`.
+Needs reply: no
