@@ -9,13 +9,19 @@ import os
 PUBLIC_FOLLOWERS = 5000
 
 
+OPT_OUT_LABELS = ("!no-unauthenticated",)  # the account asked not to be shown to logged-out viewers
+
+
 def is_public(profile: dict) -> bool:
-    """README rule: 5,000+ followers, verified, or self-labeled bot. News organizations are usually verified."""
+    """README rule: 5,000+ followers, verified, or self-labeled bot. News organizations are usually verified.
+    An account that opted out of logged-out viewing is never public, whatever its size (bug 19)."""
+    labels = [l.get("val") for l in (profile.get("labels") or [])]
+    if any(l in OPT_OUT_LABELS for l in labels):
+        return False
     if (profile.get("followersCount") or 0) >= PUBLIC_FOLLOWERS:
         return True
     if (profile.get("verification") or {}).get("verifiedStatus") == "valid":
         return True
-    labels = [l.get("val") for l in (profile.get("labels") or [])]
     return any(l in ("bot", "!bot") for l in labels)
 
 

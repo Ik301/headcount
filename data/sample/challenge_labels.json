@@ -1,12 +1,12 @@
 {
- "nito-gregorian.bsky.social": "automated",
- "zivesk.zpravobot.news.ap.brid.gy": "automated",
- "intlnewsen.eurosky.social": "automated",
+ "codendahl.bsky.social": "human",
+ "huwupy.kawaii.social": "human",
+ "coreybrickley.bsky.social": "human",
  "mm-repubblica-bot.bsky.social": "automated",
- "green-mag.bsky.social": "automated",
- "gmoyer17.bsky.social": "human",
- "dannyodwyer.bsky.social": "human",
- "sonjadrimmer.bsky.social": "human",
- "11thjeff.bsky.social": "human",
- "reporterrwright.ft.com": "human"
+ "echo24cz.zpravobot.news.ap.brid.gy": "automated",
+ "thesgtjoker.bsky.social": "human",
+ "smhaustralia.nzcow.com": "automated",
+ "mm-corriere-bot.bsky.social": "automated",
+ "mm-dday-bot.bsky.social": "automated",
+ "tomfromtemecula.bsky.social": "human"
 }

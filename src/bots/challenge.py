@@ -46,8 +46,13 @@ MENTION = re.compile(r"@([a-z0-9][a-z0-9.\-]*\.[a-z]{2,})", re.I)
 PUBLIC_HANDLES: set[str] = set()  # filled in main(); mentions of anyone else are masked
 
 
+FEDI_MENTION = re.compile(r"@[\w.-]+@[\w.-]+\.[a-z]{2,}", re.I)  # fediverse @user@instance: never a story account
+
+
 def mask_mentions(text: str) -> str:
-    """Posts may @mention private accounts; their handles never go into a committed file."""
+    """Posts may @mention private accounts; their handles never go into a committed file. Fediverse mentions
+    (@user@instance) are masked whole, or the user part would survive the domain match."""
+    text = FEDI_MENTION.sub("@[a private account]", text)
     return MENTION.sub(lambda m: m.group(0) if m.group(1).lower() in PUBLIC_HANDLES else "@[a private account]", text)
 
 
