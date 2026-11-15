@@ -116,15 +116,19 @@ After the fixes, in-process (`src.agent.agent.run` on the same data, `DATA_DIR` 
 | C | who shares it (stock claim) | 2.7 s | "Only 3 amplifying accounts could be profiled ... 11 of the 14 accounts couldn't be profiled" |
 | D | Did bots defend Jensen Huang? then show the bots | 3.7 s, 2.3 s | Verbatim answer, then "No shared signals came back for this claim" |
 
-## Backup recordings (`web/app/recordings/`, webm, 1440x900, VP9)
+## Backup recordings (`web/app/recordings/`, webm, VP9)
 
-| File | Length | What it shows |
-|---|---|---|
-| `claim-jensen-mistress-spy.webm` | 23.0 s | Types the flagship claim in the web checker, answer in about 5 s including typing, scrolls the result |
-| `claim-live-any-story.webm` | 37.5 s | Live any-story check ("Did a Florida city cancel its St. Patrick's Day parade?"): progress steps, then 253 posts and 5 narratives (server time 13.1 s) |
-| `story-dashboard.webm` | 46.9 s | `/story`: replay playing, narrative river with markers, the without-likely-automated view and its toggle, archetypes, evidence, method |
+Recorded Sat Nov 14 ~23:55 ET against the public URLs, after design round 4 (#45, "returns desk" look, Headcount name). Desktop at 1440x900; the two `mobile-` files are a 390x844 phone viewport (touch emulation). 0 console errors in every run.
 
-The flagship recording shows the misleading headline from bug 3. Re-record it (`python3 web/app/recordings/record.py claim "Was Jensen Huang's mistress a Chinese spy?"`) once that is fixed.
+| File | Size | Length | What it shows |
+|---|---|---|---|
+| `claim-jensen-mistress-spy.webm` | 1440x900 | 27.7 s | Types the flagship claim, answer 0.9 s after Check (443 posts; spy plot 4%, not clearly different from the 4.5% baseline), scrolls the post sorter, narratives, news and evidence |
+| `claim-live-any-story.webm` | 1440x900 | 63.1 s | Live any-story check ("Did Delray Beach cancel its St. Patrick's Day parade?", not cached): progress steps and the scanning globe, answer 35.3 s after Check (282 posts), then the result |
+| `story-dashboard.webm` | 1440x900 | 56.3 s | `/story` guided chapters 1 to 6: replay, how much was automated, where it was (the post sorter stepped to "Likely automated"), newsrooms vs Bluesky, who spread it, how we know |
+| `mobile-claim-jensen-mistress-spy.webm` | 390x844 | 39.5 s | Phone: types the flagship claim, answer 1.6 s after Check, taps the headline's 4% to open its receipt, scrolls the result |
+| `mobile-challenge.webm` | 390x844 | 29.8 s | Phone: `/challenge` card with an English translation over the French original, answers "likely automated", the reveal (0.36, model disagrees, three reasons), next card |
+
+Re-record with `python3 web/app/recordings/record.py claim|live|story|claim-mobile|challenge-mobile ["claim text"]` (`WEB_BASE` overrides the web URL). Use a live claim the API hasn't seen in the last hour, or the live recording shows a cached sub-second answer.
 
 ## Bugs, ranked
 
