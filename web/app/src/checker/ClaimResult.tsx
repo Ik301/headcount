@@ -9,6 +9,7 @@ import { narrativeColor } from "../lib/narrativeColor";
 import { useCopy } from "../lib/useCopy";
 import { Redacted } from "../components/Redacted";
 import { VoiceSorter } from "./VoiceSorter";
+import { CountUp } from "../components/CountUp";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -154,11 +155,11 @@ function Headline({ r, enough, pick, baseline }: { r: ClaimResult; enough: boole
   if (pick.kind === "overall")
     return pick.share > 0 ? (
       <>
-        <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(pick.share)}</span> of them.
+        <span className="n"><CountUp value={r.matched_posts} /></span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(pick.share)}</span> of them.
       </>
     ) : (
       <>
-        <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. None of its narratives shows likely automated accounts at the default cutoff.
+        <span className="n"><CountUp value={r.matched_posts} /></span> Bluesky posts make this claim. None of its narratives shows likely automated accounts at the default cutoff.
       </>
     );
   const top = pick.n;
@@ -167,7 +168,7 @@ function Headline({ r, enough, pick, baseline }: { r: ClaimResult; enough: boole
   const vs = x ? null : b != null ? versusWords(against(top.bot_post_share_ci, b)) : null;
   return (
     <>
-      <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(top.bot_post_share)}</span> of those
+      <span className="n"><CountUp value={r.matched_posts} /></span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(top.bot_post_share)}</span> of those
       in “{top.label}”{x ? `, about ${x.toFixed(1)}× the story’s baseline` : vs && b != null ? `, ${vs} the story’s ${pct(b, 1)} baseline` : ""}.
     </>
   );
