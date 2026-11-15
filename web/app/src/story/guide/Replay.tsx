@@ -108,7 +108,7 @@ function Network({ m, T }: { m: Model; T: number }) {
       g.beginPath();
       g.moveTo(X(e.a.x), Y(e.a.y));
       g.lineTo(X(e.b.x), Y(e.b.y));
-      g.strokeStyle = e.amp ? "rgba(47,111,143,.22)" : e.a.role === "auto" && e.b.role === "auto" ? "rgba(217,71,43,.35)" : "rgba(160,154,142,.22)";
+      g.strokeStyle = e.amp ? "rgba(36,94,126,.22)" : e.a.role === "auto" && e.b.role === "auto" ? "rgba(200,30,102,.35)" : "rgba(140,150,140,.22)";
       g.lineWidth = 0.8;
       g.stroke();
     }
@@ -125,7 +125,7 @@ function Network({ m, T }: { m: Model; T: number }) {
         g.fillStyle = C.human;
         g.fill();
       } else {
-        g.fillStyle = "#fff";
+        g.fillStyle = "#F9FAF6";
         g.fill();
         g.strokeStyle = C.ink;
         g.lineWidth = 1.4;
@@ -134,7 +134,7 @@ function Network({ m, T }: { m: Model; T: number }) {
     }
     // labels: up to 6 (3 on phones), skipping any that would collide
     const boxes: [number, number, number, number][] = [];
-    g.font = "500 11.5px 'IBM Plex Mono', monospace";
+    g.font = "500 11.5px 'Fragment Mono', monospace";
     g.textBaseline = "middle";
     let count = 0;
     for (const n of named) {
@@ -150,7 +150,7 @@ function Network({ m, T }: { m: Model; T: number }) {
       boxes.push(b);
       count++;
       g.lineWidth = 4;
-      g.strokeStyle = "rgba(247,245,240,.95)";
+      g.strokeStyle = "rgba(236,238,231,.95)";
       g.strokeText(text, tx, ty);
       g.fillStyle = C.ink;
       g.fillText(text, tx, ty);
@@ -278,6 +278,7 @@ function Timeline({ g, m, T, onScrub }: { g: GuideData; m: Model; T: number; onS
           }}
           onPointerMove={(ev) => drag.current && onScrub(fromEv(ev))}
           onPointerUp={() => (drag.current = false)}
+          onPointerCancel={() => (drag.current = false)}
           onKeyDown={(ev) => {
             if (ev.key === "ArrowRight" || ev.key === "ArrowLeft") {
               ev.preventDefault();
@@ -288,12 +289,12 @@ function Timeline({ g, m, T, onScrub }: { g: GuideData; m: Model; T: number; onS
             if (ev.key === "End") onScrub(m.hours);
           }}
         >
-          <path d={geo.total} fill="#CFC9BD" />
+          <path d={geo.total} fill="#BEC5B7" />
           <path d={geo.auto} fill={C.signal} />
-          <line x1={0} x2={w} y1={TOP + ih} y2={TOP + ih} stroke="#A9A397" />
+          <line x1={0} x2={w} y1={TOP + ih} y2={TOP + ih} stroke="#98A096" />
           {geo.days.map((d, i) => (
             <g key={d.x}>
-              <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 4} stroke="#A9A397" />
+              <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 4} stroke="#98A096" />
               {(!narrow || i % 2 === 0) && (
                 <text x={d.x + 3} y={H - 6} className="g-ax">
                   {d.label}
@@ -307,19 +308,19 @@ function Timeline({ g, m, T, onScrub }: { g: GuideData; m: Model; T: number; onS
             return (
               <g key={e.t}>
                 <line x1={ex} x2={ex} y1={cy + 8} y2={TOP + ih} stroke={C.ink} strokeOpacity={0.55} />
-                <circle cx={ex} cy={cy} r={8.5} fill={T >= e.h ? C.ink : "#fff"} stroke={C.ink} strokeWidth={1.2} />
-                <text x={ex} y={cy + 3.5} textAnchor="middle" className="g-ev-n" fill={T >= e.h ? "#fff" : C.ink}>
+                <circle cx={ex} cy={cy} r={8.5} fill={T >= e.h ? C.ink : "#F9FAF6"} stroke={C.ink} strokeWidth={1.2} />
+                <text x={ex} y={cy + 3.5} textAnchor="middle" className="g-ev-n" fill={T >= e.h ? "#F9FAF6" : C.ink}>
                   {i + 1}
                 </text>
               </g>
             );
           })}
-          <rect x={x} y={TOP - 2} width={Math.max(0, w - x)} height={ih + 2} fill="#F7F5F0" fillOpacity={0.75} pointerEvents="none" />
+          <rect x={x} y={TOP - 2} width={Math.max(0, w - x)} height={ih + 2} fill="#ECEEE7" fillOpacity={0.75} pointerEvents="none" />
           <line x1={x} x2={x} y1={TOP - 2} y2={TOP + ih + 2} stroke={C.ink} strokeWidth={2} pointerEvents="none" />
         </svg>
       </div>
       <p className="g-tl-key">
-        Posts per hour. <span className="g-key-auto">Red</span>: from likely automated accounts. Drag to move through the week.
+        Posts per hour. <span className="g-key-auto">Magenta</span>: from likely automated accounts. Drag to move through the week.
       </p>
       <ol className="g-events">
         {g.events.map((e) => (

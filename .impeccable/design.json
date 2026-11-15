@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T23:00:00-05:00",
+  "title": "Design System: Claim check (Returns desk)",
+  "extensions": {
+    "colorMeta": {
+      "tally-paper": { "role": "neutral", "displayName": "Tally-sheet paper", "canonical": "#ECEEE7" },
+      "ink": { "role": "neutral", "displayName": "Green-black ink", "canonical": "#111814" },
+      "automated-magenta": { "role": "primary", "displayName": "Automated magenta (likely automated only)", "canonical": "#C81E66", "tonalRamp": ["#F5DCE6", "#C81E66", "#A1144F"] },
+      "amplifier-steel": { "role": "secondary", "displayName": "Amplifier steel", "canonical": "#245E7E", "tonalRamp": ["#D8E4EA", "#245E7E"] },
+      "counting-room-green": { "role": "tertiary", "displayName": "Counting-room green (landing band)", "canonical": "#10261F", "tonalRamp": ["#10261F", "#163028", "#1B382F", "#2A4A3F"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Landing question only." },
+      "headline": { "displayName": "Headline", "purpose": "Claim result sentence; its counts at weight 800." },
+      "chapter": { "displayName": "Chapter headline", "purpose": "Guided story chapter headings." },
+      "figure": { "displayName": "Figure", "purpose": "Values in returns rows and chapter rows. Never tabular-nums." },
+      "data": { "displayName": "Data mono", "purpose": "Receipts, timestamps, ids, counters." }
+    },
+    "shadows": [
+      { "name": "slip", "value": "0 1px 0 rgba(0,0,0,.25), 0 22px 48px -26px rgba(0,0,0,.7)", "purpose": "The claim field lying on the green band." },
+      { "name": "ticket", "value": "0 1px 0 rgba(17,24,20,.06), 0 18px 40px -18px rgba(17,24,20,.45)", "purpose": "Receipt ticket." }
+    ],
+    "motion": [
+      { "name": "ease-arrive", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Every arrival." },
+      { "name": "ease-exit", "value": "cubic-bezier(.7,0,.84,0)", "purpose": "Exits, faster than arrivals." },
+      { "name": "stagger", "value": "60ms per row, capped at 6", "purpose": "Rows report in order." },
+      { "name": "in-wipe", "value": "560ms clip-path inset left-to-right + 6px travel", "purpose": "A returns row printing onto the board." },
+      { "name": "grow", "value": "640ms scaleX from left", "purpose": "Bars draw from zero." },
+      { "name": "hatch-in", "value": "500ms clip opening outward", "purpose": "Interval lands after its point." },
+      { "name": "stamp", "value": "340ms scale 1.22 to 1, no bounce", "purpose": "The call, last." },
+      { "name": "reduced", "value": "180ms opacity fade, no delay", "purpose": "prefers-reduced-motion replacement for every class above." }
+    ],
+    "breakpoints": [
+      { "name": "tablet", "value": "720px" },
+      { "name": "desk", "value": "1080px" }
+    ]
+  }
+}

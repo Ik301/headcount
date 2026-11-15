@@ -1,6 +1,7 @@
 /* Narrative colours: the fixed demo taxonomy gets the brief's tokens; anything else (live checks)
  * cycles through the same muted set in order of appearance. */
 const BY_ID: Record<string, string> = {
+  n0: "var(--n-none)",
   n1: "var(--n-spy)",
   n2: "var(--n-affairs)",
   n3: "var(--n-politics)",
@@ -10,13 +11,14 @@ const BY_ID: Record<string, string> = {
   n7: "var(--n-jokes)",
 };
 const HEX: Record<string, string> = {
-  "var(--n-spy)": "#6B5CA5",
-  "var(--n-affairs)": "#B0675A",
-  "var(--n-politics)": "#3E7C6A",
-  "var(--n-board)": "#8C7A3D",
-  "var(--n-market)": "#4F6FA8",
-  "var(--n-defend)": "#A0527F",
-  "var(--n-jokes)": "#8A8F99",
+  "var(--n-none)": "#AEB5AA",
+  "var(--n-spy)": "#34488C",
+  "var(--n-affairs)": "#A8772A",
+  "var(--n-politics)": "#5B7A2C",
+  "var(--n-board)": "#6F5E96",
+  "var(--n-market)": "#2C7C86",
+  "var(--n-defend)": "#C0612B",
+  "var(--n-jokes)": "#7C867F",
 };
 const CYCLE = ["var(--n-spy)", "var(--n-board)", "var(--n-defend)", "var(--n-politics)", "var(--n-market)", "var(--n-affairs)", "var(--n-jokes)"];
 
@@ -26,5 +28,5 @@ export function narrativeColor(id: string, index = 0): string {
 
 /** Canvas needs real hex values, not CSS variables. */
 export function narrativeHex(id: string, index = 0): string {
-  return HEX[narrativeColor(id, index)] ?? "#8A8F99";
+  return HEX[narrativeColor(id, index)] ?? "#7C867F";
 }

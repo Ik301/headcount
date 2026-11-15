@@ -81,6 +81,10 @@ export default function StoryPage() {
   return (
     <div className="page story">
       <TopBar />
+      <p className="explore-note">
+        Explore is laid out for a desktop screen; swipe sideways to pan. On a phone, the <Link to="/story">guided story</Link> shows the same data.
+      </p>
+      <div className="explore-pan">
       <header className="top">
         <div className="wrap-wide">
           <div className="title">
@@ -144,6 +148,7 @@ export default function StoryPage() {
         {view === "evidence" && <EvidenceView m={m} openDrawer={setDrawer} />}
         {view === "method" && <Method m={m} />}
       </main>
+      </div>
       <EvidenceDrawer content={drawer} onClose={closeDrawer} />
     </div>
   );

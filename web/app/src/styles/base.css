@@ -1,12 +1,12 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scrollbar-color:var(--rule) var(--paper)}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--sans);
-  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;caret-color:var(--ink)}
-::selection{background:var(--human-wash);color:var(--ink)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--sans);font-optical-sizing:auto;
+  font-variant-numeric:lining-nums;-webkit-font-smoothing:antialiased;caret-color:var(--ink)}
+::selection{background:var(--ink);color:var(--paper)}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:var(--rule);border-radius:10px;border:2px solid var(--paper)}
 ::-webkit-scrollbar-track{background:var(--paper)}
-:focus-visible{outline:2px solid var(--human);outline-offset:3px;border-radius:6px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px}
 a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
 button{font:inherit;color:inherit}
 code{font:13px var(--mono);background:var(--panel);padding:1px 5px;border-radius:4px}
@@ -26,18 +26,24 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .bar{border-bottom:1px solid var(--rule);background:var(--paper)}
 .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
 .story .bar .wrap{max-width:1600px;padding:0 24px}
-.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 19px/1 var(--serif);letter-spacing:-.01em;color:var(--ink)}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 17px/1 var(--sans);letter-spacing:-.02em;color:var(--ink)}
 .mark-ic{width:22px;height:22px}
 .topnav{display:flex;align-items:center;gap:4px;font-size:14px}
 .topnav a{color:var(--ink-2);text-decoration:none;padding:8px 10px;border-radius:6px;white-space:nowrap}
 .topnav a:hover{color:var(--ink);background:var(--panel)}
-.topnav a.active{color:var(--ink);font-weight:500}
+.topnav a.active{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 currentColor;border-radius:0}
 .topnav .nav-short{display:none}
+/* touch: 44px tap targets in the bar without changing its 56px height */
+@media (pointer:coarse){
+  .topnav a{display:inline-flex;align-items:center;min-height:44px}
+  .mark{min-height:44px}
+  .linkbtn{display:inline-flex;align-items:center;min-height:44px}
+}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;
-  border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:500;font-size:15px;
+  border-radius:4px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:600;font-size:15px;letter-spacing:-.005em;
   cursor:pointer;text-decoration:none;transition:background .2s var(--ease),transform .2s var(--ease),border-color .2s}
-.btn:hover{background:#2A2D35}
+.btn:hover{background:#24302A}
 .btn:active{transform:translateY(1px)}
 .btn[disabled]{background:var(--rule);border-color:var(--rule);color:var(--cap);cursor:not-allowed}
 .btn.ghost{background:var(--card);color:var(--ink);border-color:var(--rule)}
@@ -49,8 +55,8 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .foot{border-top:1px solid var(--rule);margin-top:8px}
 .foot .wrap{padding-top:16px;padding-bottom:28px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--cap)}
 
-@media (min-width:720px){ .wrap{padding:0 40px} }
-@media (min-width:1080px){ .wrap{padding:0 56px} }
+@media (min-width:720px){ .wrap{padding-left:40px;padding-right:40px} }
+@media (min-width:1080px){ .wrap{padding-left:56px;padding-right:56px} }
 @media (max-width:520px){
   .topnav a{padding:8px 6px;font-size:13px}
   .topnav a:first-child{display:none}
@@ -58,6 +64,44 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
   .topnav .nav-short{display:inline}
   .mark{font-size:17px;white-space:nowrap}
 }
+/* the smallest phones: the bold active link must not push the bar past the screen edge */
+@media (max-width:400px){
+  .bar .wrap{gap:6px}
+  .topnav{gap:0}
+  .topnav a{padding-left:5px;padding-right:5px}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+/* privacy redactions inside quoted posts (see components/Redacted.tsx) */
+.redacted{display:inline-block;padding:0 6px;margin:0 1px;border-radius:4px;background:var(--panel);border:1px dashed var(--rule);font:500 .82em/1.5 var(--sans);font-style:normal;color:var(--cap);white-space:nowrap;vertical-align:.04em}
+
+/* ---------- provenance receipts (components/Receipt.tsx) ----------
+ * The number is the button: a dashed underline says "this opens". The ticket prints downward like a
+ * thermal receipt (clip-path reveal, 220 ms), with perforated edges from a radial-gradient mask. */
+.rc{position:relative;display:inline}
+.rc-num{all:unset;cursor:pointer;color:inherit;font:inherit;border-radius:3px;
+  text-decoration:underline dashed;text-decoration-thickness:1px;text-underline-offset:.18em;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent);
+  transition:background .15s,text-decoration-color .15s}
+.rc-num:hover,.rc.is-open .rc-num{background:color-mix(in srgb,currentColor 9%,transparent);text-decoration-color:currentColor}
+.rc-num:focus-visible{outline:2px solid var(--human);outline-offset:2px}
+/* touch: the tap area reaches 44px tall without moving the number (rows sit further apart than that) */
+@media (pointer:coarse){.rc-num{position:relative}.rc-num::after{content:"";position:absolute;inset:-11px -6px}}
+.rc-ticket{position:absolute;z-index:60;display:block;box-sizing:border-box;
+  padding:16px 16px 18px;background:#FBFCF8;color:#111814;font:400 12px/1.5 var(--mono);letter-spacing:0;text-align:left;white-space:normal;
+  box-shadow:0 1px 0 rgba(17,24,20,.06),0 18px 40px -18px rgba(17,24,20,.45);
+  -webkit-mask:radial-gradient(circle 4px at 8px 0,#0000 98%,#000) top/12px 51% repeat-x,radial-gradient(circle 4px at 8px 100%,#0000 98%,#000) bottom/12px 51% repeat-x;
+          mask:radial-gradient(circle 4px at 8px 0,#0000 98%,#000) top/12px 51% repeat-x,radial-gradient(circle 4px at 8px 100%,#0000 98%,#000) bottom/12px 51% repeat-x;
+  animation:rc-print .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rc-print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+.rc-head{display:block;font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#56615A;padding-bottom:8px;margin-bottom:8px;border-bottom:1px dashed #C3CABD}
+.rc-line{display:flex;align-items:baseline;gap:6px;padding:2px 0}
+.rc-k{flex:none;color:#56615A}
+.rc-dots{flex:1;min-width:12px;border-bottom:1px dotted #C3CABD;transform:translateY(-3px)}
+.rc-v{flex:0 1 auto;text-align:right;color:#111814;font-weight:500}
+.rc-foot{display:block;margin-top:10px;padding-top:8px;border-top:1px dashed #C3CABD;color:#7C867F;font-size:10.5px}
+.rc-ticket .rc-v{white-space:normal}
+@media (prefers-reduced-motion:reduce){.rc-ticket{animation:none}}
+/* round 4: receipts' small print stays at 12px or above */
+.rc-head,.rc-foot{font-size:12px}
+.rc-foot{color:#56615A}

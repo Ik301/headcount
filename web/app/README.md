@@ -112,11 +112,25 @@ Until the export writes `web/public/site_data.json`, `npm run sample-data` copie
 
 ## Restyling
 
+Design round 1 conventions (`[demo]` PR from `claude/design-r1`):
+
+- Every guided chapter opens with a kicker (`Chapter n of 6 · title`, rendered in `Guide.tsx`) and puts a one-line `Source` under its chart (`Source` in `chapters.tsx`): where the numbers come from, n, and how the interval was computed. Every value in a source line is read from `site_data.json`.
+- Interval charts state their verdict in words under the value (`g-verdict`): narratives say "above the story / not clearly different / below the story" against the baseline; archetype lifts say "more likely / no clear difference / less likely" against 1×. Dots are filled only when the interval clears the comparison line. The claim view uses the same rule (`xb vs-*`, muted lift colour when the interval includes 1×).
+- The lift axis is clamped to ¼× to 4×; an interval that runs past the edge (or starts at 0) is drawn open-ended with an arrow.
+- Explore river: events are numbered on the chart and listed under it (`RiverEvents`), so labels never overlap.
+- Privacy masks in quoted posts (`@[account]`, `@[a private account]`, `[link]`) render as placeholder chips through `components/Redacted.tsx` in the claim evidence, the drawer and `/challenge`.
+- Claim view, "Volume vs. voices" (`checker/VoiceSorter.tsx`, canvas): one dot per matching post in four steps (volume cloud, narrative columns, likely automated settling to the bottom with the interval drawn as solid red for its low end and ringed dots for the rest, then removed and re-ranked). Counts come only from `narratives[].posts` (or `share_of_matches × matched_posts`), `bot_post_share` and `bot_post_share_ci`; above 2,000 posts (900 on phones) one dot stands for several posts and the caption says how many. Plays once when scrolled into view; buttons or keys 1 to 4 step through; reduced motion shows step 3 without moving; `?stage=1..4` pins a step for screenshots. Story chapter 3 uses the same component over the named narratives (`subject="story"`); with columns under 90 px it shows a swatch and one number per column and lists the names in a legend.
+- Provenance receipts (`components/Receipt.tsx`): tap a key number (claim headline, each narrative's automated share, story chapters 2 and 3) and a printed ticket unfolds with its source, window, n, cutoff, interval and method, model and check id. Tap rather than hover, so it works on phones and projectors. Every line reads the same JSON as the number; counts and methods only, never a handle.
+- Intervals are diagonal hatching (SVG `<pattern>` in the story charts, `repeating-linear-gradient` on the claim view): the drawing convention for "somewhere in this range".
+- The checker's landing and running screens use dark tokens (`.page.checker.is-dark`) with `checker/NetworkGlobe.tsx`, the replay graph from `site_data.json` on a turning globe. Its caption says the selection over-represents red.
+- `--n-affairs` is ochre `#B5853B`, kept off red so only likely automated reads as red.
+- `.wrap` breakpoints set only horizontal padding, so they never reset a page's vertical spacing.
+
 - Tokens: `src/styles/tokens.css` (exactly the brief's palette, plus `--signal-ink` and `--cap` for small text contrast).
 - `src/styles/base.css`: body, top bar, buttons, focus, selection, scrollbars.
 - `src/styles/checker.css`: everything under `.checker` (ported from the checker mockup).
 - `src/styles/story.css`: everything under `.story` (ported from the dashboard mockup; the 1440×900 fixed frame became a scrolling page with a 1100 px minimum width).
 - Canvas colours for the network are hex constants at the top of `Network.tsx`; narrative colours live in `src/lib/narrativeColor.ts` (`n1` to `n7` map to the brief's narrative tokens; other ids cycle through the same set).
-- Fonts are self-hosted through `@fontsource` (Newsreader, IBM Plex Sans, IBM Plex Mono), so the app works offline at the judging table.
+- Fonts are self-hosted through `@fontsource` (Schibsted Grotesk variable and Fragment Mono, both SIL OFL 1.1), so the app works offline at the judging table. Design tokens, type and motion rules: `DESIGN.md` at the repo root.
 
 Why canvas and not sigma.js: the export caps the replay graph at about 3,000 nodes, which canvas 2D draws at 60 fps; it renders in headless screenshots without GPU flags; and the node styling (rings, dashed self-labels, amplifier colour change) is a few lines of plain code. Swapping in sigma later only touches `Network.tsx`.

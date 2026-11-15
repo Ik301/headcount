@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { getSiteData } from "../api/client";
 import type { ChallengeItem, SiteData } from "../api/types";
 import { TopBar } from "../components/Shell";
 import { fmtInt, handle, parseT } from "../lib/format";
+import { Redacted } from "../components/Redacted";
 
 /* Route "/challenge": "Spot the automation", ported from the approved mockup (web/mockups/challenge.html).
  * Data: site_data.json's `challenge` (the export copies data/sample/challenge.json and adds each public account's
@@ -76,7 +77,7 @@ function hash(s: string): number {
 function Avatar({ seed }: { seed: string }) {
   const h0 = hash(seed);
   let bits = Math.imul(h0, 2654435761) >>> 0;
-  const fg = ["#4A4F5A", "#6B707A", "#5B6270"][h0 % 3];
+  const fg = ["#3B4640", "#56615A", "#56615A"][h0 % 3];
   const cells: JSX.Element[] = [];
   for (let y = 0; y < 5; y++)
     for (let x = 0; x < 3; x++) {
@@ -89,7 +90,7 @@ function Avatar({ seed }: { seed: string }) {
   return (
     <span className="c-av" aria-hidden="true">
       <svg viewBox="0 0 40 40">
-        <rect width="40" height="40" fill="#EEF0F2" />
+        <rect width="40" height="40" fill="#E2E5DC" />
         <g fill={fg}>{cells}</g>
       </svg>
     </span>
@@ -135,23 +136,29 @@ const ppd = (x: number) => (x >= 10 ? fmtInt(x) : x.toFixed(1).replace(/\.0$/, "
 function Stats({ a }: { a: Acct }) {
   const pr = a.profile;
   const age = pr.account_age_days;
-  return (
-    <dl className="c-stats">
-      <div>
-        <dt>Account age</dt>
-        <dd>{age == null ? "·" : age < 60 ? <>{age}<small>days</small></> : age < 730 ? <>{Math.round(age / 30.4)}<small>months</small></> : <>{(age / 365).toFixed(1).replace(/\.0$/, "")}<small>years</small></>}</dd>
-      </div>
-      <div>
-        <dt>Posts per day</dt>
-        <dd>{pr.posts_per_day == null ? "·" : ppd(pr.posts_per_day)}</dd>
-      </div>
-      <div>
-        <dt>Follows / followers</dt>
-        <dd>
+  // Only the facts we have: an account without a profile shows its posts, not a row of placeholders.
+  const cells: { k: string; v: ReactNode }[] = [];
+  if (age != null) cells.push({ k: "Account age", v: age < 60 ? <>{age}<small>days</small></> : age < 730 ? <>{Math.round(age / 30.4)}<small>months</small></> : <>{(age / 365).toFixed(1).replace(/\.0$/, "")}<small>years</small></> });
+  if (pr.posts_per_day != null) cells.push({ k: "Posts per day", v: ppd(pr.posts_per_day) });
+  if (pr.follows != null && pr.followers != null)
+    cells.push({
+      k: "Follows / followers",
+      v: (
+        <>
           {fmtInt(pr.follows)}
           <small>/ {fmtInt(pr.followers)}</small>
-        </dd>
-      </div>
+        </>
+      ),
+    });
+  if (!cells.length) return null;
+  return (
+    <dl className="c-stats" style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}>
+      {cells.map((c) => (
+        <div key={c.k}>
+          <dt>{c.k}</dt>
+          <dd>{c.v}</dd>
+        </div>
+      ))}
     </dl>
   );
 }
@@ -202,12 +209,12 @@ function Posts({ a }: { a: Acct }) {
             )}
             {p.en ? (
               <>
-                <p className="c-pt" lang="en">{p.en}</p>
+                <p className="c-pt" lang="en"><Redacted text={p.en} /></p>
                 <p className="c-tr">Translated from {p.langName ?? "another language"}</p>
-                <p className="c-orig" lang={p.lang}>{p.text}</p>
+                <p className="c-orig" lang={p.lang}><Redacted text={p.text} /></p>
               </>
             ) : (
-              <p className="c-pt">{p.text}</p>
+              <p className="c-pt"><Redacted text={p.text} /></p>
             )}
           </li>
         );
@@ -363,7 +370,7 @@ export default function ChallengePage() {
           {phase !== "final" && a && (
             <div className="c-play">
               <AccountCard a={a} i={i} n={n} />
-              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
+              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} hasProfile={a.profile.account_age_days != null || a.profile.posts_per_day != null || !!a.profile.hours_utc} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
             </div>
           )}
           {phase === "final" && <Final accts={labeled} answered={answered} calls={calls} left={n - done} onResume={resume} />}
@@ -373,13 +380,13 @@ export default function ChallengePage() {
   );
 }
 
-function Decide({ i, n, onAnswer }: { i: number; n: number; onAnswer: (c: Call) => void }) {
+function Decide({ i, n, onAnswer, hasProfile }: { i: number; n: number; onAnswer: (c: Call) => void; hasProfile: boolean }) {
   return (
     <section className="c-view" aria-label={`Your call on account ${i + 1} of ${n}`}>
       <div className="c-spacer" />
       <div className="c-decide">
         <h2 className="c-ask">Is this account likely automated?</h2>
-        <p className="c-ask-sub">Look at its age, how often it posts and when.</p>
+        <p className="c-ask-sub">{hasProfile ? "Look at its age, how often it posts and when." : "Read its most recent posts: how they are written, and how far apart."}</p>
         <div className="c-choices">
           <button className="c-choice c-auto" type="button" onClick={() => onAnswer("auto")}>
             <span className="c-sw" aria-hidden="true" />
@@ -402,8 +409,8 @@ function Decide({ i, n, onAnswer }: { i: number; n: number; onAnswer: (c: Call) 
 
 const Tick = ({ dark }: { dark?: boolean }) => (
   <svg viewBox="0 0 22 22" aria-hidden="true">
-    <circle cx="11" cy="11" r="10" fill={dark ? "#16181D" : "none"} stroke="#16181D" strokeWidth={dark ? 0 : 1.5} />
-    {dark ? <path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#F7F5F0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M7 11h8" stroke="#16181D" strokeWidth="1.8" strokeLinecap="round" />}
+    <circle cx="11" cy="11" r="10" fill={dark ? "#111814" : "none"} stroke="#111814" strokeWidth={dark ? 0 : 1.5} />
+    {dark ? <path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#ECEEE7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M7 11h8" stroke="#111814" strokeWidth="1.8" strokeLinecap="round" />}
   </svg>
 );
 
@@ -467,7 +474,7 @@ function Reveal({ a, call, r100, last, onNext, onStop }: { a: Acct; call?: Call;
         {r100 != null && (
           <>
             {" "}
-            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(2)}).
+            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(3)}).
           </>
         )}{" "}
         A score is a sign, not proof, and never says who runs an account.

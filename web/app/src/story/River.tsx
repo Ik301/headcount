@@ -2,14 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { fmtInt, utcLabel } from "../lib/format";
 import type { Model } from "./model";
 
-const L = 46, R = 14, TOP = 72, BOT = 26;
+const L = 46, R = 14, TOP = 46, BOT = 26;
 
 /** Stacked narrative river (SVG) with event markers and a draggable playhead. It is the scrubber:
  *  pointer drag, click, or arrow keys (shift = one day). */
 export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: number) => void }) {
   const ref = useRef<SVGSVGElement>(null);
   const [W, setW] = useState(1200);
-  const HH = 270;
+  const HH = 244;
   const drag = useRef(false);
 
   useEffect(() => {
@@ -57,11 +57,6 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
     return ((ev.clientX - b.left - L) / (b.width - L - R)) * m.hours;
   };
   const x = geo.xs(T);
-  // Rightmost major event takes the top label row; end-anchored labels then never cross
-  // the marker lines of earlier events, which start lower.
-  const majors = m.events.filter((e) => e.major);
-  const rowOf = new Map(majors.map((e, i) => [e.t, (majors.length - 1 - i) % 3]));
-
   return (
     <svg
       ref={ref}
@@ -92,7 +87,7 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
     >
       {[0, 0.25, 0.5, 0.75, 1].map((f) => (
         <g key={f}>
-          <line x1={L} x2={W - R} y1={geo.ys(geo.ymax * f)} y2={geo.ys(geo.ymax * f)} stroke="#EFECE5" />
+          <line x1={L} x2={W - R} y1={geo.ys(geo.ymax * f)} y2={geo.ys(geo.ymax * f)} stroke="#DCE0D5" />
           <text x={L - 8} y={geo.ys(geo.ymax * f) + 4} textAnchor="end" className="ax">
             {fmtInt(geo.ymax * f)}
           </text>
@@ -104,50 +99,59 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
       <g>
         {geo.bands.map((b) => (
           <g key={b.id}>
-            <path d={b.top} fill={color.get(b.id) ?? "#8A8F99"} fillOpacity={0.82} />
-            <path d={b.auto} fill="#D9472B" />
+            <path d={b.top} fill={color.get(b.id) ?? "#7C867F"} fillOpacity={0.82} />
+            <path d={b.auto} fill="#C81E66" />
           </g>
         ))}
       </g>
       {geo.days.map((d) => (
         <g key={d.x}>
-          <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 5} stroke="#8A8F99" />
+          <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 5} stroke="#7C867F" />
           <text x={d.x + 4} y={TOP + ih + 17} className="ax">
             {d.label}
           </text>
         </g>
       ))}
-      <line x1={L} x2={W - R} y1={TOP + ih} y2={TOP + ih} stroke="#8A8F99" />
-      {m.events.map((e) => {
+      <line x1={L} x2={W - R} y1={TOP + ih} y2={TOP + ih} stroke="#7C867F" />
+      {/* Events are numbered on the chart and spelled out in the list under it (RiverEvents), so labels never
+          collide however close the events are. Major events get a solid line, the rest a dotted one. */}
+      {m.events.map((e, i) => {
         const ex = geo.xs(e.h);
-        if (!e.major)
-          return (
-            <g key={e.t}>
-              <line x1={ex} x2={ex} y1={TOP - 4} y2={TOP + ih} stroke="#8A8F99" strokeDasharray="2 3" />
-              <text x={ex + 5} y={TOP - 8} className="ev-minor">
-                {e.label}
-              </text>
-            </g>
-          );
-        const y = 14 + (rowOf.get(e.t) ?? 0) * 17;
-        const anchorEnd = ex > W * 0.5;
-        const d = new Date(e.t);
-        const ts = `${utcLabel(d)}`;
+        const past = e.h <= T;
         return (
           <g key={e.t}>
-            <line x1={ex} x2={ex} y1={y + 3} y2={TOP + ih} stroke="#16181D" />
-            <text x={anchorEnd ? ex - 6 : ex + 6} y={y} textAnchor={anchorEnd ? "end" : "start"} className="ev-major">
-              <tspan>{e.label} </tspan>
-              <tspan className="ev-ts">{ts}</tspan>
+            <title>{`${i + 1}. ${e.label}, ${utcLabel(new Date(e.t))} UTC`}</title>
+            <line x1={ex} x2={ex} y1={TOP - 12} y2={TOP + ih} stroke={e.major ? "#111814" : "#7C867F"} strokeDasharray={e.major ? undefined : "2 3"} />
+            <circle cx={ex} cy={TOP - 22} r={9} fill={past ? "#111814" : "#F9FAF6"} stroke="#111814" strokeWidth={1.2} />
+            <text x={ex} y={TOP - 18.5} textAnchor="middle" className="ev-n" fill={past ? "#F9FAF6" : "#111814"}>
+              {i + 1}
             </text>
           </g>
         );
       })}
-      <rect x={x} y={TOP - 2} width={Math.max(0, W - R - x)} height={ih + 2} fill="#fff" fillOpacity={0.72} pointerEvents="none" />
+      <rect x={x} y={TOP - 2} width={Math.max(0, W - R - x)} height={ih + 2} fill="#F9FAF6" fillOpacity={0.72} pointerEvents="none" />
       <g transform={`translate(${x},0)`} pointerEvents="none">
-        <line y1={TOP - 4} y2={TOP + ih + 4} stroke="#16181D" strokeWidth={1.5} />
-        <rect x={-5} y={TOP + ih - 4} width={10} height={10} rx={2} fill="#16181D" />
+        <line y1={TOP - 4} y2={TOP + ih + 4} stroke="#111814" strokeWidth={1.5} />
+        <rect x={-5} y={TOP + ih - 4} width={10} height={10} rx={2} fill="#111814" />
       </g>
     </svg>
+  );
+}
+
+/** The numbered events under the river: time and label, click to jump there. */
+export function RiverEvents({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: number) => void }) {
+  if (!m.events.length) return null;
+  return (
+    <ol className="river-evs">
+      {m.events.map((e, i) => (
+        <li key={e.t} className={e.h <= T ? "is-past" : ""}>
+          <button onClick={() => onScrub(e.h + 0.4)}>
+            <span className="river-ev-n">{i + 1}</span>
+            <span className="river-ev-t">{utcLabel(new Date(e.t))} UTC</span>
+            <span className="river-ev-l">{e.label}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
   );
 }

@@ -264,6 +264,7 @@ export interface SiteData {
     unassigned_posts?: number;
     baseline?: {
       n_posts?: number;
+      n_accounts?: number;
       bot_post_share?: number;
       bot_post_share_ci?: [number, number];
       bot_account_share?: number;

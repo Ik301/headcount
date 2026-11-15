@@ -1,3 +1,4 @@
+import { seq } from "../../lib/motion";
 import { useState, type ReactNode } from "react";
 import { Icon } from "../../components/Icons";
 import { countWord, fmtInt, handle } from "../../lib/format";
@@ -8,6 +9,8 @@ import { AUTOMATED, HUMAN_MAX, type Model } from "../model";
 import { CheckGrid, CutoffStrip, EstimateBar, HedgeBars, LiftRows, NarrativeRows, RankBars, RecallChart, Term, Waffle, useWidth } from "./charts";
 import { against, oneIn, pc, range, timeLabel, type GuideData } from "./data";
 import { ReplayFigure } from "./Replay";
+import { VoiceSorter } from "../../checker/VoiceSorter";
+import { Receipt } from "../../components/Receipt";
 
 export interface ChapterProps {
   m: Model;
@@ -30,8 +33,8 @@ export interface Chapter {
 function Head({ h, children }: { h: ReactNode; children?: ReactNode }) {
   return (
     <header className="g-chead">
-      <h1 className="g-h">{h}</h1>
-      {children && <div className="g-dek">{children}</div>}
+      <h1 className="g-h h-rise">{h}</h1>
+      {children && <div className="g-dek in" style={seq(1, 120)}>{children}</div>}
     </header>
   );
 }
@@ -68,6 +71,17 @@ function Actions({ finding, explore, exploreLabel }: { finding?: string; explore
   );
 }
 
+/** One line of sourcing under a chart (Bellingcat / Reuters): where the numbers come from and how many. */
+function Source({ children }: { children: ReactNode }) {
+  return (
+    <p className="g-src">
+      <span className="g-src-k">Source</span>
+      <span>{children}</span>
+    </p>
+  );
+}
+const dot = " · ";
+
 const subject = (title: string) => title.split(",")[0].trim();
 const hoursWord = (h: number) => (h < 1 ? "less than an hour" : h < 1.5 ? "about an hour" : `${Math.round(h)} hours`);
 
@@ -100,6 +114,13 @@ function WhatHappened({ m, g, still, explore }: ChapterProps) {
         </p>
       </Head>
       <ReplayFigure m={m} g={g} still={still} />
+      <Source>
+        {g.platform} public API, no login{dot}
+        {g.posts != null && <>{fmtInt(g.posts)} posts</>}
+        {g.engagements != null && <>, {fmtInt(g.engagements)} likes, reposts and quotes</>}
+        {dot}
+        {g.windowLabel}, {g.year}, UTC{dot}events from news reports, times as published
+      </Source>
       <div className="g-after">
         <More summary="What the colors mean">
           <p>We only draw the accounts this story is about: the ones that look automated, the real people who passed their posts on, and well-known public accounts.</p>
@@ -129,7 +150,7 @@ function WhatHappened({ m, g, still, explore }: ChapterProps) {
 /* ---------- 2 How much was automated ---------- */
 
 function HowMuch({ g }: ChapterProps) {
-  const [ref, w] = useWidth<HTMLDivElement>(900);
+  const [ref] = useWidth<HTMLDivElement>(900);
   const b = g.baseline;
   if (!b) return <Head h="The export has no story-wide share of likely automated posts yet." />;
   const one = oneIn(b.share);
@@ -141,30 +162,65 @@ function HowMuch({ g }: ChapterProps) {
           An account is <Term>likely automated</Term> when our model scores it {AUTOMATED} or higher on a scale from 0 to 1. The score reads how an account posts (how regular, how often, how repetitive), never what it says. A high score is a sign, not proof, and we never say who runs an account.
         </p>
       </Head>
-      <figure className="g-fig" ref={ref}>
-        <Waffle share={b.share} cols={w < 560 ? 10 : 20} />
-        <figcaption className="g-cap">Each square is 1 in 100 posts. Red squares are posts from likely automated accounts.</figcaption>
-      </figure>
-      <div className="g-interval">
-        <p className="g-interval-text">
-          Our best estimate is <b>{pc(b.share)}</b>
-          {b.ci && (
-            <>
-              . The true share is most likely between {pc(b.ci[0])} and {pc(b.ci[1])}: that range is the <Term>interval</Term>. We give 95% intervals, worked out by recounting many times on resampled accounts.
-            </>
+      <figure className="g-fig g-split" ref={ref}>
+        <div className="g-split-fig">
+          <Waffle share={b.share} cols={10} />
+          <figcaption className="g-cap">Each square is 1 in 100 posts. <span className="g-key-auto">Magenta</span>: posts from likely automated accounts.</figcaption>
+        </div>
+        <div className="g-interval">
+          <p className="g-interval-text">
+            Our best estimate is{" "}
+            <Receipt
+              title="Receipt · story-wide share"
+              lines={[
+                ["Source", `${g.platform} public API, no login`],
+                ["Window", `${g.windowLabel}, ${g.year} (UTC)`],
+                b.nPosts != null && ["Posts", fmtInt(b.nPosts)],
+                b.nAccounts != null && ["Accounts", fmtInt(b.nAccounts)],
+                ["Left out", "bridged fediverse accounts (counted separately)"],
+                ["Counted as automated", `account score ≥ ${AUTOMATED}`],
+                ["Estimate", pc(b.share)],
+                b.ci && ["95% interval", range(b.ci)],
+                ["Interval method", "1,000 bootstrap resamples over accounts"],
+                g.modelVersion ? ["Model", <span className="mono">{g.modelVersion}</span>] : null,
+              ]}
+            >
+              <b>{pc(b.share)}</b>
+            </Receipt>
+            {b.ci && (
+              <>
+                . The true share is most likely between {pc(b.ci[0])} and {pc(b.ci[1])}: that range is the <Term>interval</Term>. We give 95% intervals, worked out by recounting many times on resampled accounts.
+              </>
+            )}
+          </p>
+          <EstimateBar value={b.share} ci={b.ci} max={Math.max(0.1, (b.ci?.[1] ?? b.share) * 1.5)} label={`${pc(b.share)}, interval ${range(b.ci)}`} />
+          {strip && (
+            <div className="g-cuts-box">
+              <p className="g-cuts-h">Does it depend on where we draw the line?</p>
+              <p className="g-cuts-dek">
+                The {AUTOMATED} cutoff is a choice, so here is the same share at four cutoffs.{" "}
+                {strip["0.9"] != null && strip["0.3"] != null && (
+                  <>
+                    Even at a strict 0.9 it is {pc(strip["0.9"])}; at a loose 0.3 it is {pc(strip["0.3"])}.
+                  </>
+                )}
+              </p>
+              <CutoffStrip strip={strip} current={String(AUTOMATED)} />
+            </div>
           )}
-        </p>
-        <EstimateBar value={b.share} ci={b.ci} max={Math.max(0.1, (b.ci?.[1] ?? b.share) * 1.5)} label={`${pc(b.share)}, interval ${range(b.ci)}`} />
-      </div>
-      <div className="g-after">
-        {strip && (
-          <More summary="Does it depend on where you draw the line?">
-            <p>
-              The {AUTOMATED} cutoff is a choice, so here is the same share at four cutoffs. {strip["0.9"] != null && strip["0.3"] != null && <>Even at a strict 0.9 it is {pc(strip["0.9"])}; at a loose 0.3 it is {pc(strip["0.3"])}.</>}
-            </p>
-            <CutoffStrip strip={strip} current={String(AUTOMATED)} />
-          </More>
+        </div>
+      </figure>
+      <Source>
+        {b.nPosts != null ? <>{fmtInt(b.nPosts)} posts</> : <>All story posts</>}
+        {b.nAccounts != null && <> from {fmtInt(b.nAccounts)} accounts</>}, bridged fediverse accounts counted separately{dot}score cutoff {AUTOMATED}
+        {dot}interval: 1,000 bootstrap resamples over accounts
+        {g.modelVersion && (
+          <>
+            {dot}model <span className="mono">{g.modelVersion}</span>
+          </>
         )}
+      </Source>
+      <div className="g-after">
         {b.accountShare != null && (
           <More summary="Why count posts and not accounts?">
             <p>
@@ -222,17 +278,27 @@ function Where({ m, g, openDrawer, explore }: ChapterProps) {
           {g.unassigned && g.unassigned.posts > 0 && <> {fmtInt(g.unassigned.posts)} posts that fit no narrative (bare links, trend lists) are left out.</>}
         </figcaption>
       </figure>
+      <Source>
+        {fmtInt(N.reduce((t, n) => t + n.posts, 0))} posts in {countWord(N.length).toLowerCase()} narratives, each post labeled by a language model{dot}smallest: “{[...N].sort((a, b) => a.posts - b.posts)[0].label}”, {fmtInt(Math.min(...N.map((n) => n.posts)))} posts{dot}same score cutoff and intervals as chapter 2
+      </Source>
+      <div className="g-sorter">
+        <VoiceSorter
+          subject="story"
+          matched={N.reduce((t, n) => t + n.posts, 0)}
+          narr={N.map((n) => ({ id: n.id, label: n.label, posts: n.posts, share_of_matches: n.share, bot_post_share: n.bot, bot_post_share_ci: n.ci }))}
+        />
+      </div>
       {ranked.length > 1 && (
         <section className="g-sub" aria-labelledby="g-without">
           <div className="g-sub-head">
-            <h2 id="g-without">Take them out. Does the story change?</h2>
+            <h2 id="g-without">Count the likes and reposts too. Does the order change?</h2>
             <button className="g-switch" role="switch" aria-checked={removed} onClick={() => setRemoved(!removed)}>
               <span className="g-switch-track" aria-hidden="true" />
               Remove likely automated accounts
             </button>
           </div>
           <p className="g-sub-dek">
-            Narratives ranked by their share of the conversation: posts plus likes, reposts and quotes.{" "}
+            The sorter above counts posts. Here each narrative’s share of the conversation also counts likes, reposts and quotes, and removing likely automated accounts takes out their engagement as well.{" "}
             {removed && (
               <b>
                 {moved.length === 0
@@ -335,6 +401,15 @@ function Newsrooms({ g }: ChapterProps) {
         <HedgeBars rows={h.rows} />
         <figcaption className="g-cap">Share of headlines or posts about the spy claim that hedge. Thin lines: 95% intervals (newsroom interval resamples outlets, {g.platform} interval resamples accounts).</figcaption>
       </figure>
+      <Source>
+        {news.n != null && <>{fmtInt(news.n)} headlines</>}
+        {h.outlets.length > 0 && <> from {countWord(h.outlets.length).toLowerCase()} outlets</>}, via their RSS feeds and Google News RSS search{dot}
+        {h.rows
+          .filter((r) => r.tone === "social" && r.n != null)
+          .map((r) => fmtInt(r.n!))
+          .join(" + ")}{" "}
+        {g.platform} posts{dot}a post or headline hedges if it uses any of {terms.length} words, matched the same way on both sides
+      </Source>
       <div className="g-after">
         {!!h.examples.length && (
           <More summary="Headlines we counted">
@@ -397,6 +472,7 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
   const A = g.arch;
   if (!A.length) return <Head h="The export has no amplifier groups yet." />;
   const sig = A.filter((a) => a.ci && a.ci[0] > 1).sort((a, b) => b.lift - a.lift);
+  const low = A.filter((a) => a.ci && a.ci[1] < 1).sort((a, b) => a.lift - b.lift);
   const autoCut = g.ampDefinition?.match(/>=\s*([\d.]+)/)?.[1];
   const example = A.find((a) => /repost/i.test(a.label)) ?? A[0];
   return (
@@ -422,15 +498,30 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
               We took the {g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged with the story and grouped them by how they behave into {countWord(A.length).toLowerCase()} <Term>archetypes</Term>, such as “{example.label.toLowerCase()}”. Then we compared how often each group <Term>amplified</Term> likely automated accounts, meaning it liked, reposted or quoted their posts.
             </>
           )}
-          {!sig.length && " Every group’s interval crosses “no difference”, so we can’t say any one type of person spreads automation more than another."}
+          {!sig.length && !low.length && " Every group’s interval crosses “no difference”, so we can’t say any one type of person spreads automation more than another."}
+          {!sig.length && low.length > 0 && (
+            <>
+              {" "}No group was clearly more likely to pass them on. {low.length === 1 ? "One was less likely" : `${countWord(low.length)} were less likely`}: “{low[0].label.toLowerCase()}”, {low[0].lift.toFixed(2)}× ({low[0].ci![0].toFixed(2)} to {low[0].ci![1].toFixed(2)}). Groups shift between model runs, so treat this as exploratory.
+            </>
+          )}
         </p>
       </Head>
       <figure className="g-fig">
         <LiftRows arch={A} />
         <figcaption className="g-cap">
-          How often each group amplified likely automated accounts, compared with {g.matched ? "the matched sample" : "all the real accounts"}. Dot: best estimate. Bar: 95% interval. Dashed line: {g.matched ? "same as similar accounts" : "same as everyone"}.
+          How often each group amplified likely automated accounts, compared with {g.matched ? "the matched sample" : "all the real accounts"}. Dot: best estimate, filled when the interval clears “no difference”. Bar: 95% interval; an arrow means it runs off the scale. Dashed line: {g.matched ? "same as similar accounts" : "same as everyone"}.
         </figcaption>
       </figure>
+      <Source>
+        {g.matched ? (
+          <>
+            {fmtInt(g.matched.accounts)} real accounts: {fmtInt(g.matched.matched)} amplifiers and their matched controls
+          </>
+        ) : (
+          g.humans != null && <>{fmtInt(g.humans)} real accounts that engaged and had a public posting history</>
+        )}
+        {dot}groups from each account’s recent posts and profile, behavior only{dot}no demographic guesses
+      </Source>
       <div className="g-after">
         <More summary="Who is in each group">
           <ul className="g-groups">
@@ -512,10 +603,14 @@ function HowWeKnow({ g, explore }: ChapterProps) {
         <figure className="g-fig" ref={ref}>
           <CheckGrid hits={hand.hits} n={hand.n} cols={w < 560 ? 10 : 25} />
           <figcaption className="g-cap">
-            Each square is one hand-checked account. <span className="g-key-auto">Red</span>: clearly automated when checked by hand. Outlined: not clearly automated.
+            Each square is one hand-checked account. <span className="g-key-auto">Magenta</span>: clearly automated when checked by hand. Outlined: not clearly automated.
           </figcaption>
         </figure>
       )}
+      <Source>
+        Hand check: one reviewer read each account’s profile and recent posts; verdicts are never published per account
+        {r100?.base != null && <>{dot}held-out test: self-labeled bots hidden from training, ranked among all {g.accounts != null ? fmtInt(g.accounts) : ""} accounts</>}
+      </Source>
       <div className="g-after">
         {g.recall && g.recall.length > 1 && (
           <More summary="The test on hidden labeled bots">

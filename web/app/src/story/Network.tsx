@@ -6,7 +6,7 @@ import { AUTOMATED, GH, GW, HUMAN_MAX, clusterCenter, type Model, type Node } fr
  * (<= 3,000 nodes) at 60 fps, prints in headless screenshots without GPU flags, and keeps the
  * node styling (rings, dashed self-labels) in plain code a designer can edit. */
 
-const C = { signal: "#D9472B", human: "#2F6F8F", ink: "#16181D", ink3: "#8A8F99", rule: "#CFCAC0", label: "#4A4F5A" };
+const C = { signal: "#C81E66", human: "#245E7E", ink: "#111814", ink3: "#7C867F", rule: "#C3CABD", label: "#3B4640" };
 
 export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (narrativeId: string) => void }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
       g.beginPath();
       g.moveTo(X(e.a.x), Y(e.a.y));
       g.lineTo(X(e.b.x), Y(e.b.y));
-      g.strokeStyle = e.kind === "co" ? "rgba(217,71,43,.5)" : e.kind === "amp" ? "rgba(47,111,143,.38)" : "rgba(207,202,192,.75)";
+      g.strokeStyle = e.kind === "co" ? "rgba(200,30,102,.5)" : e.kind === "amp" ? "rgba(36,94,126,.38)" : "rgba(190,197,183,.75)";
       g.lineWidth = e.kind === "gen" ? 0.7 : 1;
       g.stroke();
     }
@@ -59,13 +59,13 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
       g.arc(X(n.x), Y(n.y), r, 0, Math.PI * 2);
       g.setLineDash([]);
       if (n.handle && !n.selfLabel) {
-        g.fillStyle = "#fff";
+        g.fillStyle = "#F9FAF6";
         g.fill();
         g.strokeStyle = C.ink;
         g.lineWidth = 1.6;
         g.stroke();
       } else if (n.selfLabel) {
-        g.fillStyle = "#fff";
+        g.fillStyle = "#F9FAF6";
         g.fill();
         g.setLineDash([2.4, 1.8]);
         g.strokeStyle = C.ink3;
@@ -78,7 +78,7 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
       } else if (n.ampT <= T && n.p < HUMAN_MAX) {
         g.fillStyle = C.human;
         g.fill();
-        g.strokeStyle = "#fff";
+        g.strokeStyle = "#F9FAF6";
         g.lineWidth = 1.2;
         g.stroke();
       } else {
@@ -88,7 +88,7 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
         g.globalAlpha = 1;
       }
     }
-    g.font = "11px 'IBM Plex Mono', monospace";
+    g.font = "11px 'Fragment Mono', monospace";
     g.textBaseline = "middle";
     // name only the largest public accounts, and never on top of another label
     const boxes: number[][] = [];
@@ -104,17 +104,17 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
       boxes.push(b);
       g.textAlign = left ? "end" : "start";
       g.lineWidth = 3;
-      g.strokeStyle = "#fff";
+      g.strokeStyle = "#F9FAF6";
       g.strokeText(t, tx, Y(n.y));
       g.fillStyle = C.ink;
       g.fillText(t, tx, Y(n.y));
     }
     g.textAlign = "start";
-    g.font = "500 12px 'IBM Plex Sans', sans-serif";
+    g.font = "500 12px 'Schibsted Grotesk Variable', sans-serif";
     g.textAlign = "center";
     for (const { n, c } of labels) {
       g.lineWidth = 4;
-      g.strokeStyle = "#fff";
+      g.strokeStyle = "#F9FAF6";
       g.strokeText(n.label, X(c!.x), Math.max(10, Y(c!.top) - 9));
       g.fillStyle = C.label;
       g.fillText(n.label, X(c!.x), Math.max(10, Y(c!.top) - 9));

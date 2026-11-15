@@ -1,0 +1,42 @@
+/* ---------- Motion: "the count comes in" ----------
+ * One authored idea across the app: results report in like returns. Rows arrive in order (60 ms apart,
+ * capped at six), bars draw from zero, an interval's hatch lands after its point, and the verdict stamps
+ * last. Everything rests visible; nothing loops except the globe (paused when hidden).
+ * Reduced motion keeps short opacity fades only (no travel, no wipes, no scaling). */
+
+.in{animation:c-in var(--t-focal) var(--ease) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* type rising out of a slot: the headline is masked from below while it travels up */
+.h-rise{animation:c-rise .72s var(--ease) both;animation-delay:var(--d, 0ms)}
+@keyframes c-rise{from{opacity:0;transform:translateY(.32em);clip-path:inset(0 0 100% 0)}to{opacity:1;transform:none;clip-path:inset(0 0 -20% 0)}}
+
+/* a returns row printing onto the board, left to right */
+.in-wipe{animation:c-wipe .56s var(--ease) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-wipe{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateX(-6px)}to{opacity:1;clip-path:inset(0 -2% 0 0);transform:none}}
+
+/* bars draw from zero (transform only, layout untouched) */
+.grow{transform-origin:left center;animation:c-grow var(--t-focal) var(--ease) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-grow{from{transform:scaleX(0)}to{transform:none}}
+
+/* hatch lands after the point: the interval is revealed outward from where the estimate sits */
+.hatch-in{animation:c-hatch .5s var(--ease) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-hatch{from{opacity:0;clip-path:inset(0 50% 0 50%)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+
+/* the verdict stamps: a short press, no bounce */
+.stamp{animation:c-stamp .34s cubic-bezier(.2, .9, .3, 1) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-stamp{from{opacity:0;transform:scale(1.22)}60%{opacity:1}to{opacity:1;transform:none}}
+
+/* a dot dropping onto its track */
+.drop{animation:c-drop .46s var(--ease) both;animation-delay:calc(min(var(--i, 0), 6) * var(--stagger) + var(--d, 0ms))}
+@keyframes c-drop{from{opacity:0;translate:0 -10px}to{opacity:1;translate:0 0}}
+
+@keyframes c-fade{from{opacity:0}to{opacity:1}}
+
+@media (prefers-reduced-motion:reduce){
+  .in,.h-rise,.in-wipe,.grow,.hatch-in,.stamp,.drop{animation:c-fade 180ms ease-out both!important;animation-delay:0ms!important}
+}
+
+/* blocks below the fold play their entrance when scrolled into view (lib/motion.ts useReveal) */
+.reveal.is-armed :is(.in,.in-wipe,.grow,.hatch-in,.stamp,.drop,.g-hatch,.g-dot){animation-play-state:paused}
+.reveal:not(.is-armed):not(.is-live) :is(.in,.in-wipe,.grow,.hatch-in,.stamp,.drop,.g-hatch,.g-dot){animation:none}

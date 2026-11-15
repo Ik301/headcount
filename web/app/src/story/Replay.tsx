@@ -6,7 +6,7 @@ import { narrativeDrawer } from "./drawers";
 import { FindingBar } from "./FindingBar";
 import type { Model } from "./model";
 import { Network } from "./Network";
-import { River } from "./River";
+import { River, RiverEvents } from "./River";
 
 const SPEED = 18; // story hours per second of playback
 
@@ -89,25 +89,25 @@ export function Replay({ m, openDrawer }: { m: Model; openDrawer: (c: DrawerCont
         <div className="key">
           <span>
             <svg viewBox="0 0 14 14" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" fill="#D9472B" />
+              <circle cx="7" cy="7" r="5" fill="#C81E66" />
             </svg>
             Likely automated
           </span>
           <span>
             <svg viewBox="0 0 14 14" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" fill="#2F6F8F" stroke="#fff" strokeWidth="1.5" />
+              <circle cx="7" cy="7" r="5" fill="#245E7E" stroke="#F9FAF6" strokeWidth="1.5" />
             </svg>
             Real account amplifying them
           </span>
           <span>
             <svg viewBox="0 0 14 14" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" fill="#fff" stroke="#16181D" strokeWidth="1.5" />
+              <circle cx="7" cy="7" r="5" fill="#F9FAF6" stroke="#111814" strokeWidth="1.5" />
             </svg>
             Public account, named
           </span>
           <span>
             <svg viewBox="0 0 14 14" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" fill="#fff" stroke="#8A8F99" strokeWidth="1.5" strokeDasharray="2 1.6" />
+              <circle cx="7" cy="7" r="5" fill="#F9FAF6" stroke="#7C867F" strokeWidth="1.5" strokeDasharray="2 1.6" />
             </svg>
             Self-labeled bot
           </span>
@@ -184,6 +184,7 @@ export function Replay({ m, openDrawer }: { m: Model; openDrawer: (c: DrawerCont
           </span>
         </div>
         <River m={m} T={T} onScrub={scrub} />
+        <RiverEvents m={m} T={T} onScrub={scrub} />
       </div>
     </section>
   );

@@ -1,0 +1,68 @@
+/* Volume vs. voices (checker/VoiceSorter.tsx), used on the claim view and in story chapter 3. */
+.sorter{padding:22px 0 6px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.sorter-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px}
+.sorter-head h2{margin:0;font:500 22px/1.25 var(--serif);letter-spacing:-.01em;text-wrap:balance}
+.sorter-head .sub{margin:4px 0 0;font-size:14px;color:var(--cap)}
+.sorter-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:3px;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+.sorter-steps button{display:inline-flex;align-items:center;gap:7px;border:0;background:none;padding:7px 11px;border-radius:7px;font-size:13.5px;color:var(--ink-2);cursor:pointer;transition:background .15s,color .15s}
+.sorter-steps button:hover{color:var(--ink);background:var(--panel)}
+.sorter-steps .n{width:18px;height:18px;border-radius:50%;border:1px solid currentColor;display:inline-grid;place-items:center;font:600 10.5px var(--sans)}
+.sorter-steps .on{background:var(--ink);color:var(--paper)}
+.sorter-steps .on:hover{background:var(--ink);color:var(--paper)}
+.sorter-steps .on .n{border-color:var(--paper)}
+.sorter-steps .past{color:var(--ink)}
+@media (pointer:coarse){.sorter-steps button{min-height:44px;min-width:44px;justify-content:center}}
+.sorter-replay{border-left:1px solid var(--rule)!important;border-radius:0 7px 7px 0!important;margin-left:2px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+.sorter-read{margin:18px 0 4px;min-height:84px;max-width:62ch}
+.sorter-big{margin:0;font:500 26px/1.2 var(--serif);letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
+.sorter-small{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink-2);text-wrap:pretty}
+.sorter-fig{position:relative;outline:none;border-radius:8px}
+.sorter-fig:focus-visible{outline:2px solid var(--human);outline-offset:4px}
+.sorter-fig canvas{display:block}
+.sorter-labels{position:absolute;inset:0;pointer-events:none;transition:opacity .4s var(--ease)}
+.sorter-labels.off{opacity:0}
+.sorter-lab{position:absolute;display:flex;flex-direction:column;gap:1px;text-align:center;transition:left .9s var(--ease)}
+.sorter-lab .nm{font-size:13px;line-height:1.25;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sorter-lab .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:.08em}
+.sorter-lab .ct{font:12px var(--mono);color:var(--cap)}
+.sorter-lab .ct b{font-weight:500;color:var(--signal-ink)}
+.sorter-cloud-cap{position:absolute;left:0;right:0;text-align:center;font:12.5px var(--mono);color:var(--cap);transition:opacity .4s}
+.sorter-cloud-cap.off{opacity:0}
+.sorter-key{display:flex;flex-wrap:wrap;gap:6px 20px;margin:10px 0 0;font-size:12.5px;color:var(--cap)}
+.sorter-key span{display:inline-flex;align-items:center;gap:7px;transition:opacity .4s}
+.sorter-key .dim{opacity:0}
+.sorter-key i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.sorter-key .k-solid{background:var(--signal)}
+.sorter-key .k-ring{box-shadow:inset 0 0 0 2px var(--signal);background:var(--paper)}
+.sorter-note{margin-left:auto}
+@media (max-width:719px){
+  .sorter-steps .t{display:none}
+  .sorter-steps .on .t{display:inline}
+  .sorter-big{font-size:22px}
+  .sorter-read{min-height:120px}
+  .sorter-note{margin-left:0}
+  .sorter-lab .nm{font-size:12.5px}
+  .sorter-lab .ct{font-size:11.5px}
+  .sorter-lab .ct b{display:block}
+}
+
+
+/* narrow columns: counts on their own line; compact: swatch + one number, names in the legend */
+.sorter-lab.is-narrow .ct b{display:block}
+.sorter-lab.is-compact{align-items:center}
+.sorter-lab.is-compact .sw{margin-right:0}
+.sorter-lab.is-compact .ct{font-size:11px}
+.sorter-legend{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 18px;font-size:13px}
+.sorter-legend li{display:grid;grid-template-columns:10px 1fr auto;align-items:baseline;gap:8px;padding:3px 0;border-top:1px solid var(--rule-2)}
+.sorter-legend .sw{width:8px;height:8px;border-radius:2px;display:inline-block}
+.sorter-legend .nm{color:var(--ink)}
+.sorter-legend .ct{font:11.5px var(--mono);color:var(--cap);white-space:nowrap}
+.sorter-legend .ct b{font-weight:500;color:var(--signal-ink)}
+
+/* Returns desk pass (design round 4) */
+.sorter-head h2{font-weight:650;letter-spacing:-.014em}
+.sorter-big{font-weight:650;letter-spacing:-.022em}
+.sorter-steps{border-radius:5px}
+.sorter-steps button{border-radius:3px}
+.sorter-steps .n{border-radius:3px}
+.sorter-replay{border-radius:0 3px 3px 0!important}

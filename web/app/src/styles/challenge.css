@@ -2,8 +2,8 @@
  * larger type on desktop, timestamps in the UI sans). Everything is scoped under .challenge. Mono is kept for one
  * job only: hashed account refs (acct·9b04), so they read as IDs, not words. */
 
-.challenge { --soft-rule: #F0EDE6; --edge: #CFCAC0; min-height: 100svh; display: flex; flex-direction: column; font-size: 15px; line-height: 1.45; }
-.challenge .c-ref { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.challenge { --soft-rule: #E5E8E0; --edge: #C3CABD; min-height: 100svh; display: flex; flex-direction: column; font-size: 15px; line-height: 1.45; }
+.challenge .c-ref { font-family: var(--mono); font-variant-numeric:lining-nums; }
 .challenge .c-app { width: 100%; max-width: 430px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
 
 /* ---------- top ---------- */
@@ -15,7 +15,7 @@
 .challenge .c-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background-color .4s var(--ease), box-shadow .4s var(--ease); }
 .challenge .c-dots i.c-done { background: var(--ink); }
 .challenge .c-dots i.c-now { background: var(--card); box-shadow: inset 0 0 0 2px var(--ink); }
-.challenge .c-lede { margin: 8px 0 0; font: 400 12.5px/1.35 var(--sans); color: var(--ink-2); max-width: 60ch; }
+.challenge .c-lede { margin: 8px 0 0; font: 400 14px/1.4 var(--sans); color: var(--ink-2); max-width: 60ch; }
 
 .challenge main { flex: 1; display: flex; flex-direction: column; padding: 4px 16px 24px; }
 .challenge .c-play { display: flex; flex-direction: column; flex: 1; }
@@ -27,7 +27,7 @@
 @media (prefers-reduced-motion: reduce) { .challenge .c-view { animation: none; } }
 
 /* ---------- account card ---------- */
-.challenge .c-acct { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 1px 2px rgba(22,24,29,.04), 0 12px 24px -16px rgba(22,24,29,.16); overflow: hidden; }
+.challenge .c-acct { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 1px 2px rgba(17,24,20,.04), 0 12px 24px -16px rgba(17,24,20,.16); overflow: hidden; }
 .challenge .c-who { display: flex; align-items: center; gap: 12px; padding: 14px 16px 12px; }
 .challenge .c-av { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: none; display: block; }
 .challenge .c-av svg { display: block; width: 100%; height: 100%; }
@@ -38,21 +38,21 @@
 .challenge .c-stats div { padding: 12px 12px 12px 16px; min-width: 0; }
 .challenge .c-stats div + div { border-left: 1px solid var(--rule); padding-left: 12px; }
 .challenge .c-stats dt { font-size: 12px; color: var(--ink-2); }
-.challenge .c-stats dd { margin: 2px 0 0; font: 400 21px/1.1 var(--serif); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.challenge .c-stats dd { margin: 2px 0 0; font: 400 21px/1.1 var(--serif); font-variant-numeric:lining-nums; white-space: nowrap; }
 .challenge .c-stats dd small { font: 400 12px/1 var(--sans); color: var(--ink-2); margin-left: 3px; }
 .challenge .c-posts { list-style: none; margin: 0; padding: 4px 16px 0; }
 .challenge .c-posts li { padding: 12px 0; border-bottom: 1px solid var(--soft-rule); font-size: 14px; line-height: 1.38; }
 .challenge .c-posts li:last-child { border-bottom: 0; }
 .challenge .c-posts .c-pt { margin: 0; overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
 /* non-English posts: the export's English translation leads, then a mono label and the original, smaller and muted */
-.challenge .c-posts .c-tr { margin: 7px 0 2px; font: 500 11px/1.2 var(--mono); letter-spacing: .02em; text-transform: uppercase; color: var(--cap); }
-.challenge .c-posts .c-orig { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--cap); overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.challenge .c-posts .c-tr { margin: 7px 0 2px; font: 400 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--cap); }
+.challenge .c-posts .c-orig { margin: 0; font-size: 14px; line-height: 1.4; color: var(--cap); overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 /* timestamps: humane date and clock time in the UI sans, tabular figures so the minutes line up */
-.challenge .c-posts time { display: block; font: 500 12.5px/1.2 var(--sans); font-variant-numeric: tabular-nums; color: var(--ink-2); margin-bottom: 3px; letter-spacing: .005em; }
+.challenge .c-posts time { display: block; font: 500 12.5px/1.2 var(--sans); font-variant-numeric:lining-nums; color: var(--ink-2); margin-bottom: 3px; letter-spacing: .005em; }
 .challenge .c-posts time .c-gap { font-weight: 400; }
 .challenge .c-posts .c-rp { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-2); font-size: 12.5px; margin-bottom: 2px; }
 .challenge .c-posts .c-rp svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.challenge .c-when { padding: 12px 16px 14px; border-top: 1px solid var(--rule); background: #FCFBF8; }
+.challenge .c-when { padding: 12px 16px 14px; border-top: 1px solid var(--rule); background: #F9FAF6; }
 .challenge .c-when .c-lab { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--ink-2); }
 .challenge .c-hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; margin-top: 7px; height: 26px; }
 .challenge .c-hours i { border-radius: 1.5px; background: var(--ink); }
@@ -69,7 +69,7 @@
 .challenge .c-choice.c-auto .c-sw { background: var(--signal); }
 .challenge .c-choice.c-person .c-sw { background: var(--human); }
 .challenge kbd { display: none; font: 500 12px/1 var(--sans); color: var(--ink-2); border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: 5px; padding: 4px 7px; background: var(--paper); }
-.challenge .c-skip { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink-2); font: 400 13px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); cursor: pointer; padding: 6px; }
+.challenge .c-skip { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink-2); font: 400 14px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); cursor: pointer; padding: 15px 12px; }
 .challenge .c-skip:hover { color: var(--ink); text-decoration-color: var(--ink-2); }
 
 /* ---------- reveal ---------- */
@@ -81,7 +81,7 @@
 .challenge .c-agree b { color: var(--ink); font-weight: 600; }
 .challenge .c-score { margin-top: 12px; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px 6px; }
 .challenge .c-score .c-head { display: flex; align-items: flex-end; gap: 12px; }
-.challenge .c-score .c-big { font: 400 50px/0.85 var(--serif); letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; }
+.challenge .c-score .c-big { font: 400 50px/0.85 var(--serif); letter-spacing: -0.02em; font-variant-numeric:lining-nums; }
 .challenge .c-score .c-head p { margin: 0 0 2px; font-size: 13.5px; line-height: 1.3; color: var(--ink-2); }
 .challenge .c-score .c-head p b { color: var(--signal-ink); font-weight: 600; white-space: nowrap; }
 .challenge .c-scale { position: relative; height: 12px; margin: 16px 0 0; border-radius: 2px; background: linear-gradient(to right, var(--human-wash) 0 50%, var(--signal-wash) 50% 100%); }
@@ -100,12 +100,12 @@
 .challenge .c-actions { display: grid; gap: 8px; padding-top: 16px; }
 .challenge .c-primary, .challenge .c-secondary { appearance: none; display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 12px; font: 600 15px/1 var(--sans); cursor: pointer; text-decoration: none; transition: background-color .2s var(--ease), transform .2s var(--ease); }
 .challenge .c-primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
-.challenge .c-primary:hover { background: #2A2D35; }
+.challenge .c-primary:hover { background: #24302A; }
 .challenge .c-primary:active, .challenge .c-secondary:active { transform: scale(.985); }
 .challenge .c-primary svg, .challenge .c-secondary svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .challenge .c-secondary { background: transparent; color: var(--ink); border: 1px solid var(--edge); font-weight: 500; }
 .challenge .c-secondary:hover { background: var(--card); }
-.challenge .c-primary kbd { color: var(--paper); background: transparent; border-color: rgba(247,245,240,.4); }
+.challenge .c-primary kbd { color: var(--paper); background: transparent; border-color: rgba(236,238,231,.4); }
 
 /* ---------- final ---------- */
 .challenge .c-result { margin: 12px 4px 0; }
@@ -132,7 +132,7 @@
    Tablet and up: same single column, larger type, darker hairlines
    ========================================================= */
 @media (min-width: 720px) {
-  .challenge { font-size: 17px; --soft-rule: #E8E4DB; }
+  .challenge { font-size: 17px; --soft-rule: #DDE1D6; }
   .challenge .c-app { max-width: 680px; }
   .challenge .c-top { padding: 32px 24px 20px; }
   .challenge .c-top h1 { font-size: 30px; }
@@ -142,7 +142,7 @@
   .challenge .c-lede { margin-top: 10px; font-size: 14px; }
   .challenge main { padding: 4px 24px 32px; }
 
-  .challenge .c-acct { border-radius: 16px; border-color: #DCD7CC; }
+  .challenge .c-acct { border-radius: 16px; border-color: #CBD1C4; }
   .challenge .c-who { gap: 16px; padding: 20px 24px 18px; }
   .challenge .c-av { width: 56px; height: 56px; }
   .challenge .c-who b { font-size: 19px; }
@@ -216,7 +216,7 @@
    Desktop: the account on the left, the decision on the right
    ========================================================= */
 @media (min-width: 1024px) {
-  .challenge .c-app { max-width: 1280px; }
+  .challenge .c-app { max-width: 1184px; } /* content edge lines up with the top bar at 176px */
   .challenge .c-top { padding: 36px 48px 28px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 56px; align-items: end; }
   .challenge .c-top .c-row { display: contents; }
   .challenge .c-top h1 { font-size: 36px; grid-column: 1; grid-row: 1; align-self: baseline; }
@@ -276,3 +276,17 @@
   .challenge .c-queue { grid-area: queue; margin-top: 28px; }
   .challenge .c-view.c-final .c-actions { grid-area: actions; padding-top: 32px; }
 }
+
+/* ---------- Returns desk pass (design round 4): square-cut cards, heavy figures ---------- */
+.challenge .c-acct,.challenge .c-score,.challenge .c-recap{border-radius:6px !important;box-shadow:none}
+.challenge .c-choice,.challenge .c-primary,.challenge .c-secondary{border-radius:4px !important}
+.challenge .c-top h1{font:650 26px/1.1 var(--sans);letter-spacing:-.022em}
+.challenge .c-stats dd{font:750 24px/1.05 var(--sans);letter-spacing:-.02em}
+.challenge .c-score .c-big{font:750 56px/0.85 var(--sans);letter-spacing:-.04em}
+.challenge .c-ask{font:600 18px/1.3 var(--sans);letter-spacing:-.01em}
+.challenge .c-result h2{font:650 32px/1.08 var(--sans);letter-spacing:-.025em}
+.challenge .ch-empty h1{font:650 30px/1.15 var(--sans)}
+.challenge .c-tag{border-radius:3px}
+.challenge .c-acct{animation:c-in var(--t-layout) var(--ease) both}
+.challenge .c-score{animation:c-in var(--t-layout) var(--ease) 80ms both}
+@media (prefers-reduced-motion:reduce){.challenge .c-acct,.challenge .c-score{animation:c-fade 180ms ease-out both!important}}

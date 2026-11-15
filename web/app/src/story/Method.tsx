@@ -13,16 +13,16 @@ function Curve({ data, label }: { data: Record<string, number>; label: string })
     <svg className="curve" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label}>
       {[0, 0.5, 1].map((g) => (
         <g key={g}>
-          <line x1={l} x2={w - r} y1={y(g)} y2={y(g)} stroke="#EFECE5" />
+          <line x1={l} x2={w - r} y1={y(g)} y2={y(g)} stroke="#DCE0D5" />
           <text x={l - 6} y={y(g) + 4} textAnchor="end" className="ax">
             {g}
           </text>
         </g>
       ))}
-      <polyline points={v.map((val, i) => `${x(i)},${y(val)}`).join(" ")} fill="none" stroke="#16181D" strokeWidth={1.6} />
+      <polyline points={v.map((val, i) => `${x(i)},${y(val)}`).join(" ")} fill="none" stroke="#111814" strokeWidth={1.6} />
       {v.map((val, i) => (
         <g key={i}>
-          <circle cx={x(i)} cy={y(val)} r={i === hiI ? 4.5 : 2.6} fill={i === hiI ? "#16181D" : "#fff"} stroke="#16181D" strokeWidth={1.4} />
+          <circle cx={x(i)} cy={y(val)} r={i === hiI ? 4.5 : 2.6} fill={i === hiI ? "#111814" : "#F9FAF6"} stroke="#111814" strokeWidth={1.4} />
           <text x={x(i)} y={h - 8} textAnchor="middle" className="ax">
             {k[i]}
           </text>
@@ -37,7 +37,7 @@ function Curve({ data, label }: { data: Record<string, number>; label: string })
 
 const Check = () => (
   <svg viewBox="0 0 13 13" aria-hidden="true">
-    <path d="M2 6.8l3 3L11 3" fill="none" stroke="#2F6F8F" strokeWidth="1.6" />
+    <path d="M2 6.8l3 3L11 3" fill="none" stroke="#245E7E" strokeWidth="1.6" />
   </svg>
 );
 
@@ -54,7 +54,7 @@ export function Method({ m }: { m: Model }) {
       <FindingBar finding={m.findings.method} fallback={fallback} source="Validation on held-out labeled data" view="method" />
       <div className="panel metrics">
         <div className="metric">
-          <div className="v">{r100 != null ? r100.toFixed(2) : "·"}</div>
+          <div className="v">{r100 != null ? r100.toFixed(3) : "·"}</div>
           <div className="k">bot model recall@100</div>
           <p>
             Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated.
