@@ -285,6 +285,8 @@ export default function ChallengePage() {
     return list.map(toAcct);
   }, [data]);
   const r100 = data?.validation?.recall_at_k?.["100"];
+  const r100sd = data?.validation?.recall_at_k_sd?.["100"];
+  const r100note = r100sd != null ? ` ± ${r100sd.toFixed(3)}, mean of ${data?.validation?.recall_splits ?? "several"} splits` : "";
   const a = accts[i];
   const n = accts.length;
   const labeled = accts.filter((x) => calls[x.ref]);
@@ -370,7 +372,7 @@ export default function ChallengePage() {
           {phase !== "final" && a && (
             <div className="c-play">
               <AccountCard a={a} i={i} n={n} />
-              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} hasProfile={a.profile.account_age_days != null || a.profile.posts_per_day != null || !!a.profile.hours_utc} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
+              {phase === "card" ? <Decide key={`d${i}`} i={i} n={n} onAnswer={answer} hasProfile={a.profile.account_age_days != null || a.profile.posts_per_day != null || !!a.profile.hours_utc} /> : <Reveal key={`r${i}`} a={a} call={calls[a.ref]} r100={r100} r100note={r100note} last={i + 1 >= n} onNext={next} onStop={() => setPhase("final")} />}
             </div>
           )}
           {phase === "final" && <Final accts={labeled} answered={answered} calls={calls} left={n - done} onResume={resume} />}
@@ -414,7 +416,7 @@ const Tick = ({ dark }: { dark?: boolean }) => (
   </svg>
 );
 
-function Reveal({ a, call, r100, last, onNext, onStop }: { a: Acct; call?: Call; r100?: number; last: boolean; onNext: () => void; onStop: () => void }) {
+function Reveal({ a, call, r100, r100note, last, onNext, onStop }: { a: Acct; call?: Call; r100?: number; r100note?: string; last: boolean; onNext: () => void; onStop: () => void }) {
   const mc = modelCall(a.p);
   const agree = call && call !== "skip" && mc ? call === mc : null;
   return (
@@ -474,7 +476,7 @@ function Reveal({ a, call, r100, last, onNext, onStop }: { a: Acct; call?: Call;
         {r100 != null && (
           <>
             {" "}
-            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(3)}).
+            On held-out accounts known to be automated, it ranks {Math.round(r100 * 100)}% of them in its top 100 (recall@100 {r100.toFixed(3)}{r100note}).
           </>
         )}{" "}
         A score is a sign, not proof, and never says who runs an account.

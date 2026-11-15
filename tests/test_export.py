@@ -330,3 +330,16 @@ def test_archetype_finding_names_a_less_likely_group(tmp_path):
     (th / "report-vm.md").write_text("- Amplifier: a likely human. **26 amplifiers.**\n| - | unmatched, left out of lift | 1 |\nBase amplifier rate in the matched sample: 0.50, so\n")
     f = [x for x in B.build(**paths)["findings"] if "amplif" in x]
     assert f and "every lift interval includes 1" not in f[0] and '"Quote posters" accounts were less likely (0.46x, 0.26 to 0.66)' in f[0]
+
+
+def test_validation_reads_mean_and_spread_not_one_split(tmp_path):
+    paths = write_corpus(tmp_path)
+    ev = Path(paths["eval_dir"])
+    (ev / "bots" / "report-vm.md").write_text(
+        "Model: `v-vm`\n\n| Scorer | @50 | @100 |\n|---|---|---|\n| lifetime posts per day (baseline) | 0.028 | 0.045 |\n"
+        "| hgb, both, one split (seed 42) | 0.286 | 0.345 |\n| hgb, both, mean ± sd over 5 splits | 0.293 ± 0.012 | 0.356 ± 0.016 |\n\n"
+        "| Scorer | @50 | @100 |\n|---|---|---|\n| hgb, both, operator-grouped, mean ± sd over 3 splits | 0.144 ± 0.017 | 0.232 ± 0.012 |\n")
+    v = B.build(**paths)["validation"]
+    assert v["recall_at_k"]["100"] == 0.356 and v["recall_at_k_sd"]["100"] == 0.016 and v["recall_splits"] == 5
+    assert v["recall_at_k_one_split"]["100"] == 0.345 and v["baseline_recall_at_k"]["100"] == 0.045
+

@@ -44,6 +44,7 @@ const Check = () => (
 export function Method({ m }: { m: Model }) {
   const v = m.validation;
   const r100 = v.recall_at_k?.["100"];
+  const r100sd = v.recall_at_k_sd?.["100"];
   const rr20 = v.retrieval_recall_at_k?.["20"];
   const handAgree = v.hand_label_agreement ?? v.gold_accuracy;
   const llmAgree = v.narrative_llm_agreement;
@@ -54,10 +55,11 @@ export function Method({ m }: { m: Model }) {
       <FindingBar finding={m.findings.method} fallback={fallback} source="Validation on held-out labeled data" view="method" />
       <div className="panel metrics">
         <div className="metric">
-          <div className="v">{r100 != null ? r100.toFixed(3) : "·"}</div>
+          <div className="v">{r100 != null ? r100.toFixed(3) : "·"}{r100 != null && r100sd != null && <span className="sd"> ± {r100sd.toFixed(3)}</span>}</div>
           <div className="k">bot model recall@100</div>
           <p>
-            Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated.
+            Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated
+            {r100sd != null && v.recall_splits ? `: the mean of ${v.recall_splits} train/test splits, with its standard deviation` : ""}.
             {v.baseline_recall_at_k?.["100"] != null && ` The baseline (posting rate alone) is ${v.baseline_recall_at_k["100"].toFixed(3)}.`}
           </p>
           {v.recall_at_k && Object.keys(v.recall_at_k).length > 1 && <Curve data={v.recall_at_k} label="recall@k, k = accounts reviewed" />}

@@ -936,7 +936,9 @@ def _md_tables(text: str) -> list[dict]:
         if not keys or set(cells[0]) <= set("-: "):
             continue
         try:
-            cur[cells[0]] = {k: float(v) for k, v in zip(keys, cells[1:])}
+            cur[cells[0]] = {k: float(v.split("\u00b1")[0]) for k, v in zip(keys, cells[1:])}
+            if any("\u00b1" in v for v in cells[1:]):  # "mean ± sd" cells: keep the spread beside the mean
+                cur["sd::" + cells[0]] = {k: float(v.split("\u00b1")[1]) for k, v in zip(keys, cells[1:])}
         except ValueError:
             pass
     return tables
@@ -969,8 +971,18 @@ def validation(c: Ctx) -> dict | None:
                     out["baseline_recall_at_k"] = v
                 elif kl in ("behavior only", "coordination only", "both"):
                     out["ablation"][kl] = v
+                elif kl.startswith("hgb") and "operator" in kl:
+                    continue  # the unseen-operator test is quoted from the report, not shown as the headline recall
+                elif kl.startswith("hgb") and "mean" in kl:
+                    # README protocol: 20% of labeled bots held out, mean over the report's splits (the number to quote, R-09)
+                    out["recall_at_k"] = v
+                    out["recall_at_k_sd"] = tab.get("sd::" + k)
+                    ms = re.search(r"over (\d+) splits", k)
+                    out["recall_splits"] = int(ms.group(1)) if ms else None
+                elif kl.startswith("hgb") and "one split" in kl:
+                    out["recall_at_k_one_split"] = v
                 elif kl.startswith("hgb"):
-                    out["recall_at_k"] = v  # README protocol: 20% of labeled bots held out (the kill-test reading, COMMS Sat 17:10)
+                    out["recall_at_k"] = out["recall_at_k"] or v
                 elif "gradient boosting" in kl:
                     out["recall_at_k_all_labeled"] = v
         m = re.search(r"\*\*(\d+) of (\d+) \((\d+)%\)", t) or re.search(r"(\d+) of (\d+) \((\d+)%\)", t)
@@ -1204,15 +1216,19 @@ def findings(site: dict) -> list[str]:
     if len(nar) >= 2:
         top = max(nar, key=lambda n: n["bot_post_share"])
         low = min(nar, key=lambda n: n["bot_post_share"])
-        ratio = top["bot_post_share"] / low["bot_post_share"] if low["bot_post_share"] else None
         st_top, st_low = top.get("threshold_strip") or {}, low.get("threshold_strip") or {}
         holds = bool(st_top) and all(st_top.get(k) is not None and st_low.get(k) is not None and st_top[k] >= st_low[k] for k in st_top)
-        s = (f"The most automated narrative is \"{top['label']}\" at {_pct1(top['bot_post_share'])} likely automated posts "
-             f"({_pct1(top['bot_post_share_ci'][0])} to {_pct1(top['bot_post_share_ci'][1])}), against {_pct1(low['bot_post_share'])} for \"{low['label']}\"")
-        s += f" ({ratio:.1f}x)" if ratio else ""
-        s += "; the order holds at every score cutoff from 0.3 to 0.9" if holds else "; the order changes across score cutoffs, so treat it with care"
+        b0 = base.get("bot_post_share")
+        overlap = b0 is not None and top["bot_post_share_ci"][0] <= base["bot_post_share_ci"][1]
+        s = (f"Among narratives with {cfg.MIN_MATCHES}+ posts, \"{top['label']}\" has the highest point estimate of likely automated posts at {_pct1(top['bot_post_share'])} "
+             f"({_pct1(top['bot_post_share_ci'][0])} to {_pct1(top['bot_post_share_ci'][1])})")
+        if overlap:
+            s += f"; its interval overlaps the story's {_pct1(b0)} baseline ({_pct1(base['bot_post_share_ci'][0])} to {_pct1(base['bot_post_share_ci'][1])}), so we call it suggestive, not a clear difference"
+        low_clear = b0 is not None and low["bot_post_share_ci"][1] < b0
+        s += f". \"{low['label']}\" is the lowest at {_pct1(low['bot_post_share'])}" + (" and clearly below the baseline" if low_clear else "")
+        s += ". The order of the point estimates holds at every score cutoff from 0.3 to 0.9" if holds else ". The order changes across score cutoffs, so treat it with care"
         if unchanged:
-            s += ", and removing likely automated accounts and their engagement leaves the narrative ranking unchanged"
+            s += ". Removing likely automated accounts and their engagement leaves the narrative ranking unchanged"
             unchanged = False
         slots["spread"] = s + "."
         dh = next((n for n in nar if n.get("side") == "pro_huang"), None)

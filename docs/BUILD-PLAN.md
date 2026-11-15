@@ -43,7 +43,7 @@ Measured on Sat Nov 14, before this repo had code:
 - About 6,500 posts mention the spy claim.
 - Reddit, r/nvidia alone: 77 posts about Huang in the window. The largest thread (the WSJ ouster report) has 915 comments.
 - Unauthenticated `api.bsky.app` calls to `getProfiles`, `getAuthorFeed`, `getFollows` and `getFollowers` all return 200 with no login.
-- Profiles for all 20,482 story accounts came back in 20 seconds (4 workers, 25 per call). The last 50 posts of every account (about 1.0 million posts) took 7 minutes at about 45 accounts a second.
+- Profiles for 20,482 of the 20,495 story accounts came back in 20 seconds (4 workers, 25 per call). The last 50 posts of every account (about 1.0 million posts) took 7 minutes at about 45 accounts a second.
 
 ## Reproduce the data
 
