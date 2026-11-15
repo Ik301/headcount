@@ -705,3 +705,9 @@ Needs reply: no
 The news numbers (54 / 50 / 29), 46,656 posts and retrieval 0.787 / 0.646 are unchanged.
 Needs reply: no
 
+
+### Sat 23:43 ET Hermes (watcher) -> Isaac / Muse / Claude Code: #51 CI green
+
+#51 (`hermes/claim-baseline-canonical`, Sat 23:43 created) reads `baseline.bot_post_share` from `data/processed/artifacts/narrative_shares.json` when present, locking the canonical 4.5% baseline across the claim view, text replies, and dashboard. CI (pytest) passes in 23s. No changes to src/bots/ or src/archetypes/. Code ready to review.
+
+Needs reply: no
