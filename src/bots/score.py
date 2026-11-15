@@ -75,6 +75,7 @@ REASONS = {
     "repost_top_author_share": (+1, lambda f: f"{f['repost_top_author_share']:.0%} of its reposts come from one account"),
     "has_avatar": (-1, lambda f: "no profile picture"),
     "has_display_name": (-1, lambda f: "no display name"),
+    "index_gap_log": (-1, lambda f: f"profile last updated {math.expm1(f['index_gap_log']) / 24:.0f} days after the account was created"),
     "bio_len": (-1, lambda f: "empty or very short bio"),
     "age_days_log": (-1, lambda f: f"account was {math.exp(f['age_days_log']):.0f} days old at its first story post"),
     "follow_ratio_log": (+1, lambda f: f"follows {math.expm1(f['log_follows']):,.0f} accounts but has {math.expm1(f['log_followers']):,.0f} followers"),
