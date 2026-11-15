@@ -30,7 +30,7 @@ export default function CheckerPage() {
 
   useEffect(() => () => ctl.current?.abort(), []);
   useEffect(() => {
-    document.title = "Claim check: who is pushing this story on Bluesky";
+    document.title = "Headcount: how much of this story is real?";
   }, []);
 
   async function run(claim: string) {

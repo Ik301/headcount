@@ -16,6 +16,7 @@ from src import config as cfg
 from src.integration import coordination, versions
 from src.model.schema import public_ref
 from src.retrieval import corpus as rc
+from src.retrieval.live import safe_example_text
 from src.stats import share_ci
 
 NARRATIVE_LABELS = {
@@ -57,6 +58,10 @@ class Store:
             bs.select(pl.col("account_id"), "p_automated"), on="account_id", how="left"
         ).with_columns(pl.col("p_automated").fill_null(0.0), pl.col("narrative_id").fill_null("n0"))
         acc = pl.read_parquet(b / "accounts.parquet")
+        # bridged (fediverse) accounts are reported separately, as in narrative_shares and the export, so the
+        # claim view's baseline and shares use the same denominator as the dashboard (5.0% story baseline)
+        bridged = set(acc.filter(pl.col("bridged").fill_null(False))["account_id"].to_list())
+        posts = posts.filter(~pl.col("account_id").is_in(list(bridged)))
         accounts = {r["account_id"]: r for r in acc.select("account_id", "handle", "is_public", "created_at", "self_label_bot").iter_rows(named=True)}
         reasons = dict(zip(bs["account_id"].to_list(), bs["reasons"].to_list()))
         ua = pl.read_parquet(b / "artifacts/user_archetype.parquet")
@@ -115,7 +120,8 @@ def analyze_claim(store: Store, text: str, floor: float = cfg.SIMILARITY_FLOOR, 
                     "bot_post_share": round(share, 4),
                     "bot_post_share_ci": [round(lo, 4), round(hi, 4)],
                     "baseline_bot_share": round(store.baseline_bot_share, 4),
-                    "example_posts": [{"text": r["text"][:280], "public_handle": store.ref(r["account_id"])["public_handle"]} for r in ex.iter_rows(named=True)],
+                    # same masking as the live path (bug 14): @mentions always, and a private author's links
+                    "example_posts": [_example(store, r) for r in ex.iter_rows(named=True)],
                     "evidence": [{"post_uri": r["post_id"], "t": r["created_at"], "note": f"similarity {r['sim']:.2f}"} for r in g.sort("sim", descending=True).head(10).iter_rows(named=True)],
                 }
             )
@@ -124,6 +130,13 @@ def analyze_claim(store: Store, text: str, floor: float = cfg.SIMILARITY_FLOOR, 
     result["seconds"] = round(time.time() - t0, 2)
     store.claims[claim_id] = result
     return result
+
+
+def _example(store: "Store", r: dict) -> dict:
+    """A corpus example post that can't name a private account: @mentions are masked, and so are a private
+    author's links (many handles are the owner's own domain). Bug 14 in docs/rehearsal.md."""
+    handle = store.ref(r["account_id"])["public_handle"]
+    return {"text": safe_example_text(r["text"] or "", bool(handle))[:280], "public_handle": handle}
 
 
 def commonalities(store: Store, m: pl.DataFrame) -> list[dict]:

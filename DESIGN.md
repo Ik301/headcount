@@ -1,5 +1,5 @@
 ---
-name: Claim check
+name: Headcount
 description: A careful, evidence-first instrument for how much of a story's volume is automated. It reads like election-night returns.
 colors:
   tally-paper: "#ECEEE7"

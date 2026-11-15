@@ -2,7 +2,9 @@
 
 Draft for the HackPrinceton Fall 2026 submission. Every number cites the repo file it comes from. Paths are relative to the repo root. Edit freely, and keep a number only if its source still says it.
 
-## Project name (pick one)
+## Project name
+
+Chosen: **Headcount** (tagline: Volume is not consensus). Earlier options below.
 
 1. **Who's Pushing This** (says what the tool answers)
 2. **Volume Check** (short, matches the pitch line)

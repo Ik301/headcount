@@ -133,10 +133,30 @@ def baseline_ppd(profiles: list[dict]) -> np.ndarray:
     return np.array(out)
 
 
-def handcheck_lines(path: Path) -> list[str]:
-    """Summarize eval/bots/handcheck.csv (verdicts on the 50 highest-scored unlabeled accounts)."""
+def list_fingerprint(dids: list[str]) -> str:
+    """Fingerprint of a candidate list, so verdicts are only quoted for the exact accounts that were read."""
+    import hashlib
+
+    return hashlib.sha256("\n".join(sorted(dids)).encode()).hexdigest()[:16]
+
+
+def handcheck_lines(path: Path, fingerprint: str | None = None) -> list[str]:
+    """Summarize eval/bots/handcheck.csv (verdicts on the 50 highest-scored unlabeled accounts). The verdicts apply
+    only if this run's top 50 is the reviewed list (handcheck_meta.json records its fingerprint)."""
     import csv
     from collections import Counter
+
+    meta_path = path.parent / "handcheck_meta.json"
+    meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+    if fingerprint and meta.get("list_fingerprint") and meta["list_fingerprint"] != fingerprint:
+        rows = list(csv.DictReader(open(path))) if path.exists() else []
+        auto = sum(r["verdict"].startswith(("automated", "likely automated")) for r in rows)
+        return [
+            "**This run's top 50 unlabeled accounts have not been hand-checked.** They differ from the reviewed list"
+            f" (model `{meta.get('model_version', '?')}`, {meta.get('where', 'another machine')}), where {auto} of {len(rows)}"
+            " were automated or likely automated. Quote that figure as from that run, or redo the check on this list"
+            " (`data/private/handcheck_candidates.jsonl`).",
+        ]
 
     head = [
         "The 50 highest-scored unlabeled accounts (out-of-fold), each read by hand from its bio and 3 to 6 recent posts.",
@@ -379,7 +399,7 @@ def main() -> None:
         "",
         "## Hand check",
         "",
-        *handcheck_lines(Path(a.report).parent / "handcheck.csv"),
+        *handcheck_lines(Path(a.report).parent / "handcheck.csv", list_fingerprint([profiles[i]["did"] for i in cand])),
         "",
     ]
     Path(a.report).parent.mkdir(parents=True, exist_ok=True)

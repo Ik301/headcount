@@ -65,4 +65,6 @@ def test_summary_agrees_with_lifts_and_contrasts():
     assert "Null result" in B._summary(False, [], "Occasional posters")
     s = B._summary(False, con, "Occasional posters")
     assert "modest difference" in s and "1.58" in s and "Null result" not in s
-    assert "excludes 1" in B._summary(True, con, "Occasional posters")
+    rows = [{"label": "Often quote-posting", "lift": 0.46, "lift_lo": 0.26, "lift_hi": 0.66}]
+    s3 = B._summary(True, con, "Occasional posters", rows)
+    assert "exclude 1" in s3 and "Often quote-posting" in s3 and "less likely" in s3 and "exploratory" in s3

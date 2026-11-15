@@ -1,12 +1,12 @@
 # Bot model report (M2)
 
 Command: `python -m src.bots.train --raw data/raw --out data/processed/artifacts --report eval/bots/report.md`
-Model: `v1-hgb-202611150141` (chosen: hgb_both, by out-of-fold recall@100). Run time 87 s on a laptop CPU.
+Model: `v1-hgb-202611150335` (chosen: hgb_both, by out-of-fold recall@100). Run time 284 s on a laptop CPU.
 
 ## Data
 
-- Accounts: 20,451 story authors with profiles; 20,451 with a history pull (last 50 items).
-- Labeled bots (self-applied `bot` label): 288. Bridged (fediverse) accounts: 729, of which 58 are labeled bots.
+- Accounts: 20,482 story authors with profiles; 20,480 with a history pull (last 50 items).
+- Labeled bots (self-applied `bot` label): 287. Bridged (fediverse) accounts: 724, of which 58 are labeled bots.
 - Unlabeled accounts are treated as unlabeled, not as humans (positive-unlabeled). Some undisclosed automation is in that set, so
   precision against labels understates real precision and recall is measured only on the disclosed kind of bot.
 
@@ -17,35 +17,35 @@ then ranked among all accounts. Same definition as the README's posts-per-day ba
 
 | Scorer | @50 | @100 | @200 | @500 |
 |---|---|---|---|---|
-| lifetime posts per day (baseline) | 0.028 | 0.045 | 0.083 | 0.142 |
-| logistic regression, behavior + coordination | 0.118 | 0.188 | 0.274 | 0.451 |
-| gradient boosting, behavior + coordination | 0.170 | 0.281 | 0.372 | 0.573 |
-| ceiling (k / labeled bots) | 0.174 | 0.347 | 0.694 | 1.000 |
+| lifetime posts per day (baseline) | 0.028 | 0.045 | 0.084 | 0.143 |
+| logistic regression, behavior + coordination | 0.101 | 0.185 | 0.251 | 0.446 |
+| gradient boosting, behavior + coordination | 0.167 | 0.279 | 0.369 | 0.582 |
+| ceiling (k / labeled bots) | 0.174 | 0.348 | 0.697 | 1.000 |
 
-README protocol, literally: hold out 20% of labeled bots (about 58), rank them among every account not used as a
+README protocol, literally: hold out 20% of labeled bots (about 57), rank them among every account not used as a
 positive in training (all unlabeled accounts plus the held-out bots), mean over the 5 folds. The ceiling here is 1.0.
 
 | Scorer | @50 | @100 | @200 | @500 |
 |---|---|---|---|---|
-| lifetime posts per day (baseline) | 0.028 | 0.045 | 0.083 | 0.142 |
-| hgb, both, one split (seed 42) | 0.305 | 0.358 | 0.458 | 0.625 |
-| hgb, both, mean ± sd over 5 splits | 0.290 ± 0.006 | 0.358 ± 0.015 | 0.452 ± 0.012 | 0.625 ± 0.009 |
+| lifetime posts per day (baseline) | 0.028 | 0.045 | 0.084 | 0.143 |
+| hgb, both, one split (seed 42) | 0.286 | 0.345 | 0.436 | 0.634 |
+| hgb, both, mean ± sd over 5 splits | 0.293 ± 0.012 | 0.356 ± 0.016 | 0.452 ± 0.014 | 0.614 ± 0.020 |
 
 One split is noisy: the same model and data gave 0.27 to 0.33 at @100 depending on the split, so the mean is the
 number to quote.
 
 ### Bots of operators the model never saw
 
-The harder test: every account of an operator (208 operator groups among the labeled bots, by handle domain; the largest is one mirror network of 47 accounts) is held out together, so the model can't recognize a network
+The harder test: every account of an operator (207 operator groups among the labeled bots, by handle domain; the largest is one mirror network of 47 accounts) is held out together, so the model can't recognize a network
 it trained on. This is closer to finding a new, undisclosed operation.
 
 | Scorer | @50 | @100 | @200 | @500 |
 |---|---|---|---|---|
-| hgb, both, operator-grouped, mean ± sd over 3 splits | 0.180 ± 0.027 | 0.244 ± 0.023 | 0.358 ± 0.013 | 0.555 ± 0.020 |
+| hgb, both, operator-grouped, mean ± sd over 3 splits | 0.144 ± 0.017 | 0.232 ± 0.012 | 0.364 ± 0.013 | 0.554 ± 0.020 |
 
-Precision@k against labels (out-of-fold, chosen model): @50 0.98, @100 0.81, @200 0.54, @500 0.33.
+Precision@k against labels (out-of-fold, chosen model): @50 0.96, @100 0.80, @200 0.53, @500 0.33.
 
-Excluding bridged accounts: recall@k @50 0.143, @100 0.191, @200 0.296, @500 0.517 (230 labeled bots).
+Excluding bridged accounts: recall@k @50 0.140, @100 0.179, @200 0.293, @500 0.528 (229 labeled bots).
 
 ## Ablation (Arlequin: content and connectivity)
 
@@ -54,19 +54,19 @@ coordination = shared traces with other accounts (same link or repost within 60 
 
 | Features | @50 | @100 | @200 | @500 |
 |---|---|---|---|---|
-| behavior only | 0.174 | 0.260 | 0.372 | 0.556 |
-| coordination only | 0.017 | 0.031 | 0.062 | 0.135 |
-| both | 0.170 | 0.281 | 0.372 | 0.573 |
+| behavior only | 0.171 | 0.275 | 0.362 | 0.561 |
+| coordination only | 0.014 | 0.021 | 0.045 | 0.105 |
+| both | 0.167 | 0.279 | 0.369 | 0.582 |
 
-560 accounts sit in a coordination cluster; 24 of them are labeled bots (4.3%, against 1.4% overall).
+574 accounts sit in a coordination cluster; 24 of them are labeled bots (4.2%, against 1.4% overall).
 
 ## Kill test 1
 
-The test reads the README holdout (Hermes, COMMS Sat 17:10), as the mean over 5 splits: recall@100 = 0.358 ± 0.015 against the bar of 0.3: **pass** (posts-per-day baseline 0.045). On operators it never saw: 0.244.
+The test reads the README holdout (Hermes, COMMS Sat 17:10), as the mean over 5 splits: recall@100 = 0.356 ± 0.016 against the bar of 0.3: **pass** (posts-per-day baseline 0.045). On operators it never saw: 0.232.
 
 ## Score scale
 
-p_automated = P(labeled | x) / c with c = 0.262, the mean out-of-fold score of labeled bots (Elkan and Noto, 2008).
+p_automated = P(labeled | x) / c with c = 0.249, the mean out-of-fold score of labeled bots (Elkan and Noto, 2008).
 This assumes labeled bots are a random sample of all bots; they are mostly disclosed news and trend bots, so treat the
 scale as approximate. Share of all accounts at or above each cutoff (out-of-fold): 0.3 -> 1.9%, 0.5 -> 1.3%, 0.7 -> 1.0%, 0.9 -> 0.8%.
 
@@ -80,17 +80,17 @@ Largest linear-surrogate weights (standardized; the surrogate also writes each a
 
 | Feature | Weight |
 |---|---|
-| `quote_share` | -0.78 |
-| `index_gap_log` | +0.63 |
-| `hist_rate_log` | +0.60 |
-| `log_posts_count` | -0.46 |
+| `quote_share` | -0.74 |
+| `index_gap_log` | +0.62 |
+| `hist_rate_log` | +0.56 |
+| `log_posts_count` | -0.44 |
 | `repost_share` | -0.42 |
-| `bio_len` | +0.35 |
+| `bio_len` | +0.36 |
 | `text_len_mean` | +0.33 |
 | `log_follows` | -0.32 |
 | `minute_entropy` | -0.30 |
 | `lifetime_ppd_log` | +0.29 |
-| `zero_engagement_share` | +0.26 |
+| `zero_engagement_share` | +0.25 |
 | `follow_ratio_log` | -0.24 |
 
 ## Hand check

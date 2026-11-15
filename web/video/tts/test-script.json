@@ -1,0 +1,18 @@
+[
+ {
+  "id": "test-river",
+  "voice": "river",
+  "text": "Paste any story you saw on Bluesky. In about a second, you see who is pushing it, and how much of that push comes from likely automated accounts."
+ },
+ {
+  "id": "test-eric",
+  "voice": "eric",
+  "text": "Paste any story you saw on Bluesky. In about a second, you see who is pushing it, and how much of that push comes from likely automated accounts."
+ },
+ {
+  "id": "test-river-v4",
+  "voice": "river",
+  "text": "Paste any story you saw on Bluesky. In about a second, you see who is pushing it, and how much of that push comes from likely automated accounts.",
+  "model": "eleven_v4"
+ }
+]

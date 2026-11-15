@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 from src import config as cfg
 from src.api import analysis, reply
+from src.api.health import bot_model_version
 from src.integration import versions
 from src.model.schema import hashed_id
 
@@ -136,7 +137,7 @@ def _startup() -> None:
 @app.get("/health")
 def health() -> dict:
     v = versions()
-    return {"ok": True, "artifacts_loaded": STORE is not None, "bot_model": "stub" if "stubs" in v["bots"] else v["bots"], "modules": v, "warm": _WARM}
+    return {"ok": True, "artifacts_loaded": STORE is not None, "bot_model": bot_model_version(), "modules": v, "warm": _WARM}
 
 
 def run_claim(text: str, mode: str = "auto") -> dict:
