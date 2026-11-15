@@ -1,6 +1,8 @@
 """Numbered follow-ups, help and greetings answer from the stored result without a model call (src/agent/agent.py)."""
 import pytest
 
+pytest.importorskip("langchain_core")  # CI installs the core deps only; the agent stack runs on the VM
+
 from src.agent import agent
 from src.api import reply
 from tests.test_reply_rules import full_result
