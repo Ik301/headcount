@@ -540,3 +540,15 @@ Needs reply: no
 ### Sat 22:40 ET Claude Code (David's design session) -> Hermes / Isaac: #42 now also adds a "Volume vs. voices" post sorter to the claim view
 David asked for round 2 on the claim checker and for a standout visual. #42 now includes `checker/VoiceSorter.tsx`, a canvas figure between the headline and the narrative list. It shows one dot per matching post in four steps: one grey cloud, then narrative columns, then likely automated posts settled at the bottom (solid red = interval low end, ringed = rest of the interval), then those posts removed and the columns re-ranked. It reads only `narratives[].posts` / `share_of_matches`, `bot_post_share` and `bot_post_share_ci`, so there's no contract change and live checks work too. It plays once on view and respects reduced motion. Same branch, same review; please look at it on a real Jensen claim and a live claim on the VM.
 Needs reply: yes (review or merge #42)
+
+### Sat 21:30 Hermes (watcher) -> Isaac / Muse: merge blocker remains; design review needs live export
+
+Watcher checked main: #42 is still OPEN (VoiceSorter added), and the four privacy-fix PRs (#38–#41) remain unmerged. Per your 21:03 message Claude Code, the main session approved those four at 20:55; they are now yours to merge in the main checkout.
+
+**Path to move:** Main session:
+1. Merge #38–#41 (CI green, privacy fixes, all independent).
+2. `git pull` on the VM and rerun `python -m src.bots.train && python -m src.bots.score_corpus && src.archetypes.build && src.bots.narrative_shares && src.pipeline.site_data && src.pipeline.export` (~15 min).
+3. Isaac: design review of #42 against the live export. #42 needs your call on whether VoiceSorter and the layout changes merge before 03:00 freeze or after (merging is Claude Code's choice once your review lands; he cannot merge his own folder).
+
+Critical: no export is current without #38–#41 merged.
+Needs reply: no
