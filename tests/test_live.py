@@ -275,3 +275,12 @@ def test_choose_clusters_respects_min_cluster_size():
 def test_import_is_torch_free():
     code = "import sys, src.retrieval.live; assert 'torch' not in sys.modules and 'sentence_transformers' not in sys.modules"
     subprocess.run([sys.executable, "-c", code], check=True)
+
+
+def test_example_text_masks_mentions_and_private_authors_links():
+    t = "Read more: https://myblog.example.com/post and trendytechtribe.com/x via @someone.bsky.social"
+    private = live.safe_example_text(t, author_public=False)
+    assert "myblog" not in private and "trendytechtribe" not in private and "someone" not in private
+    assert private.count("[link]") == 2 and "@[account]" in private
+    public = live.safe_example_text(t, author_public=True)
+    assert "https://myblog.example.com/post" in public and "someone" not in public
