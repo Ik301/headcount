@@ -276,7 +276,7 @@ function Where({ m, g, openDrawer, explore }: ChapterProps) {
         </p>
       </Head>
       <figure className="g-fig">
-        <NarrativeRows narr={N} baseline={base} note={notes} />
+        <NarrativeRows narr={N} baseline={base} baselineCi={g.baseline?.ci} note={notes} />
         <figcaption className="g-cap">
           Share of each narrative’s posts that came from likely automated accounts. Dot: best estimate. Bar: 95% interval. Dashed line: the whole story.
           {g.unassigned && g.unassigned.posts > 0 && <> {fmtInt(g.unassigned.posts)} posts that fit no narrative (bare links, trend lists) are left out.</>}
