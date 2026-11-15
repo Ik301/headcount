@@ -58,7 +58,14 @@ export function chartUrl(r: ClaimResult): string | null {
   return /^https?:/.test(r.chart_png_url) ? r.chart_png_url : `${config.apiBase}${r.chart_png_url}`;
 }
 
-export async function getSiteData(): Promise<SiteData> {
+let siteData: Promise<SiteData> | null = null;
+/** site_data.json, fetched once per page load (the checker's globe and the story share it). */
+export function getSiteData(): Promise<SiteData> {
+  if (!siteData) siteData = loadSiteData().catch((e) => ((siteData = null), Promise.reject(e)));
+  return siteData;
+}
+
+async function loadSiteData(): Promise<SiteData> {
   const res = await fetch(config.siteDataUrl, { cache: "no-cache" });
   if (!res.ok) throw new ApiError("site_data.json is missing.", res.status, "http");
   try {

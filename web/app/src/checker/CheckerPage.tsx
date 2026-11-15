@@ -5,6 +5,7 @@ import { Icon } from "../components/Icons";
 import { TopBar, Footer } from "../components/Shell";
 import { RunProgress } from "./RunProgress";
 import { CheckError } from "./CheckError";
+import { NetworkGlobe } from "./NetworkGlobe";
 
 /** Example chips. The first is the deep demo story (corpus path); the rest exercise retrieval. */
 export const EXAMPLES = [
@@ -60,9 +61,13 @@ export default function CheckerPage() {
   };
 
   return (
-    <div className="page checker">
+    <div className={`page checker${state.kind === "error" ? "" : " is-dark"}`}>
       <TopBar />
       <main>
+        {state.kind !== "error" && (
+          <div className="hero">
+            <div className="hero-grid">
+              <div className="hero-main">
         {state.kind === "idle" && (
           <section aria-labelledby="idle-h">
             <div className="wrap narrow idle">
@@ -129,6 +134,13 @@ export default function CheckerPage() {
         )}
 
         {state.kind === "running" && <RunProgress text={state.text} startedAt={state.startedAt} onCancel={cancel} />}
+              </div>
+              <div className="hero-side">
+                <NetworkGlobe mode={state.kind === "running" ? "scan" : "idle"} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {state.kind === "error" && (
           <CheckError

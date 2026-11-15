@@ -274,3 +274,56 @@ details.ev[open] summary svg{transform:rotate(180deg)}
 @media (hover:none){.checker .kbd-hint{display:none}}
 .checker .scope-note{margin:16px 0 0;font-size:14px;line-height:1.5;color:var(--cap);max-width:52ch}
 
+/* ---------- dark hero: the checker's landing and running screens ----------
+ * An instrument at night for the first impression; results and the story stay on paper for reading.
+ * Every colour is a token, so the dark page is only a token swap on the container. */
+.page.checker.is-dark{
+  --paper:#0E1014; --card:#161920; --panel:#1B1F26;
+  --ink:#ECEAE4; --ink-2:#B3B7BF; --ink-3:#6E737C; --cap:#959AA4;
+  --rule:#272B33; --rule-2:#1D2128;
+  --signal:#FF5A3C; --signal-ink:#FF7C61; --signal-wash:#2A1612;
+  --human:#6FB3D6; --human-wash:#15232B;
+  background:var(--paper);color:var(--ink);min-height:100vh;display:flex;flex-direction:column
+}
+.page.checker.is-dark main{flex:1}
+.page.checker.is-dark .bar{background:transparent;border-bottom-color:var(--rule)}
+.page.checker.is-dark .btn:hover{background:#fff}
+.page.checker.is-dark .btn[disabled]{background:var(--panel);border-color:var(--rule);color:var(--ink-3)}
+.page.checker.is-dark .field{box-shadow:0 0 0 1px rgba(255,255,255,.02),0 24px 60px -30px rgba(0,0,0,.8)}
+.page.checker.is-dark .chip:hover{background:var(--card)}
+.page.checker.is-dark ::selection{background:#2B3A44}
+
+.checker .hero{position:relative;overflow:hidden}
+.checker .hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 70% at 78% 45%,rgba(111,179,214,.07),transparent 70%),radial-gradient(40% 50% at 80% 50%,rgba(255,90,60,.05),transparent 70%)}
+.checker .hero-grid{position:relative;max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr)}
+.checker .hero-main .wrap{max-width:none;margin:0;padding-left:0;padding-right:0}
+.checker .hero-side{order:-1;margin:0 -20px}
+.checker .globe{margin:0;position:relative}
+.checker .globe-box{height:260px}
+.checker .globe-box canvas{display:block}
+.checker .globe-cap{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;padding:0 20px;font-size:12px;color:var(--cap)}
+.checker .globe-cap span{display:inline-flex;align-items:center;gap:6px}
+.checker .globe-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal)}
+.checker .globe-dot.grey{background:#C9CDD4;box-shadow:none}
+.checker .globe-src{flex-basis:100%;justify-content:center;text-align:center;color:var(--ink-3)}
+.checker .globe-src-long{display:none}
+.checker.is-dark .idle{padding-top:12px}
+.checker.is-dark .idle h1{letter-spacing:-.025em}
+@media (min-width:720px){
+  .checker .hero-grid{padding:0 40px}
+  .checker .hero-side{margin:0 -40px}
+  .checker .globe-box{height:340px}
+}
+@media (min-width:1080px){
+  .checker .hero-grid{padding:0 56px;grid-template-columns:minmax(0,540px) minmax(0,1fr);column-gap:40px;align-items:center;min-height:calc(100vh - 57px - 70px)}
+  .checker .hero-side{order:0;margin:0}
+  .checker .globe-box{height:min(620px,calc(100vh - 220px))}
+  .checker .globe-cap{justify-content:flex-start;padding:0 0 0 12%}
+  .checker .globe-src{justify-content:flex-start;text-align:left}
+  .checker .globe-src-long{display:inline-flex}
+  .checker .globe-src-short{display:none}
+  .checker.is-dark .idle{padding:64px 0 72px}
+  .checker.is-dark .run{padding-top:24px}
+}
+
