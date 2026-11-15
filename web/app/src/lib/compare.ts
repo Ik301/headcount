@@ -38,8 +38,13 @@ export function narrativePosts(n: HeadlineNarrative, matched: number): number {
   return n.posts ?? Math.round(n.share_of_matches * matched);
 }
 
+/** A narrative's own automated share, interval and baseline comparison are shown only with 30+ posts. */
+export function measurable(n: HeadlineNarrative, matched: number): boolean {
+  return narrativePosts(n, matched) >= HEADLINE_MIN_POSTS;
+}
+
 export function qualifies(n: HeadlineNarrative, matched: number): boolean {
-  if (narrativePosts(n, matched) < HEADLINE_MIN_POSTS) return false;
+  if (!measurable(n, matched)) return false;
   const ci = n.bot_post_share_ci;
   if (!ci) return false;
   return ci[1] - ci[0] <= HEADLINE_MAX_CI_WIDTH + 1e-9;

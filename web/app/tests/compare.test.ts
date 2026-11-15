@@ -1,7 +1,7 @@
 // Run with `npm test` (node --test; node strips the types). Covers rehearsal bugs 3 and 12.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { against, overallShare, pickHeadline, versusWords } from "../src/lib/compare.ts";
+import { against, measurable, overallShare, pickHeadline, versusWords } from "../src/lib/compare.ts";
 
 // The flagship claim as the API returned it in rehearsal (claim b61ff2f2ead5).
 const flagship = [
@@ -47,4 +47,13 @@ test("baseline wording follows the interval, never 'near'", () => {
   assert.equal(versusWords(against([0.019, 0.055], 0.05)), "not clearly different from");
   assert.equal(against(undefined, 0.05), null);
   assert.equal(versusWords(null), null);
+});
+
+test("measurable: 30 posts is the line, by count or by share of matches", () => {
+  assert.equal(measurable(flagship[0], 445), true);
+  assert.equal(measurable(flagship[3], 445), false);
+  assert.equal(measurable({ ...flagship[1], posts: 29 }, 445), false);
+  assert.equal(measurable({ ...flagship[1], posts: 30 }, 445), true);
+  const { posts: _p, ...noCount } = flagship[3];
+  assert.equal(measurable(noCount, 445), false); // 0.0135 x 445 = 6 posts
 });
