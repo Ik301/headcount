@@ -194,13 +194,14 @@ Until Muse's versions land, Hermes's API uses `src/stubs/` with the same signatu
       "share_of_matches": 0.0,
       "bot_post_share": 0.0,
       "bot_post_share_ci": [0.0, 0.0],
-      "bot_post_share": 0.0,
-      "bot_post_share_ci": [0.0, 0.0],
       "baseline_bot_share": 0.0,
       "example_posts": [{"text": "", "public_handle": null}],
       "evidence": [{"post_uri": "", "t": "", "note": ""}]
     }
   ],
+  "bot_post_share": 0.0,
+  "bot_post_share_ci": [0.0, 0.0],
+  "baseline_bot_share": 0.0,
   "bot_commonalities": [{"signal": "", "accounts": 0}],
   "amplifiers": {"n_humans": 0, "archetype_mix": [{"id": "a1", "label": "", "share": 0.0, "lift": 0.0}]},
   "chart_png_url": "",
@@ -210,7 +211,7 @@ Until Muse's versions land, Hermes's API uses `src/stubs/` with the same signatu
 }
 ```
 
-`GET /claim/{claim_id}` returns the same object. `GET /claim/{claim_id}/chart.png` returns the chart (one bar per narrative: share of matches, likely automated share overlaid). `GET /health` returns `{"ok": true, "artifacts_loaded": true, "bot_model": "stub" | "v<n>"}`.
+`GET /claim/{claim_id}` returns the same object. `GET /claim/{claim_id}/chart.png` returns the phone card (verdict, claim share against the baseline, one bar per narrative with the likely automated share overlaid, newsroom line; see Reply text templates). `GET /health` returns `{"ok": true, "artifacts_loaded": true, "bot_model": "stub" | "v<n>"}`.
 
 `site_data.json` additions to the README shape: every narrative, archetype and coordination cluster gets `"evidence": [{"post_uri", "t", "note"}]`; every narrative gets `"threshold_strip": {"0.3": 0.0, "0.5": 0.0, "0.7": 0.0, "0.9": 0.0}`; a top-level `"challenge": [{"account_ref", "posts": [], "p_automated", "reasons": [], "hand_label"}]` with 20 frozen, hand-checked accounts (public accounts by handle, private ones as hashed refs with no handle).
 
