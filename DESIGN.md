@@ -115,7 +115,7 @@ components:
     padding: "1px 6px 2px"
 ---
 
-# Design system: Claim check ("Returns desk")
+# Design system: Headcount ("Returns desk")
 
 Tokens live in `web/app/src/styles/tokens.css`; motion classes in `web/app/src/styles/motion.css`. This file describes the system as built in design round 4, which stacks on #42 (receipts, hatched intervals, post sorter, globe).
 
