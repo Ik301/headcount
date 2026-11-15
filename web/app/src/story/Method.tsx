@@ -53,17 +53,29 @@ export function Method({ m }: { m: Model }) {
         <div className="metric">
           <div className="v">{r100 != null ? r100.toFixed(2) : "·"}</div>
           <div className="k">bot model recall@100</div>
-          <p>Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated. The baseline (posts per day alone) is 0.046.</p>
+          <p>
+            Of held-out accounts that label themselves as bots, the share the model ranks in its top 100 most likely automated.
+            {v.baseline_recall_at_k?.["100"] != null && ` The baseline (posting rate alone) is ${v.baseline_recall_at_k["100"].toFixed(3)}.`}
+          </p>
           {v.recall_at_k && Object.keys(v.recall_at_k).length > 1 && <Curve data={v.recall_at_k} label="recall@k, k = accounts reviewed" />}
         </div>
-        <div className="metric">
-          <div className="v">{rr20 != null ? rr20.toFixed(2) : "·"}</div>
+        {rr20 != null && <div className="metric">
+          <div className="v">{rr20.toFixed(2)}</div>
           <div className="k">claim retrieval recall@20</div>
           <p>For hand-checked claims, the share of truly matching posts found in the first 20 results the search returns, before narrative grouping.</p>
           {v.retrieval_recall_at_k && Object.keys(v.retrieval_recall_at_k).length > 1 && <Curve data={v.retrieval_recall_at_k} label="recall@k, k = results returned" />}
-        </div>
-        <div className="metric">
-          <div className="v">{v.gold_accuracy != null ? pct(v.gold_accuracy) : "·"}</div>
+        </div>}
+        {v.handcheck_precision?.n != null && (
+          <div className="metric">
+            <div className="v">
+              {v.handcheck_precision.hits} of {v.handcheck_precision.n}
+            </div>
+            <div className="k">hand check</div>
+            <p>Of the accounts the model scored highest that carry no bot label, the share that were clearly automated when checked by hand.</p>
+          </div>
+        )}
+        {v.gold_accuracy != null && <div className="metric">
+          <div className="v">{pct(v.gold_accuracy)}</div>
           <div className="k">narrative label agreement</div>
           <p>How often narrative labels agree with hand labels on a held-out set of posts from this story.</p>
           {v.gold_by_narrative && (
@@ -84,7 +96,7 @@ export function Method({ m }: { m: Model }) {
                 ))}
             </div>
           )}
-        </div>
+        </div>}
       </div>
       <div className="mcols">
         <div className="panel">
@@ -166,7 +178,7 @@ export function Method({ m }: { m: Model }) {
             {m.news?.outlets?.length ? (
               <>
                 <dt>News baseline</dt>
-                <dd>{m.news.outlets.map((o) => o.name).join(", ")}</dd>
+                <dd>{m.news.outlets.map((o) => o.name ?? o.source).join(", ")}</dd>
               </>
             ) : null}
           </dl>

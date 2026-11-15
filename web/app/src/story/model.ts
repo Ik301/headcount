@@ -13,6 +13,11 @@ export interface Narr {
   id: string;
   label: string;
   side?: string;
+  /** Volume rank (posts plus likes, reposts and quotes) with and without likely automated accounts, from the export. */
+  rank?: number | null;
+  rankWithout?: number | null;
+  volumeShare?: number;
+  volumeShareWithout?: number;
   color: string;
   hex: string;
   posts: number;
@@ -36,6 +41,8 @@ export interface Node {
   size: number;
   t: number; // hour index of first appearance
   ampT: number; // hour index when it first amplifies a likely automated account (Infinity if never)
+  role?: string;
+  degree: number;
   x: number;
   y: number;
   r: number;
@@ -58,6 +65,9 @@ export interface Model {
   hourLabels: string[];
   totals: { posts?: number; accounts?: number; engagements?: number; selfLabeled?: number };
   baseline?: number;
+  baselineCi?: [number, number];
+  baselineStrip?: Record<string, number>;
+  baselineAccountShare?: number;
   dataThrough?: string;
   events: (StoryEvent & { h: number })[];
   narratives: Narr[];
@@ -65,10 +75,15 @@ export interface Model {
   nodes: Node[];
   edges: Edge[];
   graphNote?: string;
+  graphMeta?: NonNullable<SiteData["graph"]>["meta"];
   graphHasTime: boolean;
   archetypes: NonNullable<SiteData["archetypes"]>;
   clusters: Cluster[];
   findings: Record<string, Finding>;
+  /** The export's findings as plain sentences, keyed by topic (story, spread, wapo, without, archetype, news). */
+  findingList: { key: string; text: string }[];
+  platform: string;
+  window: { from: string; to: string };
   validation: NonNullable<SiteData["validation"]>;
   news?: SiteData["news"];
   challengeCount: number;
@@ -98,10 +113,15 @@ export function buildModel(d: SiteData): Model {
     const posts = num(n.posts, sumTimeline(n.id));
     const bot = num(n.bot_post_share);
     const botPosts = num(n.bot_posts, posts * bot);
+    const wo = n.without_automated;
     return {
       id: n.id,
       label: n.label || n.id,
       side: n.side,
+      rank: wo?.rank ?? null,
+      rankWithout: wo?.rank_without ?? null,
+      volumeShare: wo?.volume_share,
+      volumeShareWithout: wo?.volume_share_without,
       color: n.color ?? narrativeColor(n.id, i),
       hex: n.color ?? narrativeHex(n.id, i),
       posts,
@@ -114,7 +134,7 @@ export function buildModel(d: SiteData): Model {
       evidence: n.evidence ?? [],
       examples: (n.examples ?? []).map((e) => (typeof e === "string" ? e : e.text)).filter(Boolean),
       _share: n.share,
-      _without: n.share_without_bots,
+      _without: n.share_without_bots ?? wo?.share_without,
     };
   });
   const tot = narr.reduce((s, n) => s + n.posts, 0) || 1;
@@ -135,7 +155,8 @@ export function buildModel(d: SiteData): Model {
       if (h < 0 || h >= hours) return;
       const p = num(r.by_narrative?.[n.id]);
       posts[h] += p;
-      bots[h] += r.bots_by_narrative ? num(r.bots_by_narrative[n.id]) : p * n.bot;
+      const byN = r.bots_by_narrative ?? r.likely_automated_by_narrative;
+      bots[h] += byN ? num(byN[n.id]) : p * n.bot;
     });
     return { id: n.id, posts, bots };
   });
@@ -148,7 +169,7 @@ export function buildModel(d: SiteData): Model {
 
   /* graph */
   const rawNodes: GraphNode[] = (d.graph?.nodes ?? []).filter((n) => n && n.id);
-  const graphHasTime = rawNodes.some((n) => n.t != null || n.first_t != null || n.hour != null);
+  const graphHasTime = rawNodes.some((n) => n.t != null || n.first_t != null || n.first_seen != null || n.hour != null);
   const narrIndex = new Map(narratives.map((n, i) => [n.id, i]));
   const nodes: Node[] = rawNodes.map((n) => ({
     id: n.id,
@@ -158,8 +179,10 @@ export function buildModel(d: SiteData): Model {
     handle: n.public_handle ?? null,
     selfLabel: !!n.self_label_bot,
     size: Math.max(1, num(n.size, 1)),
-    t: graphHasTime ? Math.max(0, hourIndex(n.t ?? n.first_t ?? n.hour, start) ?? 0) : 0,
-    ampT: Infinity,
+    t: graphHasTime ? Math.max(0, hourIndex(n.t ?? n.first_t ?? n.first_seen ?? n.hour, start) ?? 0) : 0,
+    ampT: n.first_amplified ? hourIndex(n.first_amplified, start) ?? Infinity : Infinity,
+    role: n.role,
+    degree: num(n.degree),
     x: num(n.x, NaN),
     y: num(n.y, NaN),
     r: 3,
@@ -171,7 +194,7 @@ export function buildModel(d: SiteData): Model {
     if (!a || !b || a === b) return;
     const aAuto = a.p >= AUTOMATED, bAuto = b.p >= AUTOMATED;
     const kind: Edge["kind"] = aAuto && bAuto ? "co" : aAuto !== bAuto ? "amp" : "gen";
-    const t = Math.max(a.t, b.t, hourIndex(e.at, start) ?? 0);
+    const t = Math.max(a.t, b.t, hourIndex(e.at ?? e.time, start) ?? 0);
     edges.push({ a, b, type: e.type, t, kind });
     if (kind === "amp") {
       const human = aAuto ? b : a;
@@ -180,23 +203,36 @@ export function buildModel(d: SiteData): Model {
   });
   layout(nodes, narrIndex);
 
-  /* findings: array [{view,text}] or {view: text | {text}} */
+  /* findings: array of sentences, array [{view,text}] or {view: text | {text}} */
   const findings: Record<string, Finding> = {};
-  if (Array.isArray(d.findings)) d.findings.forEach((f, i) => f?.text && (findings[f.view ?? `f${i}`] = f));
+  const findingList: { key: string; text: string }[] = [];
+  if (Array.isArray(d.findings))
+    d.findings.forEach((f, i) => {
+      if (typeof f === "string") findingList.push({ key: findingKey(f, i), text: f });
+      else if (f?.text) findings[f.view ?? `f${i}`] = f;
+    });
   else if (d.findings && typeof d.findings === "object")
     Object.entries(d.findings).forEach(([k, v]) => {
       if (typeof v === "string") findings[k] = { view: k, text: v };
       else if (v?.text) findings[k] = { ...v, view: k };
     });
 
+  // explore views read findings by view; the export's sentence list maps onto them
+  const byView: Record<string, string> = { replay: "story", nobots: "spread", archetypes: "archetype" };
+  Object.entries(byView).forEach(([view, key]) => {
+    const f = findingList.find((x) => x.key === key);
+    if (f && !findings[view]) findings[view] = { view, text: f.text };
+  });
+
   const totals = {
-    posts: d.story?.totals?.posts ?? (timeline.length ? timeline.reduce((s, r) => s + num(r.posts), 0) : undefined),
-    accounts: d.story?.totals?.accounts,
-    engagements: d.story?.totals?.engagements,
+    posts: d.story?.totals?.posts ?? d.story?.posts ?? (timeline.length ? timeline.reduce((s, r) => s + num(r.posts), 0) : undefined),
+    accounts: d.story?.totals?.accounts ?? d.story?.accounts,
+    engagements: d.story?.totals?.engagements ?? d.story?.engagements,
     selfLabeled: d.story?.totals?.self_labeled_bots,
   };
   const wsum = narratives.reduce((s, n) => s + n.posts, 0);
-  const baseline = d.story?.baseline_bot_share ?? (wsum ? narratives.reduce((s, n) => s + n.botPosts, 0) / wsum : undefined);
+  const mb = d.narratives_meta?.baseline;
+  const baseline = d.story?.baseline_bot_share ?? mb?.bot_post_share ?? (wsum ? narratives.reduce((s, n) => s + n.botPosts, 0) / wsum : undefined);
   const ch = d.challenge;
   const challengeCount = Array.isArray(ch) ? ch.length : ch?.accounts?.length ?? 0;
   const publicHandles = new Set<string>((d.public_accounts ?? []).map((p) => p.handle?.replace(/^@/, "")).filter(Boolean));
@@ -211,6 +247,9 @@ export function buildModel(d: SiteData): Model {
     hourLabels,
     totals,
     baseline,
+    baselineCi: mb?.bot_post_share_ci,
+    baselineStrip: mb?.threshold_strip,
+    baselineAccountShare: mb?.bot_account_share,
     dataThrough: d.story?.data_through,
     events,
     narratives,
@@ -218,15 +257,35 @@ export function buildModel(d: SiteData): Model {
     nodes,
     edges,
     graphNote: d.graph?.cap_note,
+    graphMeta: d.graph?.meta,
     graphHasTime,
     archetypes: d.archetypes ?? [],
-    clusters: d.clusters ?? d.coordination ?? [],
+    clusters: (d.clusters ?? d.coordination ?? []).map((c) => ({
+      ...c,
+      cluster_id: c.cluster_id ?? c.id ?? "",
+      narrative: c.narrative ?? (c.narratives ? Object.entries(c.narratives).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined),
+    })),
     findings,
-    validation: d.validation ?? {},
+    findingList,
+    platform: d.story?.platform ?? "Bluesky",
+    window: { from: new Date(start).toISOString(), to: new Date(start + hours * 3_600_000 - 1).toISOString() },
+    validation: { ...(d.validation ?? {}), model_version: d.validation?.model_version ?? d.validation?.bot_model ?? d.sources?.bot_model },
     news: d.news,
     challengeCount,
     publicHandles,
   };
+}
+
+/** Which topic an export finding sentence is about, so each chapter can pick its own. */
+function findingKey(text: string, i: number): string {
+  const t = text.toLowerCase();
+  if (t.includes("washington post")) return "wapo";
+  if (t.includes("archetype")) return "archetype";
+  if (t.includes("headline") && t.includes("hedge")) return "news";
+  if (t.includes("most automated narrative")) return "spread";
+  if (t.startsWith("removing")) return "without";
+  if (t.includes("posts about the story")) return "story";
+  return `f${i}`;
 }
 
 /* Deterministic cluster layout in a 1000 x 360 box when the export gives no x/y:

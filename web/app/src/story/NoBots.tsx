@@ -27,7 +27,8 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
     : undefined;
 
   const topClusters = top ? m.clusters.filter((c) => c.narrative === top.id) : [];
-  const hedge = m.news?.hedging;
+  const sc = m.news?.spy_claim;
+  const hedge = m.news?.hedging ?? (sc?.news_hedged_share != null ? { news: sc.news_hedged_share, social: sc.bluesky_hedged_share, topic: "the spy claim" } : undefined);
 
   return (
     <section className="view v-nobots" aria-label="Without likely automated accounts">

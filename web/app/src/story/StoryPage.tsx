@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getSiteData } from "../api/client";
 import type { SiteData } from "../api/types";
 import { TopBar } from "../components/Shell";
@@ -11,6 +11,7 @@ import { NoBots } from "./NoBots";
 import { Archetypes } from "./Archetypes";
 import { EvidenceView } from "./EvidenceView";
 import { Method } from "./Method";
+import { Guide } from "./guide/Guide";
 
 const VIEWS = [
   { id: "replay", label: "Replay" },
@@ -27,6 +28,8 @@ export default function StoryPage() {
   const [err, setErr] = useState<string | null>(null);
   const [params, setParams] = useSearchParams();
   const view = (VIEWS.find((v) => v.id === params.get("view"))?.id ?? "replay") as ViewId;
+  // Guided story by default; the full dashboard on ?mode=explore (old ?view= links land there too).
+  const exploreMode = params.get("mode") === "explore" || params.has("view");
   const [drawer, setDrawer] = useState<DrawerContent | null>(null);
 
   useEffect(() => {
@@ -34,11 +37,12 @@ export default function StoryPage() {
   }, []);
   const m = useMemo(() => (data ? buildModel(data) : null), [data]);
   useEffect(() => {
-    document.title = m ? `${m.title} · Story dashboard` : "Story dashboard";
-  }, [m]);
+    if (exploreMode || !m) document.title = m ? `${m.title} · Explore the data` : "Story";
+  }, [m, exploreMode]);
 
   const go = (v: ViewId) => {
     const p = new URLSearchParams(params);
+    p.set("mode", "explore");
     p.set("view", v);
     setParams(p, { replace: false });
   };
@@ -66,6 +70,13 @@ export default function StoryPage() {
       </div>
     );
 
+  if (!exploreMode)
+    return (
+      <Guide data={data!} m={m} openDrawer={setDrawer}>
+        <EvidenceDrawer content={drawer} onClose={closeDrawer} />
+      </Guide>
+    );
+
   const t = m.totals;
   return (
     <div className="page story">
@@ -78,6 +89,10 @@ export default function StoryPage() {
               Bluesky · {windowLabel(new Date(m.start).toISOString(), new Date(m.start + (m.hours - 1) * 3_600_000).toISOString())}, {new Date(m.start).getUTCFullYear()} (UTC)
             </span>
             {m.sample && <span className="sample-tag">Sample data</span>}
+            <nav className="g-mode explore-mode" aria-label="How to read this story">
+              <Link to="/story">Guided story</Link>
+              <span aria-current="page">Explore all the data</span>
+            </nav>
           </div>
           <div className="meta">
             {t.posts != null && (

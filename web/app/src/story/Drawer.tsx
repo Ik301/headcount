@@ -56,7 +56,7 @@ export function EvidenceDrawer({ content, onClose }: { content: DrawerContent | 
                     {content.meta?.map(([k, v]) => (
                       <div key={k} className="cm">
                         <dt>{k}</dt>
-                        <dd className="mono">{v}</dd>
+                        <dd>{v}</dd>
                       </div>
                     ))}
                   </dl>
@@ -73,7 +73,7 @@ export function EvidenceDrawer({ content, onClose }: { content: DrawerContent | 
               {content.quote && <p className="quote">“{content.quote}”</p>}
               {!!content.reasons?.length && (
                 <>
-                  <h3 className="dsec">Why these accounts look automated</h3>
+                  <h3 className="dsec">Accounts acting in lockstep</h3>
                   <ul className="reasons">
                     {content.reasons.map((r, i) => (
                       <li key={i}>{r}</li>
@@ -88,7 +88,7 @@ export function EvidenceDrawer({ content, onClose }: { content: DrawerContent | 
                     <li key={i}>
                       <div className="who">
                         {e.public_handle ? <span className="h">{handle(e.public_handle)}</span> : <span>a private account</span>}
-                        <time className="mono" dateTime={e.t}>
+                        <time dateTime={e.t}>
                           {isoSec(e.t)}
                         </time>
                         <span className="mono ref">{postRef(e.post_uri)}</span>

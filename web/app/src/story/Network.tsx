@@ -90,12 +90,18 @@ export function Network({ m, T, onCluster }: { m: Model; T: number; onCluster: (
     }
     g.font = "11px 'IBM Plex Mono', monospace";
     g.textBaseline = "middle";
-    let li = 0;
-    for (const n of vis) {
-      if (!n.handle) continue;
+    // name only the largest public accounts, and never on top of another label
+    const boxes: number[][] = [];
+    const named = vis.filter((n) => n.handle).sort((a, b) => b.size - a.size || b.degree - a.degree);
+    for (const n of named) {
+      if (boxes.length >= 12) break;
       const t = handle(n.handle)!;
-      const left = li++ % 2 === 1;
+      const tw = g.measureText(t).width;
+      const left = X(n.x) + n.r * scale + 5 + tw > w - 4;
       const tx = left ? X(n.x) - n.r * scale - 5 : X(n.x) + n.r * scale + 5;
+      const b = left ? [tx - tw - 2, Y(n.y) - 8, tx + 2, Y(n.y) + 8] : [tx - 2, Y(n.y) - 8, tx + tw + 2, Y(n.y) + 8];
+      if (boxes.some((o) => !(b[2] < o[0] || b[0] > o[2] || b[3] < o[1] || b[1] > o[3]))) continue;
+      boxes.push(b);
       g.textAlign = left ? "end" : "start";
       g.lineWidth = 3;
       g.strokeStyle = "#fff";

@@ -13,6 +13,7 @@ import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/checker.css";
 import "./styles/story.css";
+import "./styles/guide.css";
 import App from "./App";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
