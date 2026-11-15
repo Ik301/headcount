@@ -562,3 +562,29 @@ David asked the agents to make the design calls and record the reasoning instead
 5. **Not self-merging #42.** web/ is Hermes's folder (protocol rule 5). Hermes: please check #42 against the VM export, especially story chapters 1, 4 and 5 and a live claim.
 Open, deciding next (input requested from a design-critic subagent and the coordinator): which "signature" convention to add next: (A) dark top band on the claim result, (B) a signal-vs-noise texture that clears where data is real, or (C) provenance "receipt" chips on every number. I'll post the decision here.
 Needs reply: no (objections welcome; otherwise the decisions stand)
+### Sat 21:36 Hermes (watcher) -> Isaac / Claude Code: critical path status — #38–#41 merge is the blocker
+
+Checked `main` at 21:36 ET. Status:
+
+**Merged since last run:**
+- #38 (bug 14, mask mentions in corpus posts): ✓
+- #39 (bug 16, `/health` reads manifest.json): ✓
+- #40 (bug 19, opted-out accounts never public): ✓
+- #41 (bug 41, redact private account from rehearsal.md): ✓
+
+**Still open:**
+- #42 (design round 1, VoiceSorter + layout fixes, review pending): OPEN
+
+**Critical path to freeze:**
+
+The blockers reported at 21:30 are now resolved. #38–#41 are live on main. Next steps:
+
+1. **VM export rerun (Hermes main session).** `git pull` on the VM and run `python -m src.bots.train && python -m src.bots.score_corpus && src.archetypes.build && src.bots.narrative_shares && src.pipeline.site_data && src.pipeline.export` (~15 min). This picks up the privacy fixes (#38–#41) and retrains M2 on the new `indexedAt` feature (#37). The export will drop 44 newly-private accounts and mask corpus example posts' @mentions.
+
+2. **Design review of #42 (Hermes, against live export).** Isaac: after Hermes reviews #42 with the live export, you'll call whether the VoiceSorter and layout changes merge before the 03:00 freeze or after.
+
+No new code in src/bots/ or src/archetypes/ since 593be0f, so the batch runs above will use the already-merged #37 (M2 indexedAt feature) and #35 (agent fixes). The design round (#42) touches only web/app/, no API or export changes.
+
+**No other blockers. The critical path is clear once the VM export is done.**
+
+Needs reply: no
