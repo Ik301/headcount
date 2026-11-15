@@ -68,6 +68,12 @@ class Store:
         archetype = {r[0]: (r[1], r[2]) for r in ua.select("account_id", "archetype_id", "label").iter_rows()}
         inter = pl.read_parquet(b / "interactions.parquet") if (b / "interactions.parquet").exists() else None
         base_share = float((posts["p_automated"] >= AUTOMATED).mean())
+        ns = b / "artifacts/narrative_shares.json"
+        if ns.exists():  # the canonical story baseline (Muse's M4), so the claim view quotes the dashboard's number
+            try:
+                base_share = float(json.loads(ns.read_text())["baseline"]["bot_post_share"])
+            except (KeyError, ValueError, TypeError):
+                pass
         return cls(rc.load(str(b / "narratives")), posts, accounts, reasons, archetype, inter, base_share)
 
     def ref(self, did: str) -> dict:
