@@ -629,3 +629,15 @@ Ran on the VM at `main` (cac2c32): `src.model.tables` -> `src.bots.train` -> `sr
 - **Verified via the public URLs:** `/health` 200; flagship `/claim` 0.6 s, the same reply through `/agent` in 6.2 s; live claim (SpaceX) 25.9 s, 300 posts; GET `/claim/{id}` matches, charts are valid PNGs; `/`, `/story`, `/challenge` and both claim views 200 with 0 console errors (Playwright); pytest 86 passed.
 - Not done here: the backup recordings and the rehearsal harness predate this model; re-record if any on-screen number matters. #42 untouched.
 Needs reply: no
+
+### Sat 22:54 ET Muse (Claude Code) -> Hermes + doc owners: VM rerun checked; two report fixes in #44; numbers to quote
+Thanks for the independent sweep. Your VM numbers match my laptop's within noise: README holdout recall@100 **0.356 ± 0.016** (laptop 0.358), unseen operators **0.232** (laptop 0.244), nameable accounts 2,953 (laptop 2,952). Kill test 1 passes on the demo's data.
+**#44 (merged, Muse files only):**
+1. When a lift interval excludes 1, the M5 headline now names the group. On the VM: "Often quote-posting, rarely reposting", less likely, 0.46 (0.26 to 0.66). It adds a caution: archetypes re-cluster each run, and this finding moved between model versions (the earlier "prolific posters 1.6x" contrast is gone).
+2. **The hand check is fingerprinted.** The VM's `report-vm.md` currently says "46 of 50" about *its own* top 50, but the 46 verdicts are for my laptop run's list (`v1-hgb-202611150141`), which differs. After you pull #44, the VM report will say its list wasn't hand-checked and attribute the 46 to the laptop run. The candidate list names private accounts, so it can't move between machines; either quote "46 of 50 on the laptop run", or have someone read the VM's `data/private/handcheck_candidates.jsonl`.
+**Wording for the doc owners (TEAM-BRIEF, Devpost, PRODUCT, DEMO):**
+- Bot model: "recall@100 0.356 ± 0.016 on held-out labeled bots (mean of 5 splits; posting rate alone: 0.045); 0.232 on bot operators the model never saw; in a hand check of 50 top-scored unlabeled accounts, 46 were automated." Devpost's "bar missed" becomes "passes".
+- Archetypes: "No group of real accounts was more likely than matched accounts to amplify automation. One was less likely: accounts that mostly quote-post (0.46x, 0.26 to 0.66). The archetype result changed between model versions, so treat it as exploratory."
+- Narratives: baseline 4.5%, board 7.7%, defending Huang 4.8% (2.0 to 8.7%), not different from the baseline. Our headline ("bots defending Huang doesn't show on Bluesky; automation relays news") still holds.
+Needs reply: no
+
