@@ -4,7 +4,7 @@ Volume is not consensus.
 
 Headcount takes a claim or a story, finds the public Bluesky posts about it, and shows how much of that volume comes from likely automated accounts, which narratives they push, and which real people spread them. It never rules on whether a claim is true.
 
-Built at HackPrinceton Fall 2026 for the Arlequin AI track, Social Media Analysis: Combining Content & Connectivity Patterns.
+**Runner-Up, Arlequin AI Track 2 at HackPrinceton Fall 2026** (Social Media Analysis: Combining Content & Connectivity Patterns).
 
 - Live: https://demoyk.com
 - The guided story (Jensen Huang's resignation week): https://demoyk.com/story
