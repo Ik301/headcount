@@ -100,12 +100,20 @@ def analyze_claim(store: Store, text: str, floor: float = cfg.SIMILARITY_FLOOR, 
         "narratives": [],
         "bot_commonalities": [],
         "amplifiers": {"n_humans": 0, "archetype_mix": []},
+        "bot_post_share": 0.0,
+        "bot_post_share_ci": [0.0, 0.0],
         "baseline_bot_share": round(store.baseline_bot_share, 4),
         "modules": versions(),
         "chart_png_url": f"/claim/{claim_id}/chart.png",
         "dashboard_url": f"{dashboard_base}/claim/{claim_id}",
     }
     if m.height >= MIN_MATCHES:
+        # claim level: every matched post, computed like the narratives (resampling accounts), for the reply's verdict
+        claim_flags: dict[str, list[bool]] = {}
+        for did, p in m.select("account_id", "p_automated").iter_rows():
+            claim_flags.setdefault(did, []).append(p >= AUTOMATED)
+        cs, clo, chi = share_ci(claim_flags)
+        result["bot_post_share"], result["bot_post_share_ci"] = round(cs, 4), [round(clo, 4), round(chi, 4)]
         for nid, g in sorted(m.group_by("narrative_id"), key=lambda kv: -kv[1].height):
             nid = nid[0] if isinstance(nid, tuple) else nid
             if nid == "n0" and g.height < 0.2 * m.height:

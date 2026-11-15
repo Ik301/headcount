@@ -162,8 +162,10 @@ def test_full_result_matches_claim_contract(world):
         assert nr_keys <= set(n)
     assert 0 < r["baseline_bot_share"] < 1
     assert r["counts"]["authors"] == 40 and r["counts"]["likely_automated_authors"] == 10
-    assert reply.TRUTH_LINE in r["reply_text"] and "(recent posts)" in r["reply_text"]
-    assert "Likely automated:" in r["reply_text"]
+    assert reply.TRUTH_LINE in r["reply_text"] and "likely automated accounts" in r["reply_text"]
+    assert "story overall" not in r["reply_text"]  # a live search has no story baseline
+    lo, hi = r["bot_post_share_ci"]  # claim level, the same bootstrap as the narratives
+    assert 0 <= lo <= r["bot_post_share"] <= hi <= 1 and r["bot_post_share"] == r["baseline_bot_share"]
 
 
 def test_commonalities_and_amplifiers(world):
@@ -174,7 +176,7 @@ def test_commonalities_and_amplifiers(world):
     assert amp["n_humans"] == 15  # the 15 fans; the likely automated reposter is not a human amplifier
     top = amp["archetype_mix"][0]
     assert top["label"] == "Heavy reposters" and top["share"] == 1.0 and top["lift"] == 2.0
-    assert '"Heavy reposters" (2.0x more likely' in r["reply_text"]
+    assert '"Heavy reposters": 15 accounts, 2.0x more likely than similar accounts' in reply.followup(3, r)
 
 
 def test_private_handles_never_leave(world):
@@ -232,7 +234,7 @@ def test_too_few_matches_skips_scoring():
     app = FakeAppView(posts, profiles, fans)
     r = run(app)
     assert r["matched_posts"] == 17 and r["narratives"] == []
-    assert "isn't enough" in r["reply_text"] and reply.TRUTH_LINE in r["reply_text"]
+    assert "too few" in r["reply_text"] and reply.TRUTH_LINE in r["reply_text"]
     assert app.n("app.bsky.actor.getProfiles") == 0 and app.n("app.bsky.feed.getAuthorFeed") == 0
 
 

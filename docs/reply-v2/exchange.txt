@@ -1,0 +1,89 @@
+=== texter: Was Jensen Huang's mistress a Chinese spy?
+
+[bubble 0 · text, sent at once]
+Checking who is pushing that. About 20 seconds.
+
+[bubble 1 · text]
+Mostly real people, less automation than usual.
+2% of the 443 posts making this claim come from likely automated accounts. The story overall: 4.5%.
+Not a truth check: I measure who is pushing it.
+
+[bubble 2 · image] b61ff2f2ead5.png (1080 px wide card)
+
+[bubble 3 · text]
+Reply with a number:
+1  What people are saying
+2  What the automated accounts share
+3  Who spreads it
+4  How newsrooms covered it
+Or text any other claim.
+Full view: https://demoyk.com/claim/b61ff2f2ead5
+
+
+=== texter: 2
+
+[1 bubble · text]
+What the likely automated accounts have in common:
+Recent pace of about 536 posts a day (2 accounts)
+Most automated narrative: Spy plot and national security (4%).
+Also: 1 what people say, 3 who spreads it, 4 newsrooms. Or text a new claim.
+
+
+=== texter: 3
+
+[1 bubble · text]
+1 real account spread the likely automated posts; 0 could be profiled.
+That is too few to compare with similar accounts.
+Also: 1 what people say, 2 automated accounts, 4 newsrooms. Or text a new claim.
+
+
+=== texter: 4
+
+[1 bubble · text]
+23 matching headlines from wire services and public broadcasters (France24 7, AP 5, BBC 3).
+35% of the headlines hedge ("alleged", "suspected"), vs 13% of matching Bluesky posts.
+Only on social media: Jokes and memes (54% of posts).
+Also: 1 what people say, 2 automated accounts, 3 who spreads it. Or text a new claim.
+
+
+=== texter: help
+
+[bubble 1 · text]
+I'm Headcount. Text me any claim or story and I'll show how much of the posting behind it is automated.
+
+[bubble 2 · text]
+Reply with a number:
+1  What people are saying
+2  What the automated accounts share
+3  Who spreads it
+4  How newsrooms covered it
+Or text any other claim.
+For example:
+“Was Jensen Huang's mistress a Chinese spy?”
+“Did bots defend Jensen Huang?”
+Full view: https://demoyk.com
+
+
+=== texter: 2 (before any claim)
+
+[1 bubble · text]
+Text me a claim first, like "Was Jensen Huang's mistress a Chinese spy?", then reply with a number.
+
+
+=== live-style result (St. Patrick's parade, live Bluesky search, no story baseline)
+
+[bubble 1 · text]
+Mostly real people.
+2% of the 266 posts making this claim come from likely automated accounts.
+Not a truth check: I measure who is pushing it.
+
+[bubble 2 · image] 1e6f9f5ec7c2.png (1080 px wide card)
+
+[bubble 3 · text]
+Reply with a number:
+1  What people are saying
+2  What the automated accounts share
+3  Who spreads it
+4  How newsrooms covered it
+Or text any other claim.
+Full view: https://demoyk.com/claim/1e6f9f5ec7c2
