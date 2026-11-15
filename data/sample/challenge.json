@@ -1,451 +1,74 @@
 {
- "model_version": "v1-hgb-202611142157",
+ "model_version": "v1-hgb-202611150141",
  "accounts": [
   {
-   "account_ref": "gliese.io",
-   "public_handle": "gliese.io",
+   "account_ref": "lebulletin.bsky.social",
+   "public_handle": "lebulletin.bsky.social",
    "tier": "middle",
    "posts": [
     {
-     "t": "2026-11-14T21:40:36.558Z",
-     "text": "🐋 Polymarket · Fresh wallet\n\nA wallet first seen 2 hours ago put $172,085 on \"Boise State\" in \"Oregon State vs. Boise State\"\n\n• Avg price 87¢, odds 86% → 87%\n• 3 trades in 5 minutes\n\n#Polymarket\n\nhttps://gliese.io/whales/4944?ref=bsky",
+     "t": "2026-11-14T01:55:02Z",
+     "text": "Le FBI condamne un \"vol massif de…\n\nhttps://bfmtv.com/tech/cybersecurite/le-fbi-condamne-un-vol-massif-de-cryptomonnaie-pour-financer-ses-programmes-d-armements-illegaux-des-hackers-nord-coreens-ont-usurpe-des-identites-grace-a-l-ia-et-derobe-plus-de-400-millions-de-dollars_AD-20",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T19:34:03.523Z",
-     "text": "🐋 Polymarket · Fresh wallet\n\nA wallet first seen less than an hour ago put $195,595 on \"Yes\" in \"Will Gen.G win Worlds 2026?\"\n\n• Avg price 62¢, odds unchanged at 62%\n• 2 trades in under a minute\n\n#Polymarket\n\nhttps://gliese.io/whales/4898?ref=bsky",
+     "t": "2026-11-14T01:00:03Z",
+     "text": "Actualité : Voitures chinoises : par peur de l’espionnage, ces soldats ne peuvent plus garer leurs BYD, Nio et Geely à la…\n\nhttps://lesnumeriques.com/voiture-electrique/voitures-chinoises-par-peur-de-l-espionnage-ces-soldats-ne-peuvent-plus-garer-leurs-byd-nio-et-geely-a-la-caser",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T14:52:59.840Z",
-     "text": "🐋 Polymarket · Whale bet\n\nLanlanlanlan put $103,600 on \"Over\" in \"Games Total: O/U 3.5\"\n\n• Avg price 73¢, odds 72% → 73%\n• 2 trades in under a minute\n\n#Polymarket\n\nhttps://gliese.io/whales/4854?ref=bsky",
+     "t": "2026-11-14T00:00:13Z",
+     "text": "Hugging Face perd son meilleur allié pour l’IA open source chez Nvidia, deux mois après le rachat\n\nhttps://01net.com/actualites/hugging-face-perd-son-meilleur-allie-pour-lia-open-source-chez-nvidia-deux-mois-apres-le-rachat.html",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T13:03:57.984Z",
-     "text": "📊 Daily report · last 24h\n\nCoinbase changed more than any other named protocol.\n\n• blacklistings on 2 chains\n• 7,616 real control changes on 1,540 contracts (6 chains) in total\n• 1,623 critical\n• 16 named protocols changed\n\n#DeFi\n\nhttps://gliese.io/protocols/coinbase?ref=bsky",
+     "t": "2026-11-13T22:55:02Z",
+     "text": "Pas d’IA, pas de Google : l’entreprise pose un ultimatum aux écoles\n\nhttps://journaldugeek.com/2026/11/13/pas-dia-pas-de-google-lentreprise-pose-un-ultimatum-aux-ecoles",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T12:28:10.109Z",
-     "text": "🟠 Compound · Ethereum\n\nCompound Timelock queued a transaction.\n\n• Target: 0xd28d…7ca9 (SafeProxy)\n• ETA: 2026-11-16 12:26 UTC\n• Queued by governance proposal 624\n• +1 related change in the same transaction\n\nhttps://gliese.io/contracts/ethereum/0x6d903f6003cca6255d85cca4d3b5e5146d",
+     "t": "2026-11-13T21:55:18Z",
+     "text": "L’ogre Elon Musk frappe encore : une seconde ville SpaceX est secrètement envisagée à Starbase Louisiane\n\nhttps://clubic.com/actualite-639169-l-ogre-elon-musk-frappe-encore-une-seconde-ville-spacex-est-secretement-envisagee-a-starbase-louisiane.html",
      "kind": "post"
     }
    ],
-   "p_automated": 0.352,
+   "p_automated": 0.364,
    "reasons": [
-    "96% of its posts get no likes, replies or reposts",
-    "averages 28 posts a day over the account's life"
+    "posts cluster on the same minutes of the hour",
+    "92% of its posts get no likes, replies or reposts",
+    "account was 96 days old at its first story post"
    ],
    "hand_label": ""
   },
   {
-   "account_ref": "gmoyer17.bsky.social",
-   "public_handle": "gmoyer17.bsky.social",
+   "account_ref": "codendahl.bsky.social",
+   "public_handle": "codendahl.bsky.social",
    "tier": "human",
    "posts": [
     {
-     "t": "2026-11-14T20:48:10.890Z",
-     "text": "🙁",
+     "t": "2026-11-12T14:49:23.888Z",
+     "text": "Jensen Huang is out. His successor has the toughest job in tech\neconomist.com/business/202...",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-11T21:20:31.608Z",
+     "text": "Peak boomer. \neconomist.com/finance-and-...",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-09T20:53:35.149Z",
+     "text": "That paper is riddled with endogeneity problems, I don’t see that as strong evidence. But I think a mixed housing market probably does have advantages. Doesn’t need expropriation.",
      "kind": "reply"
     },
     {
-     "t": "2026-11-14T20:47:17.885Z",
-     "text": "Trump has others speak, the \"leaders\" he put in place, because he refuses to take any responsibility.  Duffy claims they need funds, that no funds are being released?  Look to the ballroom, the arch, golf courses, the Reflecting Pool - all of Trump's ego projects.  There HAVE bee",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T13:02:46.668Z",
-     "text": "Oh - she's sorry - and wants \"privacy and respect\".  OK - NO.  She's sorry she's getting backlash instead of support.  She needs to get tossed out of school and banned from ever holding a job allowing her access to the public.  She's a danger.",
+     "t": "2026-11-09T19:46:15.697Z",
+     "text": "All good, not nearly enough.",
      "kind": "reply"
     },
     {
-     "t": "2026-11-14T12:35:24.684Z",
-     "text": "Trump now says he thinks he was too tough with his immigration policies.  He knew from the start who he was deporting, who he was \"ridding\" our country of, who he was ripping from homes, off the streets, injuring.  He knew.  He still knows.  He isn't going to stop.  He's lying.",
+     "t": "2026-11-09T19:45:47.996Z",
+     "text": "That law can and should be changed of course. Ridiculous to have a housing shortage and hectares of Kleingärten (private gardens on public land) <20 minutes from Berlin central station.",
      "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T12:04:22.574Z",
-     "text": "Trump puts himself above America.  \n\nRemember, he made everyone in his administration pledge loyalty to HIM, not to America, not to our Constitution - to HIM.\n\nHe has plastered his name on everything he can, forced others to \"honor\" him, award him medals. \n\nTrump only cares about",
-     "kind": "reply"
-    }
-   ],
-   "p_automated": 0.006,
-   "reasons": [
-    "recent pace of about 39 posts a day"
-   ],
-   "hand_label": "human"
-  },
-  {
-   "account_ref": "news.karthihegde.dev",
-   "public_handle": "news.karthihegde.dev",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T21:09:02Z",
-     "text": "Live Starship Flight 15 Entry, Landing Burn, and Catch\nDiscussion | hackernews | Author: asoberbeck\n\n#Space",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T20:09:03Z",
-     "text": "Tesla opens Cybercab pre-orders ‘for personal use,’ with geo restrictions and a $299 monthly fee\ntechcrunch | Author: Anthony Ha\n\n#NewLaunches",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T19:39:05Z",
-     "text": "A QR code that says who made it\nDiscussion | hackernews | Author: mart9\n\n#Cryptography",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T19:39:02Z",
-     "text": "US IRS free online tax filing open source repo\nDiscussion | hackernews | Author: accountinhn\n\n#OpenSource",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T19:09:04Z",
-     "text": "Creating a self booting ZIP archive\nDiscussion | hackernews | Author: gdgghhhhh\n\n#OperatingSystems",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 0.303,
-   "reasons": [
-    "posts cluster on the same minutes of the hour",
-    "recent pace of about 60 posts a day",
-    "45% of its posts come within 10 seconds of the previous one"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "dannyodwyer.bsky.social",
-   "public_handle": "dannyodwyer.bsky.social",
-   "tier": "human",
-   "posts": [
-    {
-     "t": "2026-11-14T07:46:21.957Z",
-     "text": "my brother, i think you're slightly closer. gonna need that first hand research. just invoice /noclip it's cool",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T06:24:03.175Z",
-     "text": ".@[a private account] has been streaming WCW history for like 3 years and we're finally into the Russo nightmare era. come hang out.\n\nwww.twitch.tv/frankhowley",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T05:45:58.617Z",
-     "text": "facebook marketplace is wild man",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T03:00:03.971Z",
-     "text": "lol, Claude probably said it was fine",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T02:59:12.924Z",
-     "text": "yea I suspect when you're updating a continent-wide system one of the biggest elements to consider is the existing infrastructure so it's kind of wild that this happened. I'm sure that stuff needs an upgrade, American infrastructure investment has been horrid for decades. but it'",
-     "kind": "reply"
-    }
-   ],
-   "p_automated": 0.003,
-   "reasons": [],
-   "hand_label": "human"
-  },
-  {
-   "account_ref": "muckscraper.news",
-   "public_handle": "muckscraper.news",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T12:21:05.373069Z",
-     "text": "Morning Edition: November 14, 2026\n\n• FAA lifts nationwide ground stop after disrupting sports and travel\n• Trump to meet Putin and Xi for historic trilateral in China\n• Microsoft restores services after historic global outage and disruption\n• Turkey and Qatar sign mutual defense",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-13T22:25:52.914933Z",
-     "text": "Evening Edition: November 13, 2026\n\n• Supreme Court to hear case challenging Trump's asylum ban\n• Europeians haggle over who will represent bloc in Ukraine peace talks\n• Democrat Eileen Laubacher defeats Rep. Lauren Boebert in Colorado House race\n• Democrats weigh options for dea",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-13T12:25:45.999874Z",
-     "text": "Morning Edition: November 13, 2026\n\n• Sen. Van Hollen announces bid to challenge Schumer for Senate leader\n• Jensen Huang resigns as Nvidia CEO as Colette Kress named interim\n• Trump tells Vance to end Iran talks as 'no deal' needed\n• AI boom faces $500 billion funding hole witho",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-12T22:30:35.244470Z",
-     "text": "Evening Edition: November 12, 2026\n\n• Trump stands by Commerce Secretary Lutnick despite Nvidia chip controversy\n• Witkoff and Kushner meet Putin to include Europe in Ukraine talks\n• Fed officials consider faster hikes as inflation runs hotter than expected",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-12T12:25:43.823150Z",
-     "text": "Morning Edition: November 12, 2026\n\n• Trump envoys travel to Moscow to meet Putin over Ukraine deal\n• Democrat Scott Colom wins historic Mississippi Senate seat as first Black senator\n• Kenya starts 42-day countdown to disease-free status after last Ebola patient",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 0.211,
-   "reasons": [
-    "86% of its posts get no likes, replies or reposts",
-    "posts cluster on the same minutes of the hour"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "economyapp.extwitter.link",
-   "public_handle": "economyapp.extwitter.link",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T15:49:38.070705+00:00",
-     "text": "📊 This Week in Visuals\n\n🦎 Berkshire $BRK.A\n🏦 Nu $NU\n🌐 Cisco $CSCO\n⚙️ Applied Materials $AMAT\n☁️ Nebius $NBIS\n🧠 Cerebras $CBRS\n👟 On $ONON\n💊 Hims & Hers $HIMS\n📺 The Trade Desk $TTD\n📆 Monday $MNDY\n🌎 DLocal $DLO",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-13T15:31:36.829274+00:00",
-     "text": "🏦 NVIDIA helped bankroll the AI boom.\n\nBut will its next CEO be willing to do the same?\n\nToday's visuals:\n\n🤖 Anthropic's compute cost surge\n🧱 CoreWeave's $846M interest bill\n🎮 GTA VI's $1B preorder head start\n🌊 Sea's potential Monee IPO",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-12T22:12:24.029121+00:00",
-     "text": "If you like this, you'll love our newsletter!\n\nJoin 300,000+ subscribers.\n\n📊More earnings visualized here.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-12T22:12:21.788756+00:00",
-     "text": "$NU Nubank Q3 FY26:\n\n• Customers +12% Y/Y to 143M\n• Deposits +19% Y/Y to $47.5B\n• Revenue +39% Y/Y to $5.8B ($0.1B beat)\n• Net income +39% Y/Y to $1.1B\n• EPS $0.22 (in line)",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-12T15:13:33.963953+00:00",
-     "text": "🚨 Jensen Huang is OUT.\n\nNVIDIA's founder resigns amid a scandal involving an alleged Chinese spy.\n\nAfter 33 years, the face of the AI revolution is gone.\n\nColette Kress takes over as interim CEO.\n\nWhat happens to $NVDA now?",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 0.151,
-   "reasons": [
-    "33% of its posts come within 10 seconds of the previous one"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "sonjadrimmer.bsky.social",
-   "public_handle": "sonjadrimmer.bsky.social",
-   "tier": "human",
-   "posts": [
-    {
-     "t": "2026-11-14T17:03:32.301Z",
-     "text": "This makes me profoundly sad, and I am sorry that this has happened at your institution.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T16:15:35.558Z",
-     "text": "Chef’s kiss.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T16:15:13.498Z",
-     "text": "Especially be that guy if you’re advanced or stable in your career. I don’t think folks should be asking early career or precarious scholars to be giving up opportunities.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T16:11:55.163Z",
-     "text": "If a male colleague who’d been invited to speak at something hadn’t declined and told the people inviting him to ask me instead the event would have had a four-person manel. So be that guy.",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T16:09:47.302Z",
-     "text": "Nothing could be more emblematic of what the tech industry is doing to education in this country than literally taking offices away from librarians to make room for an “AI Makerspace,” while exponentially increasing librarians’ labor with botvasion emails.",
-     "kind": "quote"
-    }
-   ],
-   "p_automated": 0.001,
-   "reasons": [
-    "recent pace of about 27 posts a day"
-   ],
-   "hand_label": "human"
-  },
-  {
-   "account_ref": "alextech.ai",
-   "public_handle": "alextech.ai",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T19:22:07.832912+00:00",
-     "text": "Maintainers featured today: @[a private account] ",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T19:22:07.104878+00:00",
-     "text": "From today's GitHub digest: highlight.js, vimium, radare2 and libgdx among the most interesting repositories. From reverse engineering tools to self-hosted personal finance managers, the selection spans many fields.",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T17:02:59.229161+00:00",
-     "text": "The EU proposes banning loot boxes for minors and showing the real price of virtual currencies. For free-to-play it is a major issue, and the European industry says it is game over.",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T17:02:55.713710+00:00",
-     "text": "A Chinese drone aims to deliver painkillers to wounded soldiers before rescuers arrive, firing a dart from a distance. The project is still experimental and cannot yet evacuate or assess the wounded on its own.",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T17:02:52.019243+00:00",
-     "text": "A startup founded six months ago wants to run AI data centers on ships at sea, powered by ocean heat. It has raised $20 million and targets a prototype in 2028. The technology dates back decades, but may now be workable.",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 0.798,
-   "reasons": [
-    "88% of its posts come within 10 seconds of the previous one",
-    "posts cluster on the same minutes of the hour",
-    "recent pace of about 34 posts a day"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "nito-gregorian.bsky.social",
-   "public_handle": "nito-gregorian.bsky.social",
-   "tier": "automated",
-   "posts": [
-    {
-     "t": "2026-11-14T14:47:25.534Z",
-     "text": "https://nito-mag.blogspot.com/2026/11/gqs-2026-men-of-year-party-brought.html\n\nGQ’s 2026 Men of the Year Party Brought Everyone Out #showbiz #sports #celebrities #lifestyle",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T12:47:43.266Z",
-     "text": "https://nito-mag.blogspot.com/2026/11/bring-de-beers-london-diamonds-home-for.html\n\nBring De Beers London Diamonds Home for the Holidays #showbiz #sports #celebrities #lifestyle",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T12:47:38.429Z",
-     "text": "https://nito-mag.blogspot.com/2026/11/sofia-franklyn-tells-maury-povich-shes.html\n\nSofia Franklyn Tells Maury Povich She’s Ready to Retire #showbiz #sports #celebrities #lifestyle",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T12:47:33.183Z",
-     "text": "https://nito-mag.blogspot.com/2026/11/olivia-miles-reflects-on-special-year-1.html\n\nOlivia Miles reflects on ‘special’ Year 1 with Minnesota Lynx in a heartwarming admission #showbiz #sports #celebrities #lifestyle",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T12:47:25.831Z",
-     "text": "https://nito-mag.blogspot.com/2026/11/carson-hocevar-and-cleetus-mcfarland.html\n\nCarson Hocevar and Cleetus McFarland win LeMullets 2026 in epic finish #showbiz #sports #celebrities #lifestyle",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 1.0,
-   "reasons": [
-    "posts cluster on the same minutes of the hour",
-    "63% of its posts come within 10 seconds of the previous one",
-    "recent pace of about 39 posts a day"
-   ],
-   "hand_label": "automated"
-  },
-  {
-   "account_ref": "zivesk.zpravobot.news.ap.brid.gy",
-   "public_handle": "zivesk.zpravobot.news.ap.brid.gy",
-   "tier": "automated",
-   "posts": [
-    {
-     "t": "2026-11-14T19:51:31.000Z",
-     "text": "Masívny výpadok služieb postihol aj slovenských používateľov.\n\nhttps://zive.aktuality.sk/clanok/KdD9XdV/microsoft-vysvetlil-priciny-velkeho-vypadku-stal-sa-tercom-mnohych-vtipov/",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T17:51:48.000Z",
-     "text": "Prenos dát cez holuba znie ako prvoaprílový žart, no v skutočnosti má vlastnú technickú dokumentáciu a reálne výsledky.\n\nhttps://zive.aktuality.sk/clanok/FD7S8v6/internet-prenasany-postovymi-holubmi-islo-o-vtip-ktory-realne-fungoval/",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T15:51:22.000Z",
-     "text": "Otec hier Doom či Quake: Ako jeden muž dokázal na slabých PC to, čo experti považovali za nemožné.\n\nhttps://zive.aktuality.sk/clanok/qsP0T7X/genialna-finta-spustila-hernu-revoluciu-ako-programator-z-garaze-porazil-gigantov/",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T14:11:28.000Z",
-     "text": "Keď výskumníci zo Slovenskej akadémie vied posadili ľudí pred sociálneho robota, čakali, že ho lepšie prijmú mladí. Stal sa opak, hovorí Róbert Sabo z Ústavu informatiky SAV […]",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T10:52:02.000Z",
-     "text": "Pozrite si rebríček značiek, ktoré vodiči len tak nemenia „ako ponožky“.\n\nhttps://zive.aktuality.sk/clanok/PDC7622/zakaznici-sa-od-nich-nevedia-odtrhnut-tieto-znacky-aut-ovladli-prestizny-rebricek-vernosti/",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 1.0,
-   "reasons": [
-    "posts cluster on the same minutes of the hour",
-    "98% of its posts get no likes, replies or reposts"
-   ],
-   "hand_label": "automated"
-  },
-  {
-   "account_ref": "tugate.ch",
-   "public_handle": "tugate.ch",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T09:14:47Z",
-     "text": "Google coloca robôs humanoides a trabalhar nas fábricas da Mercedes-Benz com uma taxa de sucesso de 96% 🤖\n\n#gemini #google #mercedes #motor #robotics ",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T09:12:59Z",
-     "text": "Microsoft lança atualização de emergência para resolver falhas de ativação no Windows \n\n#enterprise #microsoft #patch #server #windows ",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T09:10:39Z",
-     "text": "AMD enfrenta críticas nas redes sociais após tentar assegurar fidelidade aos jogadores em meio a desafios de custos e componentes.\n\n#artificial #comunidade #dados #gaming #radeon ",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T09:10:34Z",
-     "text": "Remake de Zelda atinge 5,2 milhões de cópias vendidas na Switch 2 em apenas quatro dias.\n\n#consola #hardware #nintendo #switch #zelda ",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T09:09:24Z",
-     "text": "Apple TV 4K mais antigas ganham segunda vida com a chegada da Siri AI no tvOS 27.2.1, permitindo comandos de voz complexos através de atualização disponibilizada a 13 de novembro. 📺\n\n#apple #assistente #chegada #software #vida ",
-     "kind": "post"
-    }
-   ],
-   "p_automated": 0.431,
-   "reasons": [
-    "recent pace of about 70 posts a day",
-    "averages 31 posts a day over the account's life",
-    "76% of its posts get no likes, replies or reposts"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "11thjeff.bsky.social",
-   "public_handle": "11thjeff.bsky.social",
-   "tier": "human",
-   "posts": [
-    {
-     "t": "2026-11-14T21:10:16.661Z",
-     "text": "Planting trees in Chinatown with @[a private account] . So much fun! We got 10 foot stakes for the soil here, so for my first time, we took turns on the ladder, pile driving—no small feat on the same steep hill the cable cars crawl up!",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T15:27:25.503Z",
-     "text": "It's all about fostering innovation through competition!\n\nATC guy says he can clear your takeoff in 10 minutes\n\nPalantir guy says he could get you off in 5—",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T05:11:06.916Z",
-     "text": "Nothing I love more than seeing my breaking news reposted with typos I can't fix because you don't have an #editButton",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T04:53:29.720Z",
-     "text": "Oldest trick a contractor can pull: do a bad job and explain tot he customer that fixing it's gonna cost a lot more than the original bid\n\nPalantir may try this again…",
-     "kind": "quote"
-    },
-    {
-     "t": "2026-11-14T04:44:17.447Z",
-     "text": "You guys... it's not complicated.\n\nAlex Karp is a slop coder now; this is just Palantir doing a DOGE",
-     "kind": "post"
     }
    ],
    "p_automated": 0.002,
@@ -453,41 +76,118 @@
    "hand_label": "human"
   },
   {
-   "account_ref": "txt.project-push.tk.gg",
-   "public_handle": "txt.project-push.tk.gg",
+   "account_ref": "killbait-uk.bsky.social",
+   "public_handle": "killbait-uk.bsky.social",
    "tier": "middle",
    "posts": [
     {
-     "t": "2026-11-14T21:37:17.659Z",
-     "text": "RTÉ Sport\nRepublic of Ireland beaten 1-0 by Austria in their Nations League clash in Linz\nvia RTE News",
+     "t": "2026-11-13T06:12:08.860775100Z",
+     "text": "Junior doctor burnout in obstetrics and gynaecology poses critical risks to maternity care\n\n🤖 IA: It's not clickbait ✅\n👥 Users: It's not clickbait ✅\n\n#burnout #maternitycare #medicaltraining \n\n👇👇👇",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:37:01.904Z",
-     "text": "Riding the wave\nDemocratic leaders gathered in Denver to debate whether voters embraced them or just rejected Trump. The answer could shape 2028.\nvia MSNOW",
+     "t": "2026-11-13T05:20:26.257657500Z",
+     "text": "Microsoft services experience widespread outage affecting Outlook, Teams, and Microsoft 365\n\n🤖 IA: It's not clickbait ✅\n👥 Users: It's not clickbait ✅\n\n#outage #microsoft #services \n\n👇👇👇",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:36:12.416Z",
-     "text": "Grand Slam of Darts LIVE!\nLuke Littler vs Beau Greaves next after Michael van Gerwen, Luke Humphries win thrillers 🎯\nvia Sky Sports News",
+     "t": "2026-11-13T05:09:45.414081800Z",
+     "text": "Guardian hosts annual review event for 2026 stories\n\n🤖 IA: It's not clickbait ✅\n👥 Users: It's not clickbait ✅\n\n#event #review #guardian \n\n👇👇👇",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:33:20.130Z",
-     "text": "EXCLUSIVE\nShe cried rape and destroyed my career: Here’s the red flag I missed, says MIT professor\nvia Daily Mail",
+     "t": "2026-11-13T04:59:57.387504500Z",
+     "text": "Government approves MoD Bicester site for asylum seeker accommodation\n\n🤖 IA: It's not clickbait ✅\n👥 Users: It's not clickbait ✅\n\n#asylum #housing \n\n👇👇👇",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:32:01.148Z",
-     "text": "Breaking News\nSpaceX caught a spacecraft returning to Earth out of the air with giant mechanical arms, a major leap for reusable rockets.\nvia The New York Times",
+     "t": "2026-11-13T04:20:07.831034800Z",
+     "text": "China's battery-swapping e-trucks offer rapid charging solution for logistics sector\n\n🤖 IA: It's not clickbait ✅\n👥 Users: It's not clickbait ✅\n\n#electricvehicles #batteryswapping #logistics \n\n👇👇👇",
      "kind": "post"
     }
    ],
-   "p_automated": 0.167,
+   "p_automated": 0.294,
    "reasons": [
-    "recent pace of about 551 posts a day",
-    "averages 945 posts a day over the account's life",
-    "100% of its posts get no likes, replies or reposts"
+    "averages 46 posts a day over the account's life",
+    "recent pace of about 38 posts a day",
+    "90% of its posts get no likes, replies or reposts"
+   ],
+   "hand_label": ""
+  },
+  {
+   "account_ref": "huwupy.kawaii.social",
+   "public_handle": "huwupy.kawaii.social",
+   "tier": "human",
+   "posts": [
+    {
+     "t": "2026-11-14T21:41:39.803Z",
+     "text": "This is a common belief among otherwise intelligent programmers",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T20:56:16.570Z",
+     "text": "Fair",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T20:26:13.306Z",
+     "text": "I can excuse thinking that some spiders are cute but i draw the line at writhing knots of tentacles and mouths",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T20:21:37.914Z",
+     "text": "That used to be “clanker lover” but i suspect that was ditched for being too obvious",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T20:17:29.330Z",
+     "text": "Look up a video of the four foot variety out of the water",
+     "kind": "reply"
+    }
+   ],
+   "p_automated": 0.008,
+   "reasons": [
+    "averages 29 posts a day over the account's life",
+    "recent pace of about 25 posts a day"
+   ],
+   "hand_label": "human"
+  },
+  {
+   "account_ref": "topiatsume.bsky.social",
+   "public_handle": "topiatsume.bsky.social",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-14T14:55:23.873Z",
+     "text": "🎮 『ラグナロクオンライン』シリーズ初のオープンワールドMMORPG『ラグナロク:ニューワールド』2027年上半期に日本国内でのサービス提供が決定\n\nガンホーは『ラグナロク：ニューワールド』を2027年上半期に日本国内でサービス提供すると発表した。\n・基本プレイ無料、一部有料アイテムあり\n\n📰 2媒体が報道: 電ファミニコゲーマー・4Gamer.net\n▶ 各社の報道を比べる topiatsume.pages.dev/topic/4b35…\n#ガンホー #MMORPG #ゲーム",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T14:14:05.001Z",
+     "text": "🎬 磯村勇斗、TBSドラマ初主演!坂東龍汰と本格共演「ライオンの隠れ家」チーム再集結の金曜ドラマ「台風の目」\n\n磯村勇斗が2027年1月期のTBS系金曜ドラマ「台風の目」で初主演を務めることが決定した。\n・共演者は坂東龍汰で、二人の本格的な共演は初めて。\n\n📰 3媒体が報道: シネマトゥデイ・ENCOUNT・福井新聞ONLINE\n▶ 各社の報道を比べる topiatsume.pages.dev/topic/0680…\n#磯村勇斗 #坂東龍汰 #エンタメ",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T13:51:56.261Z",
+     "text": "💻 楽天モバイル、ローミング縮小の影響は軽微と余裕を見せる 解約率は逆に改善&ネットワークも安定\n\n楽天グループは2026年度第3四半期決算説明会で、楽天モバイルのローミング縮小の影響について、純増は続いており、解約率は改善、ネットワークも安定していると説明した。\n・ローミング縮小により楽天自社ネットワークのトラフィックが増加\n・2026年度の設備投資は2000億円を維持し、基地局建設を加速\n\n📰 2媒体が報道: ケータイ Watch・ASCII.jp\n▶ 各社の報道を比べる topiatsume.pages.dev/topic/a096…\n#楽天グルー",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T13:13:14.103Z",
+     "text": "🎮 スキー場経営シム「ゲレンデ社長!伝説のスキーリゾート経営」,Steamで早期アクセスを開始。山にコースを作り,リフトやロッジを建てよう\n\nFalling Damage Gamesは2026年11月13日、PCゲーム「ゲレンデ社長！伝説のスキーリゾート経営」の早期アクセスをSteamで開始した。\n・11月27日まで10％オフの2520円で購入可能\n・世界の実在の山を再現し、スキー場を建設・経営する\n\n📰 2媒体が報道: 4Gamer.net・AUTOMATON\n▶ 各社の報道を比べる topiatsume.pages.dev/topic/a746…\n#",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T12:52:58.933Z",
+     "text": "🎬 EXILE、19年ぶり全国ホールツアー『E・M・O・I』開催 2027年2月より全国8都市11公演まわる\n\nEXILEが2027年2月より全国ホールツアー『EXILE PREMIUM HALL TOUR 2027 “E・M・O・I”』を開催する。\n・2027年2月16日に宮城・仙台サンプラザホールで開幕、全国8都市11公演\n\n📰 3媒体が報道: ENCOUNT・TOKYO HEADLINE ほか\n▶ 各社の報道を比べる topiatsume.pages.dev/topic/0825…\n#EXILE #ホールツアー #エンタメ",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.231,
+   "reasons": [
+    "account was 36 days old at its first story post",
+    "recent pace of about 35 posts a day",
+    "averages 33 posts a day over the account's life"
    ],
    "hand_label": ""
   },
@@ -522,49 +222,85 @@
      "kind": "reply"
     }
    ],
-   "p_automated": 0.695,
+   "p_automated": 0.152,
    "reasons": [
     "24% of its posts come within 10 seconds of the previous one"
    ],
    "hand_label": ""
   },
   {
-   "account_ref": "intlnewsen.eurosky.social",
-   "public_handle": "intlnewsen.eurosky.social",
-   "tier": "automated",
+   "account_ref": "coreybrickley.bsky.social",
+   "public_handle": "coreybrickley.bsky.social",
+   "tier": "human",
    "posts": [
     {
-     "t": "2026-11-14T16:59:41.831Z",
-     "text": "𝗔𝗯𝗱𝘂𝗹 𝗘𝗹-𝗦𝗮𝘆𝗲𝗱 — November 14, 2026, 9:56 AM EST\nnypost.com (English, United States)\n\nBlue Jays outfielder Anthony Santander has finally spoken out.\n@[a private account]",
+     "t": "2026-11-14T21:21:30.741Z",
+     "text": "yeah moki physically freezes in place until weve been walking for a block or two",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T21:16:40.404Z",
+     "text": "this is made up dont believe stuff on the internet",
+     "kind": "reply"
+    },
+    {
+     "t": "2026-11-14T18:07:16.396Z",
+     "text": "BREAKING: Adhd sufferers 30% more gullible than neurotypical individuals. (Source)",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T16:58:50.793Z",
-     "text": "𝗪𝗲𝘀𝘁 𝗕𝗮𝗻𝗸 - jpost.com (English, Israel)\nWhen questioned about his boots, the man said they belonged to his son, then told officers he had more military equipment at home.",
+     "t": "2026-11-14T04:36:46.231Z",
+     "text": "yes hello hi",
      "kind": "reply"
     },
     {
-     "t": "2026-11-14T16:58:32.168Z",
-     "text": "𝗪𝗲𝘀𝘁 𝗕𝗮𝗻𝗸 - alquds.co.uk (Arabic, United Kingdom)\nRamallah - \"Al-Quds Al-Arabi\" and agencies: Israeli occupation forces raided the Balata, Askar, and Ein refugee camps in the city of Nablus early this Saturday morning. They arrested 10 individuals from various areas within the…\nR",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T16:57:21.512Z",
-     "text": "𝗪𝗲𝘀𝘁 𝗕𝗮𝗻𝗸 - alquds.co.uk (Arabic, United Kingdom)\nRamallah: The Palestinian human rights organization \"Al-Haq\" announced on Friday that Israeli authorities have prevented its Director-General, Shawan Jabarin, from traveling from the occupied West Bank, via the Karameh crossing…\nR",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T16:55:59.778Z",
-     "text": "𝗪𝗲𝘀𝘁 𝗕𝗮𝗻𝗸 - annahar.com (Arabic, Lebanon)\nA French administrative court rejected on Friday a request filed by a pro-Palestinian organization to ban a real estate exhibition featuring Israeli properties that is scheduled to take place on Sunday in Paris. The request was based on…\n",
-     "kind": "reply"
+     "t": "2026-11-14T01:10:44.110Z",
+     "text": "yeah if by SI you mean STUPID INTELLIGENCE\n\n*I throw up my hat and shoot my guns in the air, dancing wildly*",
+     "kind": "quote"
     }
    ],
-   "p_automated": 1.0,
+   "p_automated": 0.003,
    "reasons": [
-    "recent pace of about 1200 posts a day",
-    "averages 403 posts a day over the account's life"
+    "averages 19 posts a day over the account's life"
    ],
-   "hand_label": "automated"
+   "hand_label": "human"
+  },
+  {
+   "account_ref": "dojnice.zpravobot.news.ap.brid.gy",
+   "public_handle": "dojnice.zpravobot.news.ap.brid.gy",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-13T12:14:40.000Z",
+     "text": "Dojnice 𝕏🔁 @[a private account]:\n\nHele…nechci napovídat, ale Babiš nám dluží nějaký miliardy\n\nhttps://x.com/dojnice/status/2121212906633118109",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T06:36:35.000Z",
+     "text": "Na Jensena Huanga praskl už třetí mimomanželský vztah. Vypadá to, že mezi výkony čipů Nvidia a jeho sexuálními výkony musí být nějaká korelace.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-12T21:00:43.000Z",
+     "text": "Středoškolák dnes dostal za 5 z čtvrtletky z matematiky. Právě se blížím domů a pořád ještě nevím, zda s ním budu mluvit hodně mrazivým tónem a nebo hulákat.\n\nOvšem nevím, jestli by měl hulákat někdo, kdo unikl rektorskýmu termínu z tohoto předmětu o prsa korejské ženy…",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-12T20:50:36.000Z",
+     "text": "Zas teď bude mít Jensen Huang dost času na manželku…",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-12T15:14:42.000Z",
+     "text": "Babišův narychlo vymyšlený výlet do Izraele, kde chce naprosto nesmyslně jednat o Iron Dome, navíc v době, kdy se tam mění vláda, je jen drahý útěk před demonstranty.\n\nJestli nás nevyšlo levněji, když se před nima jen schovával v cukrárně.",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.85,
+   "reasons": [
+    "96% of its posts get no likes, replies or reposts"
+   ],
+   "hand_label": ""
   },
   {
    "account_ref": "mm-repubblica-bot.bsky.social",
@@ -601,159 +337,431 @@
    "reasons": [
     "posts cluster on the same minutes of the hour",
     "averages 94 posts a day over the account's life",
-    "recent pace of about 46 posts a day"
+    "43% of its posts come within 10 seconds of the previous one"
    ],
    "hand_label": "automated"
   },
   {
-   "account_ref": "polymarket.extwitter.link",
-   "public_handle": "polymarket.extwitter.link",
-   "tier": "middle",
-   "posts": [
-    {
-     "t": "2026-11-14T21:33:54.404256+00:00",
-     "text": "JUST IN: NASA Administrator Jared Isaacman calls Starship’s first-ever tower catch \"almost magic.\"",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T21:28:27.042884+00:00",
-     "text": "BREAKING: SpaceX makes history at exactly 4:20 PM ET, catching Starship’s upper stage with Mechazilla’s giant “chopsticks” after 22 hours in orbit.",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T21:16:23.934000+00:00",
-     "text": "BREAKING: Starship is currently hurtling through Earth’s atmosphere ahead of its first-ever catch attempt with SpaceX’s giant “chopsticks.”",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T20:32:21.716446+00:00",
-     "text": "JUST IN: Sen. John Fetterman declares “I'm a pro data center Democrat.\"",
-     "kind": "post"
-    },
-    {
-     "t": "2026-11-14T19:48:25.316019+00:00",
-     "text": "Follow Starship Flight Test 15 live:",
-     "kind": "reply"
-    }
-   ],
-   "p_automated": 0.498,
-   "reasons": [
-    "recent pace of about 71 posts a day",
-    "averages 87 posts a day over the account's life"
-   ],
-   "hand_label": ""
-  },
-  {
-   "account_ref": "green-mag.bsky.social",
-   "public_handle": "green-mag.bsky.social",
+   "account_ref": "echo24cz.zpravobot.news.ap.brid.gy",
+   "public_handle": "echo24cz.zpravobot.news.ap.brid.gy",
    "tier": "automated",
    "posts": [
     {
-     "t": "2026-11-14T20:24:29.096Z",
-     "text": "https://greenmagshowbiz.blogspot.com/2026/11/penguins-reassign-defenseman-to-ahl.html\n\nPenguins Reassign Defenseman To AHL With Another Blueliner Close To Return #showbiz #sports #celebrities #lifestyle",
+     "t": "2026-11-14T21:41:17.000Z",
+     "text": "Ministerstvo obrany upozornilo, že vojenského cvičení Koalicja 26.2 se stejně jako ČR přímo neúčastní většina takzvané koalice ochotných. Zasáhne do něj 11 ze 32 států. … […] \n\n[Original post on zpravobot.news]",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T20:24:25.700Z",
-     "text": "https://greenmagshowbiz.blogspot.com/2026/11/inside-family-lives-of-sheriff-country.html\n\nInside the Family Lives of the “Sheriff Country” Stars #showbiz #sports #celebrities #lifestyle",
+     "t": "2026-11-14T21:21:16.000Z",
+     "text": "Po sérii jednání mezi Spojenými státy, Ruskem, Ukrajinou a evropskými partnery se podle zvláštního vyslance USA pro mírová jednání Jareda Kushnera objevily nové návrhy, které by mohly přispět k… […] \n\n[Original post on zpravobot.news]",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T12:24:38.092Z",
-     "text": "https://greenmagshowbiz.blogspot.com/2026/11/man-whose-wife-son-were-injured-in.html\n\nMan whose wife, son were injured in building collapse wants answers #showbiz #sports #celebrities #lifestyle",
+     "t": "2026-11-14T20:41:13.000Z",
+     "text": "Snížení amerického vojenského kontingentu v Evropě se může uskutečnit v omezenějším rozsahu, než se dříve očekávalo, informuje agentura Bloomberg s odvoláním na své zdroje. …\n\nhttps://www.echo24.cz/a/HH4aC/svet-zpravy-bloomberg-usa-by-mohly-stahnout-z-evropy-jen-5-000-vojaku-mist",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T12:24:31.100Z",
-     "text": "https://greenmagshowbiz.blogspot.com/2026/11/moment-to-remember-neergaard-petersen.html\n\nMoment to remember! Neergaard-Petersen makes hole-in-one in Austin! #showbiz #sports #celebrities #lifestyle",
+     "t": "2026-11-14T20:01:18.000Z",
+     "text": "Celosvětový výpadek služeb Microsoftu měl nečekané následky v německém zábavním parku Phantasialand. Kvůli nefunkčnímu e-mailovému programu Outlook se totiž k personálu hotelu nedostalo varování… […] \n\n[Original post on zpravobot.news]",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T12:24:27.682Z",
-     "text": "https://greenmagshowbiz.blogspot.com/2026/11/fsu-fends-off-pitt-improves-to-2-0.html\n\nFSU fends off Pitt, improves to 2-0 under interim coach Rick Stockstill #showbiz #sports #celebrities #lifestyle",
+     "t": "2026-11-14T19:41:19.000Z",
+     "text": "Rusko je připraveno jednat s evropskými představiteli o jejich případném zapojení do mírového procesu na Ukrajině. Moskva jim přitom nebude určovat, kdo má Evropu u vyjednávacího stolu zastupovat. … […] \n\n[Original post on zpravobot.news]",
      "kind": "post"
     }
    ],
    "p_automated": 1.0,
    "reasons": [
     "posts cluster on the same minutes of the hour",
-    "73% of its posts come within 10 seconds of the previous one",
-    "98% of its posts get no likes, replies or reposts"
+    "92% of its posts get no likes, replies or reposts",
+    "recent pace of about 36 posts a day"
    ],
    "hand_label": "automated"
   },
   {
-   "account_ref": "toppnews.bsky.social",
-   "public_handle": "toppnews.bsky.social",
+   "account_ref": "zephloterminal.bsky.social",
+   "public_handle": "zephloterminal.bsky.social",
    "tier": "middle",
    "posts": [
     {
-     "t": "2026-11-14T21:38:56.546498+00:00",
-     "text": "\n#Australia   #border   #habitat   #research   #urbanization   #western   #wildlife\n🌐 www.newsmart.ch",
+     "t": "2026-11-15T04:35:09.850+07:00",
+     "text": "Bitcoin slips under $64,000, down 2.69% intraday on OKX data\n\nBTC fell below $64,000 and was trading at $63,979.60 per coin, down 2.69% intraday, according to OKX market data. The breach of that level puts the price at a point traders watch closely for further downside.",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:38:41.387767+00:00",
-     "text": "\n#authorization   #border   #Florida   #Lawyer   #Trust\n🌐 www.newsmart.ch",
+     "t": "2026-11-15T02:30:11.046+07:00",
+     "text": "Binance restores withdrawals across 87 chains after $6.3 billion breach\n\nBinance has reopened withdrawals on 87 blockchains following a $6.3 billion hack, with $6.34 billion in stolen assets replaced from company funds. Investigators tracked $101 million in stolen XRP across mult",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:36:55.386179+00:00",
-     "text": "\n#Arkansas   #Democrats   #governor   #Sanders   #Sarah Huckabee Sanders   #school\n🌐 www.newsmart.ch",
+     "t": "2026-11-15T02:15:09.963+07:00",
+     "text": "JPMorgan boosts Strategy stake 36% and holds $540M in BlackRock's bitcoin ETF\n\nJPMorgan has increased its stake in Strategy by 36% and holds $540M in BlackRock's bitcoin ETF. The move signals continued institutional exposure to bitcoin-linked holdings.",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:36:13.874442+00:00",
-     "text": "\n#fire   #Force   #injuries\n🌐 www.newsmart.ch",
+     "t": "2026-11-15T00:35:10.460+07:00",
+     "text": "Saylor floats $10B-$30B digital credit plan in major institutional push\n\nMichael Saylor of Strategy has proposed a digital credit plan sized between $10 billion and $30 billion. The scale of the proposal points to potential new institutional financing structures in the crypto spa",
      "kind": "post"
     },
     {
-     "t": "2026-11-14T21:35:18.113899+00:00",
-     "text": "\n#Alaska   #election   #vote\n🌐 www.newsmart.ch",
+     "t": "2026-11-15T00:05:17.741+07:00",
+     "text": "Bitcoin sinks to a three-month low of $65,000 as an analyst flags a fourth capitulation wave\n\nBitcoin fell to a three-month low of $65,000, with an analyst pointing to a fourth wave of capitulation. The fresh low deepens the ongoing downturn and points to continued selling pressu",
      "kind": "post"
     }
    ],
-   "p_automated": 0.252,
+   "p_automated": 0.464,
    "reasons": [
-    "recent pace of about 925 posts a day",
-    "averages 780 posts a day over the account's life",
+    "posts cluster on the same minutes of the hour",
+    "averages 55 posts a day over the account's life",
+    "recent pace of about 38 posts a day"
+   ],
+   "hand_label": ""
+  },
+  {
+   "account_ref": "thesgtjoker.bsky.social",
+   "public_handle": "thesgtjoker.bsky.social",
+   "tier": "human",
+   "posts": [
+    {
+     "t": "2026-11-14T21:09:59.922Z",
+     "text": "Jeannette Rubio was upset when she learned that Marco was picked by Trump to be the CEO of Nvidia. “He can’t possibly find 1, let alone 4 other women who are willing to sleep with him without getting paid.”",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:27:09.368Z",
+     "text": "Schumer hasn’t done anything to stop Trump but a week after the Midterms he’s jumping into action to stop Americans from choosing the Senate Majority Leader.",
+     "kind": "quote"
+    },
+    {
+     "t": "2026-11-14T18:09:52.234Z",
+     "text": "In a surprise to no one, Sean Duffy gave a No Bid contract to his son-in-law to install the AI program into the FAA’s system.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T15:02:13.877Z",
+     "text": "“Air travel is unsafe,” says man in charge of air travel.",
+     "kind": "quote"
+    },
+    {
+     "t": "2026-11-14T15:00:49.057Z",
+     "text": "Last week Trump said he was going to stop sending money to Israel. Thursday the head of the Mossad met with the head of the CIA. Yesterday, all planes were grounded. Today…well, you know the rest of the story:",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.003,
+   "reasons": [
+    "recent pace of about 53 posts a day"
+   ],
+   "hand_label": "human"
+  },
+  {
+   "account_ref": "geekyonai.com",
+   "public_handle": "geekyonai.com",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-14T21:20:39.172Z",
+     "text": "Doom: The Dark Ages Slaughter Mode and Football Manager 27 launch\n\nXbox Wire announced that Slaughter Mode for DOOM: The Dark Ages arrive...\n\n#DOOMTheDark #FootballManager27 #Xbox #Bethesda\n\nhttps://geekyonai.com/en/news/doom-the-dark-ages-slaughter-mode-and-football-manager-27-l",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T17:13:08.097Z",
+     "text": "James Gunn denies rumors of Skydance changes to Man of Tomorrow\n\nJames Gunn addressed rumors on Threads regarding sweeping changes to his...\n\n#ManofTomorrow #JamesGunn #DCStudios #Skydance\n\nhttps://geekyonai.com/en/news/james-gunn-denies-rumors-of-skydance-changes-to-man-of-tomor",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T13:04:50.591Z",
+     "text": "Xbox brings 21 original Xbox games to PC with achievements\n\nMicrosoft brought twenty-one additional original Xbox games to PC today, e...\n\n#Xbox #PCgaming #Backwardcompatibility #Achievements\n\nhttps://geekyonai.com/en/news/xbox-brings-21-original-xbox-games-to-pc-with-achievement",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T00:26:46.679Z",
+     "text": "Once Human Season 5 Dissonant Resonance launches November 18\n\nDeveloper Starry Studio announced that Once Human Season 5: Dissonant R...\n\n#PlayStation #OnceHuman #StarryStudio #PlayStation5\n\nhttps://geekyonai.com/en/news/once-human-season-5-dissonant-resonance-launches-november-1",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T20:17:22.359Z",
+     "text": "Sony brings QSSR upscaling technology to more PS5 games\n\nSony Interactive Entertainment expanded its Quick Spectral Super Reso...\n\n#PlayStation #PlayStation5 #InsomniacGames #RemedyEntertainment\n\nhttps://geekyonai.com/en/news/sony-brings-qssr-upscaling-technology-to-more-ps5-game",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.176,
+   "reasons": [
+    "account was 83 days old at its first story post",
+    "84% of its posts get no likes, replies or reposts"
+   ],
+   "hand_label": ""
+  },
+  {
+   "account_ref": "pubity.xmirror.bot",
+   "public_handle": "pubity.xmirror.bot",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-14T21:02:36.725Z",
+     "text": "GTA 6 has already made back most of its development cost, and the game isn't even out yet.\n\nThe game has sold an estimated 12.1 million copies through pre-orders alone, making around $1,180,000,000 in revenue according to SensorTower data.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:02:25.492Z",
+     "text": "North Korea has changed their flag for the first time since 1948.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T19:17:35.752Z",
+     "text": "A 13-year-old Tekken player just beat a full-time professional gamer 2-0 at a major Tekken tournament.\n\nMartinski has been training to be a pro since he was a young boy, and he just so happens to look exactly like Kazuya, the main character of the Tekken series.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T18:32:45.037Z",
+     "text": "A 13-year-old Tekken prodigy who looks exactly like Kazuya, the main character of the Tekken series, just beat a full-time pro player 2-0 at a major tournament.\n\nMartinski has spent his childhood training to be a pro gamer and is already beating people who do this for a living.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T18:32:33.531Z",
+     "text": "A petition demanding Jensen Huang be reinstated as Nvidia CEO has reached 100,000 signatures, including Elon Musk and 6,200 former/current Nvidia employees.",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.651,
+   "reasons": [
+    "posts cluster on the same minutes of the hour",
+    "averages 17 posts a day over the account's life"
+   ],
+   "hand_label": ""
+  },
+  {
+   "account_ref": "smhaustralia.nzcow.com",
+   "public_handle": "smhaustralia.nzcow.com",
+   "tier": "automated",
+   "posts": [
+    {
+     "t": "2026-11-14T21:34:39.635501+00:00",
+     "text": "📢 An investigation is under way after a man was found dead on a Melbourne street after being stabbed.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T21:34:35.948564+00:00",
+     "text": "📢 Australian travellers are bracing for days of flight delays after planes across the US were grounded for four hours.\n\n👉[Ad] Private 1-to-1 matchmaking by MarryNZ for marriage or a serious long-term relationship. https://marry.nz ",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T21:34:32.634422+00:00",
+     "text": "📢 Passengers were seen swimming in the river as their ship sank after being hit by  tanker in New Orleans.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T21:34:29.406339+00:00",
+     "text": "📢 David Warner threw more allegations into the fire that is the ongoing Sandpapergate saga, as Cricket Australia maintains their investigation purpose.\n\n👉[Ad] Websites that win enquiries: build/rebuild/move, forms, SSL, care. https://webservices.photonmark.com/websites ",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T21:34:26.096806+00:00",
+     "text": "📢 Wales have beaten the All Blacks 35-28 in a stunning victory that will go down as one of the biggest upsets in test rugby.",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 1.0,
+   "reasons": [
+    "71% of its posts come within 10 seconds of the previous one",
+    "recent pace of about 97 posts a day",
+    "averages 155 posts a day over the account's life"
+   ],
+   "hand_label": "automated"
+  },
+  {
+   "account_ref": "mm-corriere-bot.bsky.social",
+   "public_handle": "mm-corriere-bot.bsky.social",
+   "tier": "automated",
+   "posts": [
+    {
+     "t": "2026-11-14T21:39:49.112Z",
+     "text": "Attacco informatico alla piattaforma delle Poste francesi. La Romania è il Paese europeo più colpito. Per l’Italia sono registrati tre «incidenti»",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:39:54.503Z",
+     "text": "Attacco informatico a metà settembre ma reso noto ora: è una delle più grandi violazioni di dati mai avvenute in Francia",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:39:52.663Z",
+     "text": "L'ex inviato per le partnership globali: «Il presidente Trump ha ragione nel dare priorità alla modernizzazione dei cieli americani»",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:39:50.345Z",
+     "text": "La denuncia del legale dei genitori: verbali diversi dalle trascrizioni originali",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T19:41:49.592Z",
+     "text": "La figlia di Renga e Angiolini racconta al podcast \"Comodissimo\": «Dal momento in cui ho detto \"Mi butto\" al momento in cui ho realizzato di essere lì senza poter tornare indietro, credo di aver pianto. Avevo paura perché era la mia prima esperienza televisiva in cui ero da sola ",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 1.0,
+   "reasons": [
+    "posts cluster on the same minutes of the hour",
+    "80% of its posts come within 10 seconds of the previous one",
+    "recent pace of about 120 posts a day"
+   ],
+   "hand_label": "automated"
+  },
+  {
+   "account_ref": "analytics.social.vir.group.ap.brid.gy",
+   "public_handle": "analytics.social.vir.group.ap.brid.gy",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-10T01:12:55.000Z",
+     "text": "🟢 Diplomacy | 5/10\n\nDonald Trump signals positive momentum with Iran\nUS President Donald Trump signaled positive momentum with Iran following a meeting with the Qatari PM.\n\n#OSINT #NewsGroup #USA #Iran #Diplomacy",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-10T01:12:54.000Z",
+     "text": "🔴 MissileAttack | 8/10\n\nHouthi ballistic missile intercepted over Riyadh (Saudi Arabia)\nCoalition Forces report that one Houthi ballistic missile was intercepted over Riyadh (Saudi Arabia). Alert raised in Khamis Mushait (Saudi Arabia).\n\n#OSINT #NewsGroup #SaudiArabia #Yemen #Mis",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-10T00:51:14.000Z",
+     "text": "🟢 Political | 5/10\n🇺🇸\n\nStatement on impeachment of US Secretary of War Hegseth\nRepresentative Massie explained that his motion of impeachment against Secretary of War Hegseth is a consequence of his actions during the war with Iran.\n\n#OSINT #NewsGroup #USA #Politics #Impeachment",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-10T00:51:13.000Z",
+     "text": "🟢 Diplomacy | 7/10\n🇺🇸 🇺🇦 🇷🇺\n\nPossible Russia-Ukraine talks backed by US\nRussia and Ukraine may meet for US-backed talks after President Trump stated a broad deal is possible.\n\n#OSINT #NewsGroup #Diplomacy #Ukraine #Russia",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-10T00:51:11.000Z",
+     "text": "🔴 AirStrike | 8/10\n🇾🇪\n\nCoalition strikes on Houthi sites in Yemen\nSaudi-backed Coalition Forces conducted strikes on three Houthi ballistic missile component manufacturing sites in Yemen, including an assembly factory, a chemical plant, and an electronics workshop.\n\n#OSINT #NewsG",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.519,
+   "reasons": [
+    "recent pace of about 124 posts a day",
+    "51% of its posts come within 10 seconds of the previous one",
+    "averages 123 posts a day over the account's life"
+   ],
+   "hand_label": ""
+  },
+  {
+   "account_ref": "mm-dday-bot.bsky.social",
+   "public_handle": "mm-dday-bot.bsky.social",
+   "tier": "automated",
+   "posts": [
+    {
+     "t": "2026-11-14T15:41:50.404Z",
+     "text": "Abbiamo provato in viaggio la nuova camera a 360° di Insta360. Dopo l’aggiunta delle lenti intercambiabili sulla X5 arrivano ora Dolby Vision e memoria interna. Insta360 lavora tanto sul software, con il “regista AI”, ma non è ancora perfetto. Peccato, era quello che serviva.\n...",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T19:41:42.413Z",
+     "text": "Tanti prodotti Bose sono in offerta per il Black Friday anticipato Amazon: dalla cancellazione del rumore all'audio spaziale, ecco quali modelli si possono acquistare spendendo meno\n... Leggi tutto",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T19:41:39.743Z",
+     "text": "Si è tenuta a Wuhan la Display Tech-ecosystem Conference 2026 del produttore di display CSOT, in cui ha annunciato alcune nuove tecnologie che debutteranno sui prodotti del prossimo anno. È stata anche l’occasione per fare il punto sugli OLED stampati a getto... Leggi tutto",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T15:41:40.042Z",
+     "text": "Da giorni molti si chiedono dove abbiano gli indirizzi email delle scuole italiane coloro che hanno confezionato gli allarmi bomba scatenando il panico in Italia. La risposta è semplice: dagli OpenData del Ministero accessibili a tutti.... Leggi tutto",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-13T15:41:37.148Z",
+     "text": "Microsoft non è ancora riuscita a ripristinare completamente i servizi di Microsoft 365, ma dopo una notte difficile arrivano in questi minuti i primi segnali di ripresa: ci sono miglioramenti nell’accesso alle caselle di posta e nello smaltimento delle email arretrate. Siamo com",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 1.0,
+   "reasons": [
+    "posts cluster on the same minutes of the hour",
+    "80% of its posts come within 10 seconds of the previous one",
+    "94% of its posts get no likes, replies or reposts"
+   ],
+   "hand_label": "automated"
+  },
+  {
+   "account_ref": "radar.svpn.com",
+   "public_handle": "radar.svpn.com",
+   "tier": "middle",
+   "posts": [
+    {
+     "t": "2026-11-14T21:36:29.264Z",
+     "text": "New #1 trending topic: New Orleans Riverboat Tanker Crash\n\nExplore the coverage on SVPN News.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:33:12.768Z",
+     "text": "New #1 trending topic: Nationwide FAA Ground Stop\n\nExplore the coverage on SVPN News.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T20:12:25.084Z",
+     "text": "New #1 trending topic: US Nationwide Ground Stop\n\nExplore the coverage on SVPN News.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T18:41:48.000Z",
+     "text": "New #1 trending topic: Watford Woman Set Alight\n\nExplore the coverage on SVPN News.",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T18:06:28.137Z",
+     "text": "New #1 trending topic: O'Hare Flight Cancellations Continue\n\nExplore the coverage on SVPN News.",
+     "kind": "post"
+    }
+   ],
+   "p_automated": 0.257,
+   "reasons": [
     "94% of its posts get no likes, replies or reposts"
    ],
    "hand_label": ""
   },
   {
-   "account_ref": "reporterrwright.ft.com",
-   "public_handle": "reporterrwright.ft.com",
+   "account_ref": "tomfromtemecula.bsky.social",
+   "public_handle": "tomfromtemecula.bsky.social",
    "tier": "human",
    "posts": [
     {
-     "t": "2026-11-14T11:06:08.086Z",
-     "text": "Hard discs are the discs that sit inside the computer casing.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-14T11:05:22.520Z",
-     "text": "I’m sure @[a private account] is right. People called the 3.5 inch discs floppy discs. They were the same inside as older, obviously floppy discs. They just had a rigid plastic case.",
-     "kind": "reply"
-    },
-    {
-     "t": "2026-11-13T13:46:37.883Z",
-     "text": "I've seen a number of people joking about how it should be called Microsoft 364.\n\nI've no idea what makes these people so optimistic the issue will be solved in 24 hours.",
+     "t": "2026-11-14T16:43:53.174Z",
+     "text": "Jabba the Fett needs to understand that nobody give a damn what he does. Just go. \n\nopen.substack.com/pub/politicu...",
      "kind": "post"
     },
     {
-     "t": "2026-11-13T09:23:34.157Z",
-     "text": "That said, I suppose we don't know at this point what proportion of male online dating profiles are in fact Jensen Huang. It may be quite high.",
+     "t": "2026-11-14T16:36:53.345Z",
+     "text": "Two things shut down yesterday. The Federal Aviation Administration, and Trump’s brain. \n\nopen.substack.com/pub/rawstory...",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T16:30:44.103Z",
+     "text": "All that Jabba the Fett has left to do is wait to get primaried, lose badly, and then fade into political oblivion.",
      "kind": "reply"
     },
     {
-     "t": "2026-11-13T09:22:06.106Z",
-     "text": "It's certainly likely to be a popular false claim on people's online dating profiles, I imagine.",
-     "kind": "reply"
+     "t": "2026-11-14T16:20:07.174Z",
+     "text": "Will Trump and his ‘crusaders’ attack America again?\n\nwendy664.substack.com/p/the-next-i...",
+     "kind": "post"
+    },
+    {
+     "t": "2026-11-14T07:34:57.515Z",
+     "text": "VoteHub is the first to make the call. Mary Peltola wins the US Senate Race in Alaska. The Senate will now be 56 Dems to 44 GOPs.",
+     "kind": "post"
     }
    ],
-   "p_automated": 0.006,
-   "reasons": [],
+   "p_automated": 0.007,
+   "reasons": [
+    "50% of its posts come within 10 seconds of the previous one",
+    "recent pace of about 36 posts a day",
+    "posts cluster on the same minutes of the hour"
+   ],
    "hand_label": "human"
   }
  ]
