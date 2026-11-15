@@ -1,4 +1,6 @@
-# PRODUCT.md
+# PRODUCT.md: Headcount
+
+Name: Headcount. Tagline: Volume is not consensus.
 
 ## What it is
 

@@ -6,9 +6,9 @@ export function TopBar({ right }: { right?: ReactNode }) {
   return (
     <header className="bar">
       <div className="wrap">
-        <Link className="mark" to="/" aria-label="Claim check, start a new check">
+        <Link className="mark" to="/" aria-label="Headcount, start a new check">
           <Mark />
-          Claim check
+          Headcount
         </Link>
         <nav className="topnav" aria-label="Views">
           <NavLink to="/" end>

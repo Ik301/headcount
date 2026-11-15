@@ -30,7 +30,7 @@ export default function ClaimPage() {
   }, [id, tick]);
 
   useEffect(() => {
-    if (result) document.title = `“${result.claim}” · Claim check`;
+    if (result) document.title = `“${result.claim}” · Headcount`;
   }, [result]);
 
   return (
