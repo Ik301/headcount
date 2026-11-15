@@ -52,7 +52,7 @@ function rng(seed: number) {
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const ordinal = (n: number) => `${n}${n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th"}`;
 
-export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched: number }) {
+export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimNarrative[]; matched: number; subject?: "claim" | "story" }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [W, setW] = useState(900);
@@ -61,8 +61,13 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
   const [stage, setStage] = useState(fixed != null ? Math.max(0, Math.min(3, +fixed - 1)) : reduced ? 2 : 0);
   const [auto, setAuto] = useState(false);
   const played = useRef(fixed != null || !!reduced);
-  const H = W < 600 ? 340 : 360;
-  const LABEL_H = W < 600 ? 96 : 58;
+  // Label room depends on how narrow the columns get: wide columns take name + counts on two lines, narrow ones
+  // wrap to four, and very narrow ones (compact) show a swatch and one number, with the names in a legend below.
+  const k = Math.max(1, narr.length);
+  const perCol = (W - 20 * (k - 1)) / k;
+  const compact = perCol < 90;
+  const LABEL_H = compact ? 44 : perCol < 170 ? 98 : W < 600 ? 96 : 58;
+  const H = (W < 600 ? 280 : 300) + LABEL_H;
   const plotH = H - LABEL_H;
 
   useEffect(() => {
@@ -181,7 +186,8 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
     A.from = sameLen ? A.cur.map((p) => ({ ...p })) : to.map((p) => ({ ...p }));
     A.to = to;
     A.cur = A.from.map((p) => ({ ...p }));
-    const instant = reduced || !sameLen || A.st === -1;
+    // only a change of step animates; a resize or new data just redraws in place
+    const instant = reduced || !sameLen || A.st === -1 || A.st === stage;
     A.t0 = performance.now() - (instant ? DUR * 3 : 0);
     A.prev = A.st < 0 ? stage : A.st;
     A.st = stage;
@@ -284,7 +290,10 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
   const top = cols[0];
 
   const lines: [string, string][] = [
-    [`${fmtInt(matched)} posts make this claim.`, `Each dot is ${unit > 1 ? `${unit} posts` : "one post"}. This is the volume a reader scrolls past: it looks like everyone is saying it.`],
+    [
+      subject === "claim" ? `${fmtInt(matched)} posts make this claim.` : `${fmtInt(matched)} posts told the story one of these ways.`,
+      `Each dot is ${unit > 1 ? `${unit} posts` : "one post"}. This is the volume a reader scrolls past: it looks like everyone is saying it.`,
+    ],
     [
       cols.length === 1 ? "They all tell it one way." : `They tell it ${cols.length} ways.`,
       top ? `“${top.label}” is the biggest, with ${pct(top.posts / Math.max(1, total))} of the posts. Each column is one narrative.` : "",
@@ -311,7 +320,7 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
       <div className="sorter-head">
         <div>
           <h2 id="sorter-h">Volume vs. voices</h2>
-          <p className="sub">How much of the volume is likely automated, post by post.</p>
+          <p className="sub">{subject === "claim" ? "How much of the volume is likely automated, post by post." : "Every post in a narrative, sorted: how much of the volume was likely automated."}</p>
         </div>
         <div className="sorter-steps" role="group" aria-label="Steps">
           {STEPS.map((s, i) => (
@@ -346,16 +355,20 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
           {cols.map((c, i) => {
             const slot = slotOf.get(i) ?? i;
             return (
-              <div key={c.id} className="sorter-lab" style={{ left: geo.colX(slot), width: geo.colW, top: plotH + 8 }}>
+              <div key={c.id} className={`sorter-lab${compact ? " is-compact" : perCol < 170 ? " is-narrow" : ""}`} style={{ left: geo.colX(slot), width: geo.colW, top: plotH + 8 }} title={c.label}>
                 <span className="nm">
                   <i className="sw" style={{ background: c.swatch }} />
-                  {c.label}
+                  {!compact && c.label}
                 </span>
-                <span className="ct">
-                  {stage === 3 ? <>{fmtInt(round(c.posts * (1 - c.bot)))} left</> : <>{fmtInt(c.posts)} posts</>}
-                  {stage === 2 && <b> · {pct(c.bot)} auto.</b>}
-                  {stage === 3 && <b> · {fmtInt(Math.round(c.posts * c.bot))} out</b>}
-                </span>
+                {compact ? (
+                  <span className="ct">{stage === 2 ? <b>{pct(c.bot)}</b> : stage === 3 ? <b>−{fmtInt(Math.round(c.posts * c.bot))}</b> : fmtInt(c.posts)}</span>
+                ) : (
+                  <span className="ct">
+                    {stage === 3 ? <>{fmtInt(round(c.posts * (1 - c.bot)))} left</> : <>{fmtInt(c.posts)} posts</>}
+                    {stage === 2 && <b> · {pct(c.bot)} auto.</b>}
+                    {stage === 3 && <b> · {fmtInt(Math.round(c.posts * c.bot))} out</b>}
+                  </span>
+                )}
               </div>
             );
           })}
@@ -364,6 +377,19 @@ export function VoiceSorter({ narr, matched }: { narr: ClaimNarrative[]; matched
           {fmtInt(matched)} posts, unsorted
         </span>
       </div>
+      {compact && (
+        <ul className="sorter-legend" aria-label="Narratives">
+          {cols.map((c) => (
+            <li key={c.id}>
+              <i className="sw" style={{ background: c.swatch }} />
+              <span className="nm">{c.label}</span>
+              <span className="ct">
+                {fmtInt(c.posts)} posts · <b>{pct(c.bot)} auto.</b>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
       <p className="sorter-key">
         <span className={stage < 2 ? "dim" : ""}>
           <i className="k-solid" /> likely automated, low end of the interval

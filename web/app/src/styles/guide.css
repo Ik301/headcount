@@ -67,6 +67,10 @@
 .guide .g-cuts-h{margin:0;font:500 19px/1.3 var(--serif);color:var(--ink)}
 .guide .g-cuts-dek{margin:6px 0 0;font-size:15px;line-height:1.55;color:var(--ink-2);max-width:36em}
 
+/* chapter 3: the post sorter (styles in sorter.css) */
+.guide .g-sorter{margin-top:56px;max-width:1000px}
+.guide .g-sorter .sorter-read{min-height:92px}
+
 /* details on demand */
 .guide .g-after{margin-top:44px;border-top:1px solid var(--rule);max-width:860px}
 .guide .g-more{border-bottom:1px solid var(--rule)}

@@ -8,6 +8,7 @@ import { AUTOMATED, HUMAN_MAX, type Model } from "../model";
 import { CheckGrid, CutoffStrip, EstimateBar, HedgeBars, LiftRows, NarrativeRows, RankBars, RecallChart, Term, Waffle, useWidth } from "./charts";
 import { against, oneIn, pc, range, timeLabel, type GuideData } from "./data";
 import { ReplayFigure } from "./Replay";
+import { VoiceSorter } from "../../checker/VoiceSorter";
 
 export interface ChapterProps {
   m: Model;
@@ -261,17 +262,24 @@ function Where({ m, g, openDrawer, explore }: ChapterProps) {
       <Source>
         {fmtInt(N.reduce((t, n) => t + n.posts, 0))} posts in {countWord(N.length).toLowerCase()} narratives, each post labeled by a language model{dot}smallest: “{[...N].sort((a, b) => a.posts - b.posts)[0].label}”, {fmtInt(Math.min(...N.map((n) => n.posts)))} posts{dot}same score cutoff and intervals as chapter 2
       </Source>
+      <div className="g-sorter">
+        <VoiceSorter
+          subject="story"
+          matched={N.reduce((t, n) => t + n.posts, 0)}
+          narr={N.map((n) => ({ id: n.id, label: n.label, posts: n.posts, share_of_matches: n.share, bot_post_share: n.bot, bot_post_share_ci: n.ci }))}
+        />
+      </div>
       {ranked.length > 1 && (
         <section className="g-sub" aria-labelledby="g-without">
           <div className="g-sub-head">
-            <h2 id="g-without">Take them out. Does the story change?</h2>
+            <h2 id="g-without">Count the likes and reposts too. Does the order change?</h2>
             <button className="g-switch" role="switch" aria-checked={removed} onClick={() => setRemoved(!removed)}>
               <span className="g-switch-track" aria-hidden="true" />
               Remove likely automated accounts
             </button>
           </div>
           <p className="g-sub-dek">
-            Narratives ranked by their share of the conversation: posts plus likes, reposts and quotes.{" "}
+            The sorter above counts posts. Here each narrative’s share of the conversation also counts likes, reposts and quotes, and removing likely automated accounts takes out their engagement as well.{" "}
             {removed && (
               <b>
                 {moved.length === 0

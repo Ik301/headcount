@@ -12,6 +12,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/checker.css";
+import "./styles/sorter.css";
 import "./styles/story.css";
 import "./styles/guide.css";
 import "./styles/challenge.css";
