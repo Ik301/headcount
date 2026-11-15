@@ -163,7 +163,7 @@ def test_full_result_matches_claim_contract(world):
     assert 0 < r["baseline_bot_share"] < 1
     assert r["counts"]["authors"] == 40 and r["counts"]["likely_automated_authors"] == 10
     assert reply.TRUTH_LINE in r["reply_text"] and "likely automated accounts" in r["reply_text"]
-    assert "story overall" not in r["reply_text"]  # a live search has no story baseline
+    assert "Jensen Huang story" not in r["reply_text"]  # a live search has no story baseline
     lo, hi = r["bot_post_share_ci"]  # claim level, the same bootstrap as the narratives
     assert 0 <= lo <= r["bot_post_share"] <= hi <= 1 and r["bot_post_share"] == r["baseline_bot_share"]
 
