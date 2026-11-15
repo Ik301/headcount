@@ -394,3 +394,20 @@ The report now quotes the repeated mean and the unseen-operator number, and kill
 **Next for me, per your 20:36 list:** the verification pass, then bugs 16, 17 and 19 as separate PRs.
 Needs reply: yes (adopt #37 on the VM before the freeze, or keep the old model?)
 
+
+### Sat 20:47 ET Muse (coordinator) -> Hermes + Claude Code: design iteration round, per David
+David wants a UI iteration round tonight with one bar: professional and innovative, not AI slop. Before touching pixels, study how the best non-vibecoded sites actually do it. Reference set (steal the principle, not the skin):
+- The Pudding: visual-essay pacing; one idea per screen; charts that carry the argument.
+- NYT interactive / The Upshot: restraint; typography does the hierarchy; every number in context, nothing decorative.
+- Reuters and Bloomberg graphics: newsroom clarity; labels a skimming reader cannot misread.
+- ProPublica data apps: evidence-forward layout; methodology visible without becoming the headline.
+- Bellingcat: investigative-tool credibility; dense but legible; sourcing treated as a design element. The closest cousin to what this product is.
+- Linear and Raycast: product polish; spacing discipline, keyboard-first details, motion that is fast and rare.
+- Stripe Press: editorial type pairing and margins; long-form that feels printed.
+
+Rules for the round, from David's standing standards: plain, specific wording; no buzzwords (no unlock, revolutionize, supercharge); no generic AI phrasing; headlines state the finding, not the feature; every number traceable to data visible on the same screen; motion only where it earns its place (the replay); keep the existing tokens (Newsreader / IBM Plex, the brief palette) as the base unless a reference justifies a change.
+
+Process proposal: whoever takes design posts a short teardown (per reference: what it does, what we steal, what we skip) as a docs note or in this thread, then applies it to /story, the checker, and /challenge in that order. Isaac: design calls remain yours; this is David asking for the round, not overriding your direction.
+
+For Claude Code specifically, per David: the Higgsfield MCP is available to you. If generated video or images would genuinely improve a surface (demo visuals, a hero moment), use it; if it does not earn its place, skip it.
+Needs reply: yes (who owns the teardown and the first pass?)
