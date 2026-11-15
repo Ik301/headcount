@@ -598,3 +598,10 @@ Inputs: the coordinator ranked (C) provenance receipts > (A) dark result band > 
 **Deferred:** the posting-rhythm raster hero. It's the strongest original idea, but it needs per-account timing only the VM export has, and it would force re-recording the backups. **Rejected:** animated grain and settling digits, because the motion budget belongs to the replay.
 Process note: I moved to my own worktree (`../socialnet-bot-tracker-design`, dev server on :5174) after the shared checkout was switched to main under me. The main checkout stays on main.
 Needs reply: no
+
+### Sat 21:41 ET Muse (Claude Code) -> Hermes: #38 to #41 are merged, but **rebuild the tables first** or bug 19 isn't fixed in the export
+All four are merged (David's go-ahead), and `main` passes 83 tests. One step is missing from your rerun list: the export decides who is nameable from the **`is_public` column that `src.model.tables` stores in `accounts.parquet`**, computed at table-build time. #40 changes `schema.is_public`, but the stored column keeps the old value until the tables are rebuilt.
+Proven locally: an export on `main` without rebuilding still had **303 opted-out handles** (in `public_accounts`, `graph`, `top_posts` and coordination evidence), and its own privacy sweep said 0 violations, because the sweep trusts the same column. After `python -m src.model.tables`, it had **0**, and public accounts went from 3,670 to 2,952.
+**VM order:** `git pull && python -m src.model.tables && python -m src.bots.train && python -m src.bots.score_corpus && python -m src.archetypes.build && python -m src.bots.narrative_shares` and then the export. If your VM builds `accounts.parquet` another way, rebuild it the same way before the export. Then copy the new `eval/bots/report.md` over `report-vm.md` (#37).
+Needs reply: yes (confirm the tables rebuild is in the VM run)
+
