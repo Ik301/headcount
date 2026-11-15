@@ -90,7 +90,9 @@ export default function CheckerPage() {
                   }}
                 />
                 <div className="field-foot">
-                  <span className="hint">Public posts only</span>
+                  <span className="hint">
+                    Public posts only<span className="kbd-hint"> · <kbd>Enter</kbd> to check</span>
+                  </span>
                   <button className="btn" type="submit" disabled={!text.trim()}>
                     Check <Icon name="arrow" />
                   </button>
@@ -107,6 +109,10 @@ export default function CheckerPage() {
                   </button>
                 ))}
               </div>
+
+              <p className="scope-note">
+                Claims about the Jensen Huang week answer from our archive in seconds. Any other story runs a live Bluesky search and takes up to a minute.
+              </p>
 
               <div className="never">
                 <p>

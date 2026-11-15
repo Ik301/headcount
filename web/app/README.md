@@ -119,6 +119,7 @@ Design round 1 conventions (`[demo]` PR from `claude/design-r1`):
 - The lift axis is clamped to ¼× to 4×; an interval that runs past the edge (or starts at 0) is drawn open-ended with an arrow.
 - Explore river: events are numbered on the chart and listed under it (`RiverEvents`), so labels never overlap.
 - Privacy masks in quoted posts (`@[account]`, `@[a private account]`, `[link]`) render as placeholder chips through `components/Redacted.tsx` in the claim evidence, the drawer and `/challenge`.
+- Claim view, "Volume vs. voices" (`checker/VoiceSorter.tsx`, canvas): one dot per matching post in four steps (volume cloud, narrative columns, likely automated settling to the bottom with the interval drawn as solid red for its low end and ringed dots for the rest, then removed and re-ranked). Counts come only from `narratives[].posts` (or `share_of_matches × matched_posts`), `bot_post_share` and `bot_post_share_ci`; above 2,000 posts (900 on phones) one dot stands for several posts and the caption says how many. Plays once when scrolled into view; buttons or keys 1 to 4 step through; reduced motion shows step 3 without moving; `?stage=1..4` pins a step for screenshots.
 - `.wrap` breakpoints set only horizontal padding, so they never reset a page's vertical spacing.
 
 - Tokens: `src/styles/tokens.css` (exactly the brief's palette, plus `--signal-ink` and `--cap` for small text contrast).

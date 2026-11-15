@@ -8,6 +8,7 @@ import { against, pickHeadline, versusWords, type HeadlinePick } from "../lib/co
 import { narrativeColor } from "../lib/narrativeColor";
 import { useCopy } from "../lib/useCopy";
 import { Redacted } from "../components/Redacted";
+import { VoiceSorter } from "./VoiceSorter";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -113,6 +114,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
 
           {enough ? (
             <>
+              <VoiceSorter narr={narr} matched={r.matched_posts} />
               <NarrativesBlock r={r} narr={narr} top={top} baseline={baseline} />
               <CommonBlock r={r} top={top} />
               <AmpBlock r={r} />
