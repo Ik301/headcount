@@ -536,7 +536,10 @@ def analyze_live(
     else:
         result["reply_text"] = reply.compose(result)
     result["seconds"] = round(time.time() - t0, 2)
-    if not result.get("error"):
+    if result.get("declined"):  # private person: don't cache or save the claim text, and drop what was derived from it
+        result["claim"] = "(claim about a private person, not stored)"
+        result.pop("queries", None)
+    elif not result.get("error"):
         with _LOCK:
             _CACHE[claim_id] = (time.time(), result)
         if save_dir:

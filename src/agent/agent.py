@@ -3,6 +3,7 @@
 Tools wrap src.api.analysis so every number comes from computed results. POST /agent in src/api/app.py
 calls run(sender, text); the sender id is the conversation thread, so follow-ups keep context.
 """
+import hashlib
 import json
 import os
 import re
@@ -12,7 +13,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 
 from src import config as cfg
-from src.api import analysis, reply
+from src.api import analysis, limits, reply
 
 SYSTEM = """You answer text messages for a tool that shows who is pushing a claim on Bluesky. It knows the week Jensen Huang left Nvidia (Nov 5 to 13, 2026) in depth and can search any other story live.
 
@@ -26,6 +27,11 @@ Rules, always: never say whether a claim is true; never say who runs or operates
 
 _STORE: analysis.Store | None = None
 _LAST: dict[str, str] = {}
+
+
+def thread_id(sender: str) -> str:
+    """Salted hash of the sender (a phone number or Apple ID) for LangSmith: traces never carry the raw id."""
+    return hashlib.sha256((os.environ.get("SALT") or "dev-salt").encode() + b":" + sender.encode()).hexdigest()[:16]
 
 
 def bind(store: analysis.Store) -> None:
@@ -45,7 +51,12 @@ def search_claim(claim: str) -> str:
     """Find posts making this claim (the Jensen Huang corpus, or a live Bluesky search for any other story) and compute narratives, likely-automated shares and amplifiers. Returns claim_id and a summary."""
     from src.api.app import run_claim  # corpus or live, plus news and the privacy scrub
 
-    r = run_claim(claim, "auto")
+    try:
+        r = run_claim(claim, "auto")
+    except limits.Busy:
+        return json.dumps({"error": "busy", "instruction": "Tell the user the checker is busy and to try again in a minute."})
+    if r.get("declined"):  # nothing was stored for a private-person claim, so there is no claim_id to compose from
+        return json.dumps({"declined": True, "instruction": f"Reply with exactly: {reply.DECLINE}"})
     return json.dumps({"claim_id": r["claim_id"], "matched_posts": r["matched_posts"], "narratives": [{"id": n["id"], "label": n["label"], "share": n["share_of_matches"]} for n in r["narratives"]]})
 
 
@@ -145,7 +156,8 @@ def run(sender: str, text: str) -> dict:
     # The last claim_id rides along with each message, so follow-ups work even when the claim was answered by the
     # safety net below (outside the model's own tool calls).
     content = text if sender not in _LAST else f"{text}\n\n(Context for tools, not from the user: the last claim_id for this sender is {_LAST[sender]}.)"
-    out = agent().invoke({"messages": [{"role": "user", "content": content}]}, config={"configurable": {"thread_id": sender}, "run_name": "claim-checker", "tags": ["hackprinceton"]})
+    tid = thread_id(sender)  # _LAST stays keyed by the raw sender: it is in-memory only and never traced
+    out = agent().invoke({"messages": [{"role": "user", "content": content}]}, config={"configurable": {"thread_id": tid}, "run_name": "claim-checker", "tags": ["hackprinceton"], "metadata": {"sender": tid}})
     msgs = out["messages"]
     # out["messages"] is the whole thread (checkpointer); only this turn's messages count below, otherwise an old
     # claim_id or search from earlier in the conversation leaks into this reply (e.g. a chart sent with a decline).
@@ -163,6 +175,9 @@ def run(sender: str, text: str) -> dict:
             except (ValueError, TypeError, AttributeError):
                 pass
     new_claim = _searched(turn)
+    for m in turn:  # search_claim declined a private-person claim: nothing was stored, send the fixed decline
+        if getattr(m, "type", "") == "tool" and getattr(m, "name", "") == "search_claim" and '"declined": true' in str(m.content):
+            return _plain(reply.DECLINE)
     # Safety net: the model once declined "Was Jensen Huang's mistress a Chinese spy?" as a private-person claim
     # without searching. A decline must come from the API's own check, so when the model declines on its own,
     # run the claim through the API and send whatever it composes (its decline, or the real answer).
@@ -171,7 +186,9 @@ def run(sender: str, text: str) -> dict:
 
         r = run_claim(text, "auto")
         msg = r["reply_text"]
-        claim_id = None if r.get("declined") else r["claim_id"]
+        if r.get("declined"):  # nothing stored for a decline
+            return _plain(reply.DECLINE)
+        claim_id = r["claim_id"]
         new_claim = True
     if (msg or "").strip() == reply.DECLINE:  # never send the previous claim's chart or link with a decline
         return _plain(msg)
@@ -184,5 +201,7 @@ def run(sender: str, text: str) -> dict:
     link = r["dashboard_url"] if (attach and r) else None
     if attach and r and r.get("reply_text") and not r.get("declined"):
         msg = r["reply_text"]  # the rule-checked bubble 1, never the model's paraphrase
+    if not (attach and r and r.get("reply_text")):  # free-form turn: the output guard applies (templated bubble 1 is already rule-checked)
+        msg = reply.guard_free_text(msg)
     menu_text = reply.menu(link) if (attach and r and r.get("matched_posts", 0) >= cfg.MIN_MATCHES and not r.get("error")) else None
     return {"reply_text": msg, "claim_id": cid, "chart_png_url": chart, "dashboard_url": link, "menu_text": menu_text}

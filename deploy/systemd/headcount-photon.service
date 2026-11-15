@@ -1,0 +1,14 @@
+[Unit]
+Description=Headcount iMessage poller (Photon)
+After=headcount-api.service
+[Service]
+WorkingDirectory=/home/ubuntu/projects/socialnet-bot-tracker
+EnvironmentFile=/home/ubuntu/projects/socialnet-bot-tracker/.env
+ExecStartPre=/bin/sleep 20
+ExecStart=/home/ubuntu/projects/socialnet-bot-tracker/.venv/bin/python -u -m src.messaging.photon_service
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/photon.log
+StandardError=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/photon.log
+[Install]
+WantedBy=default.target

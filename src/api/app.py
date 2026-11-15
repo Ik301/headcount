@@ -15,13 +15,14 @@ import threading
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, Response
-from pydantic import BaseModel
+from fastapi.responses import HTMLResponse, JSONResponse, Response
+from pydantic import BaseModel, Field
 
 from src import config as cfg
-from src.api import analysis, reply
+from src.api import analysis, limits, reply
 from src.api.health import bot_model_version
 from src.integration import versions
 from src.model.schema import hashed_id
@@ -30,6 +31,36 @@ load_dotenv()
 app = FastAPI(title="socialnet-bot-tracker")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 STORE: analysis.Store | None = None
+MAX_CLAIM_CHARS = 400
+MAX_AGENT_CHARS = 600
+DECLINED_CLAIM = "(claim about a private person, not stored)"
+_RATE = limits.RateLimiter(10, 60)  # /claim and /agent: per IP per minute
+_JOIN_RATE = limits.RateLimiter(3, 3600)  # /join POST: per IP per hour
+
+
+@app.middleware("http")
+async def _rate_limit(request: Request, call_next):
+    path, method = request.url.path, request.method
+    if method == "POST" and path in ("/claim", "/agent", "/join"):
+        key, exempt = limits.client_key(request.headers, request.client.host if request.client else None)
+        if not exempt:
+            if path == "/join":
+                ok, msg = _JOIN_RATE.allow(key), "Too many sign-ups from this address. Try again later."
+            else:
+                ok, msg = _RATE.allow(key), "Too many requests. Wait a minute and try again."
+            if not ok:
+                return JSONResponse({"detail": msg}, status_code=429, headers={"Retry-After": "60"})
+    return await call_next(request)
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation(request: Request, exc: RequestValidationError):
+    too_long = any(e.get("type") == "string_too_long" for e in exc.errors())
+    if too_long and request.url.path == "/agent":  # the poller sends reply_text on, so answer in that shape
+        return JSONResponse({"reply_text": f"That message is too long. Keep it under {MAX_AGENT_CHARS} characters.", "claim_id": None, "chart_png_url": None, "dashboard_url": None, "menu_text": None})
+    if too_long:
+        return JSONResponse({"detail": f"That claim is too long. Keep it under {MAX_CLAIM_CHARS} characters."}, status_code=422)
+    return JSONResponse({"detail": "Invalid request."}, status_code=422)  # no echo of the input
 CLAIMS_DIR = Path(os.environ.get("DATA_DIR", "data/processed")) / "claims"
 DID_RE = re.compile(r"at://(did:[a-z]+:[A-Za-z0-9._:-]+)/")
 _WARM = {"live": False, "news": False}
@@ -124,7 +155,7 @@ def _warm_background() -> None:
 
 
 class ClaimIn(BaseModel):
-    text: str
+    text: str = Field(max_length=MAX_CLAIM_CHARS)
     mode: str = "auto"
 
 
@@ -141,7 +172,22 @@ def health() -> dict:
 
 
 def run_claim(text: str, mode: str = "auto") -> dict:
-    """The /claim pipeline, shared with the agent's search_claim tool."""
+    """The /claim pipeline, shared with the agent's search_claim tool. Raises limits.Busy when capacity is full."""
+    limits.acquire_gate(60)
+    try:
+        return _run_claim(text, mode)
+    finally:
+        limits.release_gate()
+
+
+def _redact_declined(r: dict) -> dict:
+    """A declined claim names a private person: never keep or serve its text."""
+    r["claim"] = DECLINED_CLAIM
+    r.pop("queries", None)
+    return r
+
+
+def _run_claim(text: str, mode: str) -> dict:
     base = os.environ.get("DASHBOARD_BASE", "http://localhost:5173")
     r = None
     if mode in ("auto", "corpus"):
@@ -154,10 +200,15 @@ def run_claim(text: str, mode: str = "auto") -> dict:
         r = live.analyze_live(text)
         r.setdefault("dashboard_url", f"{base}/claim/{r['claim_id']}")
         r.setdefault("chart_png_url", f"/claim/{r['claim_id']}/chart.png")
+    if r.get("declined"):
+        r["reply_text"] = reply.DECLINE
+        return scrub(_redact_declined(r))  # not in the store, not on disk
     if "news" not in r:
         r["news"] = _news(text, r)
     r["reply_text"] = reply.compose(r)
     r = scrub(r)
+    if isinstance(r.get("claim"), str):
+        r["claim"] = r["claim"][:MAX_CLAIM_CHARS]
     store().claims[r["claim_id"]] = r
     _save(r)
     return r
@@ -170,7 +221,10 @@ def claim(body: ClaimIn) -> dict:
         raise HTTPException(400, "empty claim")
     if body.mode not in ("auto", "corpus", "live"):
         raise HTTPException(400, "mode must be auto, corpus or live")
-    return run_claim(text, body.mode)
+    try:
+        return run_claim(text, body.mode)
+    except limits.Busy:
+        raise HTTPException(503, "busy, try again")
 
 
 @app.get("/claim/{claim_id}")
@@ -190,8 +244,8 @@ def chart(claim_id: str) -> Response:
 
 
 class AgentIn(BaseModel):
-    sender: str
-    text: str
+    sender: str = Field(max_length=200)
+    text: str = Field(max_length=MAX_AGENT_CHARS)
 
 
 @app.post("/agent")
@@ -200,7 +254,10 @@ def agent_reply(body: AgentIn) -> dict:
     from src.agent import agent as ag
 
     ag.bind(store())
-    return scrub(ag.run(body.sender, body.text.strip()))
+    try:
+        return scrub(ag.run(body.sender, body.text.strip()))
+    except limits.Busy:
+        raise HTTPException(503, "busy, try again")
 
 
 @app.get("/join", response_class=HTMLResponse)

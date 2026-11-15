@@ -1,0 +1,10 @@
+[Unit]
+Description=Headcount API quick tunnel (new URL on restart: rerun web/app/deploy-vercel.sh)
+[Service]
+ExecStart=/home/ubuntu/.local/bin/cloudflared tunnel --url http://127.0.0.1:8000 --no-autoupdate
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/tunnel_api.log
+StandardError=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/tunnel_api.log
+[Install]
+WantedBy=default.target
