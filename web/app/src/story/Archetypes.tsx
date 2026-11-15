@@ -18,7 +18,11 @@ function features(a: SiteArchetype): { v: string; l: string }[] {
 
 export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: DrawerContent) => void }) {
   const A = m.archetypes;
-  const total = A.reduce((s, a) => s + (a.size ?? 0), 0);
+  // amplifiers, not amplifiers plus their matched controls (the archetypes' sizes): M5's count when it ran
+  const am = m.archetypesMeta;
+  const total = am?.amplifiers ?? A.reduce((s, a) => s + (a.amplifiers ?? 0), 0);
+  const sizes = A.reduce((s, a) => s + (a.size ?? 0), 0);
+  const matchedNote = am?.matched && am.amplifiers_matched != null ? `${fmtInt(am.amplifiers_matched)} of them matched with a similar account that saw the same story` : undefined;
   const top = A.length ? A.reduce((a, b) => ((b.lift ?? 0) > (a.lift ?? 0) ? b : a)) : null;
   const fallback = top?.lift != null ? `${top.label} were ${top.lift.toFixed(1)} times as likely as similar accounts to amplify likely automated posts${top.lift_ci ? ` (95% interval ${top.lift_ci[0].toFixed(1)} to ${top.lift_ci[1].toFixed(1)})` : ""}.` : undefined;
 
@@ -41,11 +45,11 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
 
   return (
     <section className="view v-arch" aria-label="Amplifier archetypes">
-      <FindingBar finding={m.findings.archetypes} fallback={fallback} source={total ? `${fmtInt(total)} real accounts, matched comparison` : undefined} view="archetypes" />
+      <FindingBar finding={m.findings.archetypes} fallback={fallback} source={total ? `${fmtInt(total)} amplifiers${am?.matched ? `, ${fmtInt(am.amplifiers_matched ?? 0)} matched` : ""}` : undefined} view="archetypes" />
       <div className="panel forest">
         <div className="ph">
           <h2>{total ? `${fmtInt(total)} real accounts reposted, quoted or liked posts from likely automated accounts` : "Real accounts that amplified likely automated posts"}</h2>
-          <span className="note">Lift: how much more likely than matched similar accounts. 1.0× means no difference.</span>
+          <span className="note">{matchedNote ? `${matchedNote}. ` : ""}Lift: how much more likely than matched similar accounts. 1.0× means no difference.</span>
         </div>
         <svg viewBox={`0 0 ${w} ${fh}`} preserveAspectRatio="none" style={{ height: fh }} role="img" aria-label="Lift by archetype with 95% intervals">
           {[0.5, 1, 2, 3, 4].filter((v) => v >= lo && v <= hi).map((v) => (
@@ -79,7 +83,7 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
       </div>
       <div className="cards" style={{ gridTemplateColumns: `repeat(${Math.min(4, A.length)}, 1fr)` }}>
         {A.map((a) => {
-          const share = a.share ?? (total && a.size ? a.size / total : undefined);
+          const share = a.share ?? (sizes && a.size ? a.size / sizes : undefined);
           const f = features(a);
           const mix = a.mix ? Object.entries(a.mix) : [];
           return (
@@ -87,7 +91,7 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
               <div className="share">
                 <b>{share != null ? pct(share) : fmtInt(a.size)}</b>
                 <span>
-                  {share != null ? (a.interacting_humans != null ? "of engaged real accounts · " : "of amplifiers · ") : ""}
+                  {share != null ? (am?.matched ? "of the matched sample · " : a.interacting_humans != null ? "of engaged real accounts · " : "of amplifiers · ") : ""}
                   <span className="mono">{fmtInt(a.size)}</span> accounts
                 </span>
               </div>

@@ -310,8 +310,10 @@ function Newsrooms({ g }: ChapterProps) {
   if (!news || (!social && !link)) return <Head h="The export has no news comparison yet." />;
   const retelling = link && own && own.share < link.share && Math.abs(link.share - news.share) < 0.1;
   const terms = (h.terms.length ? h.terms : ["alleged", "suspected", "reportedly", "claims"]).map((t) => t.replace(/\(s\)$/, "s"));
+  // the words people know first, then the rest of the list (inflections like "allegedly" add nothing to the sentence)
+  const shown = [...["alleged", "suspected", "reportedly", "claims"].filter((t) => terms.includes(t)), ...terms].filter((t, i, a) => a.indexOf(t) === i);
   const names = h.outlets.map((o) => o.name);
-  const hedgeRe = new RegExp(`\\b(${terms.map((t) => t.replace(/[^a-z]/gi, "")).filter(Boolean).join("|")})\\w*`, "gi");
+  const hedgeRe = new RegExp(`\\b(${terms.map((t) => t.toLowerCase().replace(/[^a-z ]/g, "").trim().replace(/\s+/g, "\\s+")).filter(Boolean).join("|")})\\w*`, "gi");
   return (
     <>
       <Head
@@ -326,7 +328,7 @@ function Newsrooms({ g }: ChapterProps) {
         }
       >
         <p>
-          To <Term>hedge</Term> is to mark a claim as unproven, with words like {terms.slice(0, 4).map((t, i) => <span key={t}>{i ? ", " : ""}“{t}”</span>)}. The newsrooms are {names.length ? `${countWord(names.length).toLowerCase()} wire services and public broadcasters (${names.join(", ")})` : "wire services and public broadcasters"}. They are edited and accountable, not neutral, and not the truth.
+          To <Term>hedge</Term> is to mark a claim as unproven, with words like {shown.slice(0, 4).map((t, i) => <span key={t}>{i ? ", " : ""}“{t}”</span>)}. The newsrooms are {names.length ? `${countWord(names.length).toLowerCase()} wire services and public broadcasters (${names.join(", ")})` : "wire services and public broadcasters"}. They are edited and accountable, not neutral, and not the truth.
         </p>
       </Head>
       <figure className="g-fig">
@@ -411,13 +413,23 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
         }
       >
         <p>
-          We took the {g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged with the story and grouped them by how they behave into {countWord(A.length).toLowerCase()} <Term>archetypes</Term>, such as “{example.label.toLowerCase()}”. Then we compared how often each group <Term>amplified</Term> likely automated accounts, meaning it liked, reposted or quoted their posts.
+          {g.matched ? (
+            <>
+              {fmtInt(g.matched.amplifiers)} real accounts <Term>amplified</Term> likely automated accounts, meaning they liked, reposted or quoted their posts. We paired {fmtInt(g.matched.matched)} of them with a similar account that saw the same story but engaged only with people: same narrative, same six hours, similar reach, activity and followers. Then we grouped all {fmtInt(g.matched.accounts)} by how they behave into {countWord(A.length).toLowerCase()} <Term>archetypes</Term>, such as “{example.label.toLowerCase()}”, and compared how often each group amplified.
+            </>
+          ) : (
+            <>
+              We took the {g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged with the story and grouped them by how they behave into {countWord(A.length).toLowerCase()} <Term>archetypes</Term>, such as “{example.label.toLowerCase()}”. Then we compared how often each group <Term>amplified</Term> likely automated accounts, meaning it liked, reposted or quoted their posts.
+            </>
+          )}
           {!sig.length && " Every group’s interval crosses “no difference”, so we can’t say any one type of person spreads automation more than another."}
         </p>
       </Head>
       <figure className="g-fig">
         <LiftRows arch={A} />
-        <figcaption className="g-cap">How often each group amplified likely automated accounts, compared with all the real accounts. Dot: best estimate. Bar: 95% interval. Dashed line: same as everyone.</figcaption>
+        <figcaption className="g-cap">
+          How often each group amplified likely automated accounts, compared with {g.matched ? "the matched sample" : "all the real accounts"}. Dot: best estimate. Bar: 95% interval. Dashed line: {g.matched ? "same as similar accounts" : "same as everyone"}.
+        </figcaption>
       </figure>
       <div className="g-after">
         <More summary="Who is in each group">
@@ -427,7 +439,7 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
                 <h3>{a.label}</h3>
                 <p className="g-muted">
                   {a.description ? `Typical: ${a.description}. ` : ""}
-                  {a.amplifiers != null && `${fmtInt(a.amplifiers)} of ${fmtInt(a.size)} amplified a likely automated account.`}
+                  {a.amplifiers != null && (g.matched ? `${fmtInt(a.size)} accounts in the matched sample, ${fmtInt(a.amplifiers)} of them amplifiers.` : `${fmtInt(a.amplifiers)} of ${fmtInt(a.size)} amplified a likely automated account.`)}
                 </p>
                 <p className="g-muted">
                   {a.examples.length ? (
@@ -455,7 +467,10 @@ function WhoSpread({ m, g, openDrawer, explore }: ChapterProps) {
         </More>
         <More summary="How we define it">
           <p>
-            A real account here scores under {HUMAN_MAX}. It amplified automation if it liked, reposted or quoted a post from an account scoring {autoCut ?? AUTOMATED} or more. Each group’s rate is compared with the rate across all {g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged.
+            A real account here scores under {HUMAN_MAX}. It amplified automation if it liked, reposted or quoted a post from an account scoring {autoCut ?? AUTOMATED} or more.{" "}
+            {g.matched
+              ? `Each amplifier is paired with one similar account that engaged only with posts by people (${g.matched.matching ?? "same narrative, time window, reach, activity and followers"}); ${fmtInt(g.matched.amplifiers - g.matched.matched)} found no match and are left out. A group's lift is its amplifier rate over the rate across the whole matched sample.`
+              : `Each group’s rate is compared with the rate across all ${g.humans != null ? fmtInt(g.humans) : ""} real accounts that engaged.`}
           </p>
         </More>
         <Actions finding={g.findings.archetype} explore={explore("archetypes")} exploreLabel="Open the archetype details" />

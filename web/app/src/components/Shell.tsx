@@ -15,6 +15,10 @@ export function TopBar({ right }: { right?: ReactNode }) {
             Check a claim
           </NavLink>
           <NavLink to="/story">Jensen Huang story</NavLink>
+          <NavLink to="/challenge">
+            <span className="nav-long">Spot the automation</span>
+            <span className="nav-short">Spot it</span>
+          </NavLink>
           {right}
         </nav>
       </div>

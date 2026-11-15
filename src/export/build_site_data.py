@@ -68,13 +68,15 @@ FALLBACK_LABELS = {  # mirror of src/api/analysis.py NARRATIVE_LABELS, used only
     "n0": ("No narrative", "other"),
 }
 
-SPY_RE = re.compile(r"\bspy\b|\bspies\b|\bspying\b|espionage|honey ?trap|chinese intelligence|foreign intelligence|\bmss\b|\bagent of\b", re.I)
-HEDGE_RE = re.compile(
-    r"\balleg\w*|\bsuspect\w*|\bclaim\w*|\breportedly\b|\brumou?r\w*|\bpossibl[ey]\b|\bpurported\w*|\baccus\w*|"
-    r"\bunverified\b|\bunconfirmed\b",
-    re.I,
-)
-MENTION_RE = re.compile(r"@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})")
+# One definition of "spy-related" and "hedged" for the whole project: the news module's (src/news/baseline.py), so the
+# dashboard, the API and the pitch quote the same numbers.
+from src.news.baseline import HEDGE_TERMS, SPY_RE, is_hedged  # noqa: E402
+
+STORY_RE = re.compile(r"huang|nvidia", re.I)  # raw-feed fallback only: the labeled headline set is already on the story
+# Any @mention: Bluesky handles (@name.bsky.social, @domain.com) and other platforms' (@name on X). Only mentions of a
+# nameable Bluesky account survive the export; everything else is masked, because we can't check who it is.
+MENTION_RE = re.compile(r"(?<![\w.@/])@([A-Za-z0-9_](?:[A-Za-z0-9_.-]*[A-Za-z0-9_])?)")
+MASKED_MENTION = "@[account]"
 
 
 # ---------------------------------------------------------------- helpers
@@ -158,6 +160,12 @@ class Ctx:
     news: list = field(default_factory=list)
     challenge: list = field(default_factory=list)
     eval_dir: Path = Path("eval")
+    processed: Path = Path("data/processed")
+    arch_role: dict = field(default_factory=dict)  # did -> "amplifier" | "control" (M5's matched sample)
+    headlines: list = field(default_factory=list)  # story headlines: source, funding, title, link, published
+    headlines_on_story: bool = False  # True when they come from the news module's labeled (story-relevant) set
+    story_baseline: dict = field(default_factory=dict)  # data/processed/news/story_baseline.json (src.news.baseline)
+    challenge_meta: dict = field(default_factory=dict)
     manifest: dict = field(default_factory=dict)
     sources: dict = field(default_factory=dict)
 
@@ -179,7 +187,7 @@ class Ctx:
         if not text:
             return ""
         ok = self._public_handles()
-        return MENTION_RE.sub(lambda m: m.group(0) if m.group(1).lower() in ok else "@[private account]", text)[:n]
+        return MENTION_RE.sub(lambda m: m.group(0) if m.group(1).lower() in ok else MASKED_MENTION, text)[:n]
 
     _ph: set | None = None
 
@@ -217,10 +225,10 @@ def _labels() -> dict:
 
 def load(processed: str = "data/processed", raw: str = "data/raw", eval_dir: str = "eval", sample: str = "data/sample") -> Ctx:
     b, art = Path(processed), Path(processed) / "artifacts"
-    c = Ctx(eval_dir=Path(eval_dir))
+    c = Ctx(eval_dir=Path(eval_dir), processed=b)
     acc = _read(b / "accounts.parquet")
     if acc is not None:
-        keep = [k for k in ("account_id", "handle", "is_public", "created_at", "followers", "posts_count", "self_label_bot", "bridged") if k in acc.columns]
+        keep = [k for k in ("account_id", "handle", "is_public", "created_at", "followers", "follows", "posts_count", "self_label_bot", "bridged") if k in acc.columns]
         c.accounts = {r["account_id"]: r for r in acc.select(keep).iter_rows(named=True)}
     bs = _read(art / "bot_scores.parquet")
     if bs is not None and "p_automated" in bs.columns:
@@ -243,7 +251,10 @@ def load(processed: str = "data/processed", raw: str = "data/raw", eval_dir: str
             (pl.sum_horizontal([pl.col(k).fill_null(0) for k in eng]) if eng else pl.lit(0)).alias("engagement"),
             *([pl.col("like_count").fill_null(0).alias("likes")] if "like_count" in posts.columns else [pl.lit(0).alias("likes")]),
         )
-        posts = _norm_times(posts, "created_at", "t").select("post_id", "account_id", "t", "text", "engagement", "likes")
+        posts = posts.with_columns(
+            (pl.col("urls").list.len().fill_null(0) > 0).alias("has_link") if "urls" in posts.columns else pl.lit(None, dtype=pl.Boolean).alias("has_link")
+        )
+        posts = _norm_times(posts, "created_at", "t").select("post_id", "account_id", "t", "text", "engagement", "likes", "has_link")
         pn = _first(b / "narratives" / "post_narrative.parquet", b / "post_narrative.parquet")
         if pn is not None and {"post_id", "narrative_id"} <= set(pn.columns):
             c.have_narratives = True
@@ -271,6 +282,8 @@ def load(processed: str = "data/processed", raw: str = "data/raw", eval_dir: str
     ua = _first(b / "user_archetype.parquet", art / "user_archetype.parquet")
     if ua is not None and {"account_id", "archetype_id"} <= set(ua.columns):
         c.arch_member = dict(zip(ua["account_id"].to_list(), ua["archetype_id"].to_list()))
+        if "role" in ua.columns:
+            c.arch_role = dict(zip(ua["account_id"].to_list(), ua["role"].to_list()))
         if "label" in ua.columns:
             c.arch_labels = dict(ua.select("archetype_id", "label").unique(subset="archetype_id").iter_rows())
     c.arch_meta = _first(b / "archetypes.parquet", art / "archetypes.parquet")
@@ -287,11 +300,36 @@ def load(processed: str = "data/processed", raw: str = "data/raw", eval_dir: str
     nj = Path(raw) / "news_jensen.jsonl"
     if nj.exists():
         c.news = [json.loads(l) for l in nj.open() if l.strip()]
+        labels = b / "news" / "headline_labels.parquet"
+        if labels.exists():  # the news module's labeled story headlines (cache only, no LLM or embedder calls)
+            try:
+                from src.news.baseline import load_baseline
+
+                h = load_baseline(str(nj), str(labels))
+                c.headlines = [{k: r.get(k) for k in ("source", "funding", "title", "link", "published")} for r in h.iter_rows(named=True)]
+                c.headlines_on_story = True
+            except Exception as e:
+                warnings.warn(f"could not load the labeled headlines ({e}); using the raw feed")
+        if not c.headlines:
+            seen = set()
+            for r in c.news:
+                title = re.sub(r"\s+-\s+[^-]{2,40}$", "", r.get("title") or "").strip()
+                key = (r.get("source"), title.lower())
+                if title and key not in seen:
+                    seen.add(key)
+                    c.headlines.append({"source": r.get("source"), "funding": r.get("funding"), "title": title, "link": r.get("link"), "published": r.get("published")})
+    sbj = b / "news" / "story_baseline.json"
+    if sbj.exists():
+        try:
+            c.story_baseline = json.loads(sbj.read_text())
+        except Exception as e:
+            warnings.warn(f"could not read {sbj}: {e}")
     ch = Path(sample) / "challenge.json"
     if ch.exists():
         try:
             d = json.loads(ch.read_text())
             c.challenge = d.get("accounts", d) if isinstance(d, dict) else d
+            c.challenge_meta = {k: v for k, v in d.items() if k != "accounts"} if isinstance(d, dict) else {}
         except Exception as e:
             warnings.warn(f"could not read {ch}: {e}")
     mf = art / "manifest.json"
@@ -650,19 +688,107 @@ def _lift_inputs(c: Ctx):
     return profiled, base
 
 
+def _thesis_report(c: Ctx) -> tuple[dict, str | None]:
+    """Counts from Muse's matched analysis (M5): the VM run's report when it exists, else the laptop report."""
+    for name in ("report-vm.md", "report.md"):
+        p = c.eval_dir / "thesis" / name
+        if not p.exists():
+            continue
+        t = p.read_text()
+        out: dict = {}
+        num = lambda s: int(s.replace(",", ""))  # noqa: E731
+        if m := re.search(r"\*\*([\d,]+) amplifiers\.?\*\*", t):
+            out["amplifiers"] = num(m.group(1))
+        if m := re.search(r"unmatched[^|\n]*\|\s*([\d,]+)", t):
+            out["amplifiers_unmatched"] = num(m.group(1))
+        if m := re.search(r"Control pool:[^\d]*([\d,]+)", t):
+            out["control_pool"] = num(m.group(1))
+        if m := re.search(r"Base amplifier rate in the matched sample: ([0-9.]+)", t):
+            out["base_amplifier_rate"] = float(m.group(1).rstrip("."))
+        if m := re.search(r"Match rate ([0-9.]+)%", t):
+            out["match_rate"] = float(m.group(1)) / 100
+        if m := re.search(r"Version `([^`]+)`", t):
+            out["version"] = m.group(1)
+        return out, str(p)
+    return {}, None
+
+
+def _amp_evidence(c: Ctx, amp_ev, ds: list) -> list[dict]:
+    ev = []
+    if amp_ev is None:
+        return ev
+    sub = amp_ev.filter(pl.col("src").is_in(ds)).unique(subset="src", keep="first", maintain_order=True).head(5)
+    for s, dst, ty, pid, t in sub.select("src", "dst", "type", "post_id", "t").iter_rows():
+        who = c.ref(s)
+        actor = f"@{who['public_handle']}" if who["public_handle"] else "a private account"
+        item = c.post_ev(dst, pid, t, f"{actor} in this archetype gave a {ty} to a post by a likely automated account (score {c.scores.get(dst, 0):.2f})")
+        item["actor_ref"] = who["ref"]
+        ev.append(item)
+    return ev
+
+
+def _plain_features(feats: dict) -> dict:
+    """Profile summaries with plain keys and no empty values (cards never show 'null' or raw column names)."""
+    return {k: v for k, v in feats.items() if v is not None and not (isinstance(v, float) and math.isnan(v))}
+
+
 def archetypes(c: Ctx) -> tuple[list[dict], dict]:
     if not c.arch_member:
         return [], {}
-    flags, base = _lift_inputs(c)
     members: dict = defaultdict(list)
     for d, a in c.arch_member.items():
         members[a].append(d)
     meta_rows = {r["archetype_id"]: r for r in c.arch_meta.iter_rows(named=True)} if c.arch_meta is not None and "archetype_id" in c.arch_meta.columns else {}
     hi_auto = {d for d, s in c.scores.items() if s is not None and s >= cfg.AUTOMATED_MIN}
     amp_ev = c.inter.filter(pl.col("dst").is_in(list(hi_auto))).sort("t", nulls_last=True) if c.inter is not None else None
-    feats = None
-    if c.user_features is not None and "account_id" in c.user_features.columns:
-        feats = c.user_features
+    ok = c._public_handles()
+
+    # Muse's matched analysis (M5): lifts against matched controls, counts from its tables. Preferred whenever present.
+    if meta_rows and all(m.get("lift") is not None and m.get("n_amplifiers") is not None for m in meta_rows.values()):
+        rep, rep_path = _thesis_report(c)
+        out = []
+        for aid, m in meta_rows.items():
+            ds = members.get(aid, [])
+            amps = [d for d in ds if c.arch_role.get(d, "amplifier") == "amplifier"]
+            size, n_amp = int(m.get("size") or len(ds)), int(m["n_amplifiers"])
+            row = {
+                "id": aid, "label": m.get("label") or c.arch_labels.get(aid, aid), "size": size,
+                "interacting_humans": size, "amplifiers": n_amp, "controls": size - n_amp,
+                "amplifier_rate": _r(n_amp / size) if size else None,
+                "lift": _r(m["lift"], 3), "lift_ci": [_r(m.get("lift_lo"), 3), _r(m.get("lift_hi"), 3)],
+                "lift_basis": "matched: this archetype's amplifier rate in the matched sample (each amplifier paired with a similar account that engaged only with human posts: same narrative, 6-hour window, reach, activity and follower bucket) over the sample's base rate; bootstrap interval (src.archetypes.build)",
+            }
+            if m.get("description"):
+                row["description"] = m["description"]
+            pub = [h for h in (m.get("examples_public") or []) if h and h.lower() in ok]
+            if not pub:
+                pub = [c.accounts[d]["handle"] for d in sorted((d for d in ds if c.nameable(d)), key=lambda d: -(c.accounts[d].get("followers") or 0))]
+            row["examples_public"] = pub[:5]
+            row["evidence"] = _amp_evidence(c, amp_ev, amps)
+            out.append(row)
+        out.sort(key=lambda r: -r["size"])
+        n_matched = sum(r["amplifiers"] for r in out)
+        n_all = rep.get("amplifiers", n_matched)
+        meta = {
+            "source": "src.archetypes.build (archetypes.parquet)" + (f", {rep_path}" if rep_path else ""),
+            "version": rep.get("version"),
+            "matched": True,
+            "amplifiers": n_all,
+            "amplifiers_matched": n_matched,
+            "amplifiers_unmatched": rep.get("amplifiers_unmatched", n_all - n_matched),
+            "controls": sum(r["controls"] for r in out),
+            "accounts": sum(r["size"] for r in out),
+            "interacting_humans_profiled": sum(r["size"] for r in out),
+            "base_amplifier_rate": rep.get("base_amplifier_rate", _r(n_matched / max(sum(r["size"] for r in out), 1))),
+            "match_rate": rep.get("match_rate"),
+            "matching": "one control per amplifier, without replacement: same narrative, same 6-hour window, same reach bucket of the post engaged with, same activity quintile and follower power of ten",
+            "definition": f"amplifier: a real account (p_automated < {cfg.HUMAN_MAX}) that liked, reposted or quoted a story post by an account with p_automated >= {cfg.AUTOMATED_MIN}",
+        }
+        return out, meta
+
+    # fallback: this export's own unmatched comparison (rate over all profiled interacting real accounts)
+    flags, base = _lift_inputs(c)
+    feats = c.user_features if c.user_features is not None and "account_id" in c.user_features.columns else None
     out = []
     for aid in sorted(members):
         ds = members[aid]
@@ -676,17 +802,11 @@ def archetypes(c: Ctx) -> tuple[list[dict], dict]:
             "lift": _r(lift, 3), "lift_ci": [_r(lo, 3), _r(hi, 3)],
             "lift_basis": "amplifier rate among this archetype's interacting real accounts over the rate among all profiled interacting real accounts (shared bootstrap)",
         }
-        if m.get("lift") is not None:
-            row["lift_matched"] = _r(m["lift"], 3)
-            row["lift_matched_ci"] = [_r(m.get("lift_lo"), 3), _r(m.get("lift_hi"), 3)]
         if m.get("description"):
             row["description"] = m["description"]
-        if m.get("defining_features"):
-            row["defining_features"] = m["defining_features"]
-        # features: user_features means if present, else profile medians
         if feats is not None:
             sub = feats.filter(pl.col("account_id").is_in(ds))
-            row["features"] = {k: _r(sub[k].mean(), 3) for k in sub.columns if k != "account_id" and sub[k].dtype.is_numeric()}
+            row["features"] = _plain_features({k.replace("_", " "): _r(sub[k].mean(), 3) for k in sub.columns if k != "account_id" and sub[k].dtype.is_numeric()})
         else:
             acc = [c.accounts[d] for d in ds if d in c.accounts]
             fol = sorted((a.get("followers") or 0) for a in acc)
@@ -696,26 +816,18 @@ def archetypes(c: Ctx) -> tuple[list[dict], dict]:
                 for t in (_iso(a.get("created_at")) for a in acc) if t
             )
             med = lambda xs: xs[len(xs) // 2] if xs else None  # noqa: E731
-            row["features"] = {
-                "median_followers": med(fol), "median_lifetime_posts": med(pc), "median_account_age_days": med(ages),
-                "bridged_share": _r(sum(bool(a.get("bridged")) for a in acc) / len(acc)) if acc else None,
-                "mean_p_automated": _r(sum(c.scores.get(d) or 0.0 for d in ds) / len(ds), 3) if c.have_scores else None,
-            }
+            row["features"] = _plain_features({
+                "median followers": med(fol), "median lifetime posts": med(pc), "median account age (days)": med(ages),
+                "bridged share": _r(sum(bool(a.get("bridged")) for a in acc) / len(acc)) if acc else None,
+                "mean automation score": _r(sum(c.scores.get(d) or 0.0 for d in ds) / len(ds), 3) if c.have_scores else None,
+            })
         pub = sorted((d for d in ds if c.nameable(d)), key=lambda d: -(c.accounts[d].get("followers") or 0))
         row["examples_public"] = [c.accounts[d]["handle"] for d in pub[:5]]
-        ev = []
-        if amp_ev is not None:
-            sub = amp_ev.filter(pl.col("src").is_in(ds)).unique(subset="src", keep="first", maintain_order=True).head(5)
-            for s, dst, ty, pid, t in sub.select("src", "dst", "type", "post_id", "t").iter_rows():
-                who = c.ref(s)
-                actor = f"@{who['public_handle']}" if who["public_handle"] else "a private account"
-                item = c.post_ev(dst, pid, t, f"{actor} in this archetype gave a {ty} to a post by a likely automated account (score {c.scores.get(dst, 0):.2f})")
-                item["actor_ref"] = who["ref"]
-                ev.append(item)
-        row["evidence"] = ev
+        row["evidence"] = _amp_evidence(c, amp_ev, ds)
         out.append(row)
     out.sort(key=lambda r: -r["size"])
-    meta = {"base_amplifier_rate": _r(base), "interacting_humans_profiled": len(flags),
+    meta = {"matched": False, "base_amplifier_rate": _r(base), "interacting_humans_profiled": len(flags),
+            "amplifiers": sum(r["amplifiers"] for r in out),
             "definition": f"amplifier: a real account (p_automated < {cfg.HUMAN_MAX}, unscored engagers counted as real) that liked, reposted or quoted a post by an account with p_automated >= {cfg.AUTOMATED_MIN}"}
     return out, meta
 
@@ -826,27 +938,38 @@ def _md_tables(text: str) -> list[dict]:
     return tables
 
 
+def _first_report(c: Ctx, area: str, names: tuple[str, ...]) -> Path | None:
+    for n in names:
+        p = c.eval_dir / area / n
+        if p.exists():
+            return p
+    return None
+
+
 def validation(c: Ctx) -> dict | None:
-    rep = c.eval_dir / "bots" / "report.md"
+    """Method-view numbers, read from the evaluation reports (never typed in). The VM reports win over the laptop ones:
+    the demo runs the VM's model (docs/TEAM-BRIEF.md)."""
     out: dict = {"recall_at_k": None, "recall_at_k_all_labeled": None, "baseline_recall_at_k": None, "ablation": {}, "gold_accuracy": None,
+                 "narrative_llm_agreement": None, "side_llm_agreement": None, "hand_label_agreement": None,
                  "handcheck_precision": None, "bot_model": (c.manifest.get("bot_model") or {}).get("version") or c.sources.get("bot_model")}
     found = False
-    if rep.exists():
+    rep = _first_report(c, "bots", ("report-vm.md", "report.md"))
+    if rep:
         found = True
+        out["bot_report"] = str(rep)
         t = rep.read_text()
-        tabs = _md_tables(t)
-        for tab in tabs:
+        for tab in _md_tables(t):
             for k, v in tab.items():
                 kl = k.lower()
                 if "baseline" in kl and out["baseline_recall_at_k"] is None:
                     out["baseline_recall_at_k"] = v
                 elif kl in ("behavior only", "coordination only", "both"):
                     out["ablation"][kl] = v
-                elif "both" in kl and "hgb" in kl:
-                    out["recall_at_k"] = v  # README protocol: 20% held out (the kill-test reading, COMMS Sat 17:10)
+                elif kl.startswith("hgb"):
+                    out["recall_at_k"] = v  # README protocol: 20% of labeled bots held out (the kill-test reading, COMMS Sat 17:10)
                 elif "gradient boosting" in kl:
                     out["recall_at_k_all_labeled"] = v
-        m = re.search(r"(\d+) of (\d+) \((\d+)%\)", t)
+        m = re.search(r"\*\*(\d+) of (\d+) \((\d+)%\)", t) or re.search(r"(\d+) of (\d+) \((\d+)%\)", t)
         if m:
             out["handcheck_precision"] = {"hits": int(m.group(1)), "n": int(m.group(2)), "share": _r(int(m.group(1)) / int(m.group(2)))}
         m = re.search(r"Model: `([^`]+)`", t)
@@ -854,67 +977,126 @@ def validation(c: Ctx) -> dict | None:
             out["report_model"] = m.group(1)
         if out["recall_at_k"] is None:
             out["recall_at_k"] = out["recall_at_k_all_labeled"]
-    nrep = c.eval_dir / "narratives" / "report.md"
-    if nrep.exists():
+    nrep = _first_report(c, "narratives", ("report-vm.md", "report.md"))
+    if nrep:
         found = True
-        m = re.search(r"accuracy[^0-9]{0,40}([0-9]+(?:\.[0-9]+)?)\s*(%?)", nrep.read_text(), re.I)
+        t = nrep.read_text()
+        out["narrative_report"] = str(nrep)
+        # the classifier against the language-model labels; hand-label agreement only when the report says "hand"
+        m = re.search(r"narrative_id:\s*held-out accuracy vs LLM labels ([0-9.]+)(?:\s*\(n=([\d,]+)\))?", t)
+        if m:
+            out["narrative_llm_agreement"] = _r(float(m.group(1)), 3)
+            if m.group(2):
+                out["narrative_llm_agreement_n"] = int(m.group(2).replace(",", ""))
+        m = re.search(r"side:\s*held-out accuracy vs LLM labels ([0-9.]+)", t)
+        if m:
+            out["side_llm_agreement"] = _r(float(m.group(1)), 3)
+        m = re.search(r"hand[- ]label[^\n]{0,60}?(?:accuracy|agreement)[^0-9\n]{0,20}([0-9]+(?:\.[0-9]+)?)\s*(%?)", t, re.I)
         if m:
             v = float(m.group(1))
-            out["gold_accuracy"] = _r(v / 100 if m.group(2) or v > 1 else v)
-    rrep = c.eval_dir / "retrieval" / "report.md"
-    if rrep.exists():
+            out["hand_label_agreement"] = out["gold_accuracy"] = _r(v / 100 if m.group(2) or v > 1 else v)
+    rrep = _first_report(c, "retrieval", ("report-hybrid.md", "report.md"))
+    if rrep:
         found = True
-        out["retrieval"] = {"tables": _md_tables(rrep.read_text())}
+        t = rrep.read_text()
+        r: dict = {"report": str(rrep), "tables": _md_tables(t)}
+        m = re.search(r"recall@20[^\n]*?first (\d+) claims[^\n]*?\*\*([0-9.]+) at floor ([0-9.]+)\*\*", t)
+        if m:
+            r.update({"claims": int(m.group(1)), "recall_at_20": float(m.group(2)), "floor": float(m.group(3))})
+            out["retrieval_recall_at_k"] = {"20": float(m.group(2))}
+        m = re.search(r"All (\d+) claims: ([0-9]+(?:\.[0-9]+)?)", t)
+        if m:
+            r.update({"claims_all": int(m.group(1)), "recall_at_20_all": float(m.group(2))})
+        out["retrieval"] = r
     return out if found else None
 
 
-def news(c: Ctx) -> dict:
-    if not c.news:
+def _spy_flags(c: Ctx) -> dict:
+    """Bluesky posts about the spy claim (the news module's SPY_RE), hedged or not, grouped by account for the shared
+    bootstrap: all posts, posts that share a link, posts without one (people's own words)."""
+    if c.posts is None:
         return {}
-    seen, rows = set(), []
-    for r in c.news:
-        title = re.sub(r"\s+-\s+[^-]{2,40}$", "", r.get("title") or "").strip()
-        key = (r.get("source"), title.lower())
-        if not title or key in seen:
-            continue
-        seen.add(key)
-        rows.append(r | {"clean_title": title})
+    sp = c.posts.filter(pl.col("text").fill_null("").str.contains("(?i)" + SPY_RE.pattern))
+    groups: dict = {"all": defaultdict(list), "link": defaultdict(list), "own": defaultdict(list)}
+    for d, t, link in sp.select("account_id", "text", "has_link").iter_rows():
+        h = is_hedged(t or "")
+        groups["all"][d].append(h)
+        if link is not None:
+            groups["link" if link else "own"][d].append(h)
+    out = {}
+    for k, g in groups.items():
+        if g:
+            s, lo, hi = share_ci(g)
+            out[k] = {"share": s, "ci": [_r(lo), _r(hi)], "n": sum(len(v) for v in g.values()), "accounts": len(g)}
+    if c.have_scores and sp.height:
+        out["likely_automated_share"] = _r((sp["p"].fill_null(0.0) >= AUTOMATED).mean())
+    return out
+
+
+def news(c: Ctx) -> dict:
+    """News baseline. Spy-related and hedged use the news module's definitions (src/news/baseline.py), and when its
+    story_baseline.json exists its numbers are the ones shipped; this export adds the bootstrap intervals."""
+    if not c.headlines:
+        return {}
+    on_story = lambda t: c.headlines_on_story or bool(STORY_RE.search(t))  # noqa: E731
     per = {}
-    for r in rows:
-        s = per.setdefault(r.get("source"), {"source": r.get("source"), "funding": r.get("funding"), "headlines": 0, "huang_headlines": 0, "spy_headlines": 0, "spy_hedged": 0})
+    spy = []
+    for r in c.headlines:
+        t = r["title"] or ""
+        s = per.setdefault(r.get("source"), {"source": r.get("source"), "name": r.get("source"), "funding": r.get("funding"),
+                                             "headlines": 0, "huang_headlines": 0, "spy_headlines": 0, "spy_hedged": 0})
         s["headlines"] += 1
-        t = r["clean_title"]
         if "huang" in t.lower():
             s["huang_headlines"] += 1
-        if SPY_RE.search(t) and re.search(r"huang|nvidia", t, re.I):
+        if SPY_RE.search(t) and on_story(t):
             s["spy_headlines"] += 1
-            s["spy_hedged"] += bool(HEDGE_RE.search(t))
-    spy = [r for r in rows if SPY_RE.search(r["clean_title"]) and re.search(r"huang|nvidia", r["clean_title"], re.I)]
+            s["spy_hedged"] += is_hedged(t)
+            spy.append(r)
     nflags: dict = defaultdict(list)
     for r in spy:
-        nflags[r.get("source")].append(bool(HEDGE_RE.search(r["clean_title"])))
+        nflags[r.get("source")].append(is_hedged(r["title"]))
     ns, nlo, nhi = share_ci(nflags)
-    out = {
-        "outlets": sorted(per.values(), key=lambda s: -s["headlines"]),
-        "headlines": len(rows),
-        "spy_claim": {
-            "news_headlines": len(spy), "news_hedged_share": _r(ns), "news_hedged_share_ci": [_r(nlo), _r(nhi)],
-            "interval_note": "news interval resamples outlets; Bluesky interval resamples accounts",
-            "examples": [{"source": r.get("source"), "title": r["clean_title"], "link": r.get("link"), "published": _iso(_rfc(r.get("published"))) or r.get("published"),
-                          "hedged": bool(HEDGE_RE.search(r["clean_title"]))} for r in spy[:12]],
-        },
-        "method": "spy claim: headline or post mentions a spy, spying, espionage, a honey trap or Chinese/foreign intelligence (headlines must also name Huang or Nvidia). Hedged: uses alleged, suspected, claim(s), reportedly, rumor, possible, purported, accused, unverified or unconfirmed.",
+    sc: dict = {
+        "news_headlines": len(spy), "news_hedged": sum(sum(v) for v in nflags.values()),
+        "news_hedged_share": _r(ns), "news_hedged_share_ci": [_r(nlo), _r(nhi)],
+        "interval_note": "news interval resamples outlets; Bluesky intervals resample accounts",
+        "examples": [{"source": r.get("source"), "title": r["title"], "link": r.get("link"), "published": _iso(_rfc(r.get("published"))) or _iso(r.get("published")) or r.get("published"),
+                      "hedged": is_hedged(r["title"])} for r in spy[:12]],
     }
-    if c.posts is not None:
-        sp = c.posts.filter(pl.col("text").fill_null("").str.contains("(?i)" + SPY_RE.pattern))
-        bflags: dict = defaultdict(list)
-        for d, t in sp.select("account_id", "text").iter_rows():
-            bflags[d].append(bool(HEDGE_RE.search(t or "")))
-        bs, blo, bhi = share_ci(bflags)
-        out["spy_claim"].update({"bluesky_posts": sp.height, "bluesky_accounts": len(bflags), "bluesky_hedged_share": _r(bs), "bluesky_hedged_share_ci": [_r(blo), _r(bhi)]})
-        if c.have_scores and sp.height:
-            out["spy_claim"]["bluesky_likely_automated_share"] = _r((sp["p"].fill_null(0.0) >= AUTOMATED).mean())
-    return out
+    bf = _spy_flags(c)
+    if "all" in bf:
+        sc.update({"bluesky_posts": bf["all"]["n"], "bluesky_accounts": bf["all"]["accounts"], "bluesky_hedged_share": _r(bf["all"]["share"]), "bluesky_hedged_share_ci": bf["all"]["ci"]})
+    if "link" in bf:
+        sc.update({"bluesky_link_posts": bf["link"]["n"], "bluesky_link_hedged_share": _r(bf["link"]["share"]), "bluesky_link_hedged_share_ci": bf["link"]["ci"]})
+    if "own" in bf:
+        sc.update({"bluesky_own_words_posts": bf["own"]["n"], "bluesky_own_words_hedged_share": _r(bf["own"]["share"]), "bluesky_own_words_hedged_share_ci": bf["own"]["ci"]})
+    if "likely_automated_share" in bf:
+        sc["bluesky_likely_automated_share"] = bf["likely_automated_share"]
+    # the news module's numbers are canonical; an interval computed here rides along only if it counts the same posts
+    hb = (c.story_baseline or {}).get("hedging") or {}
+    canon = {"news": ("news_hedged_share", "news_headlines", "news_hedged_share_ci"), "social": ("bluesky_hedged_share", "bluesky_posts", "bluesky_hedged_share_ci"),
+             "social_with_link": ("bluesky_link_hedged_share", "bluesky_link_posts", "bluesky_link_hedged_share_ci"),
+             "social_without_link": ("bluesky_own_words_hedged_share", "bluesky_own_words_posts", "bluesky_own_words_hedged_share_ci")}
+    if hb:
+        sc["source"] = "src.news.baseline (data/processed/news/story_baseline.json)"
+        for key, (share_k, n_k, ci_k) in canon.items():
+            blk = hb.get(key) or {}
+            if blk.get("share") is None:
+                continue
+            if sc.get(n_k) != blk.get("n"):
+                sc.pop(ci_k, None)
+            sc[share_k], sc[n_k] = _r(blk["share"]), blk.get("n")
+        if (hb.get("news") or {}).get("hedged") is not None:
+            sc["news_hedged"] = hb["news"]["hedged"]
+    outlets = sorted(per.values(), key=lambda s: -s["headlines"])
+    return {
+        "outlets": outlets,
+        "headlines": len(c.headlines),
+        "spy_claim": sc,
+        "hedge_terms": list(HEDGE_TERMS),
+        "method": ("spy claim: headline or post matches " + SPY_RE.pattern + (" (headlines from the news module's story-relevant set)" if c.headlines_on_story else " (headlines must also name Huang or Nvidia)")
+                   + ". Hedged: uses " + ", ".join(HEDGE_TERMS[:-1]) + " or " + HEDGE_TERMS[-1] + ". Posts that share a link are often the headline itself; posts without one are closer to people's own words."),
+    }
 
 
 def _rfc(s):
@@ -928,18 +1110,68 @@ def _rfc(s):
         return s
 
 
+def _challenge_profiles(c: Ctx, dids: list[str]) -> dict:
+    """Account age, posting rate, follows and the hour-of-day mix of its recent posts, for nameable accounts only."""
+    out: dict = {}
+    if not dids:
+        return out
+    hours: dict = {d: [0] * 24 for d in dids}
+    span: dict = {}
+    hp = c.processed / "history_posts.parquet"
+    if hp.exists():
+        try:
+            h = pl.scan_parquet(hp).filter(pl.col("account_id").is_in(dids) & (pl.col("author_id") == pl.col("account_id"))).select("account_id", "t").collect()
+            for d, t in h.iter_rows():
+                ts = _iso(t)
+                if ts:
+                    hours[d][int(ts[11:13])] += 1
+                    lo, hi = span.get(d, (ts, ts))
+                    span[d] = (min(lo, ts), max(hi, ts))
+        except Exception as e:
+            warnings.warn(f"could not read {hp}: {e}")
+    ref = datetime.fromisoformat(cfg.STORY_END.replace("Z", "+00:00"))
+    for d in dids:
+        a = c.accounts.get(d) or {}
+        created = _iso(a.get("created_at"))
+        age = max((ref - datetime.fromisoformat(created.replace("Z", "+00:00"))).days, 1) if created else None
+        prof = {
+            "account_age_days": age, "followers": a.get("followers"), "follows": a.get("follows"), "lifetime_posts": a.get("posts_count"),
+            "posts_per_day": _r((a.get("posts_count") or 0) / age, 1) if age and a.get("posts_count") is not None else None,
+            "self_label_bot": bool(a.get("self_label_bot")),
+        }
+        if sum(hours[d]):
+            prof["hours_utc"] = hours[d]
+            prof["hours_posts"] = sum(hours[d])
+            prof["hours_span"] = {"from": span[d][0], "to": span[d][1]}
+        out[d] = {k: v for k, v in prof.items() if v is not None}
+    return out
+
+
 def challenge(c: Ctx) -> list[dict]:
-    out = []
+    by_handle = {(a.get("handle") or "").lower(): d for d, a in c.accounts.items() if a.get("handle")}
+    rows, dids = [], []
     for a in c.challenge or []:
         handle = a.get("public_handle")
         ref = a.get("account_ref")
         if handle and ref != handle:  # a handle must only ride with its own ref
             handle = None
-        out.append({
+        did = by_handle.get(handle.lower()) if handle else None
+        if handle and did and not c.nameable(did):  # never name an account the README rule doesn't allow
+            handle, ref, did = None, public_ref(did, None, False)["ref"], None
+        rows.append((a, ref, handle, did))
+        if did:
+            dids.append(did)
+    prof = _challenge_profiles(c, dids)
+    out = []
+    for a, ref, handle, did in rows:
+        item = {
             "account_ref": ref, "public_handle": handle, "tier": a.get("tier"),
-            "posts": [{"t": p.get("t"), "text": c.mask(p.get("text"), 500), "kind": p.get("kind")} if isinstance(p, dict) else c.mask(str(p), 500) for p in a.get("posts", [])],
-            "p_automated": a.get("p_automated"), "reasons": a.get("reasons", []), "hand_label": a.get("hand_label"),
-        })
+            "posts": [{"t": _iso(p.get("t")) or p.get("t"), "text": c.mask(p.get("text"), 500), "kind": p.get("kind")} if isinstance(p, dict) else c.mask(str(p), 500) for p in a.get("posts", [])],
+            "p_automated": a.get("p_automated"), "reasons": a.get("reasons", []), "hand_label": a.get("hand_label") or None,
+        }
+        if did and prof.get(did):
+            item["profile"] = prof[did]
+        out.append(item)
     return out
 
 
@@ -987,20 +1219,35 @@ def findings(site: dict) -> list[str]:
                             f"({_pct1(w['volume_share'])} to {_pct1(w['volume_share_without'])} of posts plus likes, reposts and quotes).")
     elif unchanged:
         slots["without"] = "Removing likely automated accounts and their engagement leaves the narrative ranking unchanged."
+    am = site.get("archetypes_meta") or {}
     arch = [a for a in site.get("archetypes", []) if a.get("lift") is not None and a.get("interacting_humans", 0) >= cfg.MIN_HUMANS_FOR_AMPLIFIER_LINE]
     if arch:
         sig = [a for a in arch if a["lift_ci"][0] is not None and a["lift_ci"][0] > 1]
         if sig:
             a = max(sig, key=lambda a: a["lift"])
-            slots["archetype"] = (f"Real accounts in the archetype \"{a['label']}\" were {a['lift']:.1f}x as likely as other engaged real accounts to amplify "
+            who = "matched similar accounts" if am.get("matched") else "other engaged real accounts"
+            slots["archetype"] = (f"Real accounts in the archetype \"{a['label']}\" were {a['lift']:.1f}x as likely as {who} to amplify "
                                   f"likely automated posts ({a['lift_ci'][0]:.1f} to {a['lift_ci'][1]:.1f}).")
+        elif am.get("matched") and am.get("amplifiers"):
+            slots["archetype"] = (f"{am['amplifiers']:,} real accounts amplified likely automated posts. Compared with similar accounts that saw the same story "
+                                  f"({am.get('amplifiers_matched', 0):,} matched on narrative, time window, reach, activity and followers), no archetype was "
+                                  "clearly more likely to amplify them (every lift interval includes 1).")
         else:
             slots["archetype"] = "No archetype of real accounts was clearly more likely than the others to amplify likely automated posts (every lift interval includes 1)."
     sc = (site.get("news") or {}).get("spy_claim") or {}
-    if sc.get("news_headlines") and sc.get("bluesky_hedged_share") is not None:
-        slots["news"] = (f"{_pct(sc['news_hedged_share'])} of wire-service and public-broadcaster headlines about the spy claim hedge (\"alleged\", \"suspected\"), "
-                         f"against {_pct(sc['bluesky_hedged_share'])} of Bluesky posts making it.")
-    keep = [k for k in ("story", "wapo", "spread", "archetype", "without", "news") if k in slots][:5]
+    if sc.get("news_headlines") and sc.get("news_hedged_share") is not None:
+        ns, link, own = sc["news_hedged_share"], sc.get("bluesky_link_hedged_share"), sc.get("bluesky_own_words_hedged_share")
+        s = f"{_pct(ns)} of wire-service and public-broadcaster headlines about the spy claim hedge (\"alleged\", \"suspected\", \"claims\")"
+        if link is not None and own is not None:
+            if own < link and abs(link - ns) < 0.1:
+                s += (f". On Bluesky, posts that share a link mostly keep the headline's wording ({_pct(link)} hedge), but posts written in "
+                      f"people's own words drop it: {_pct(own)} hedge. The caution survives the share button and disappears in the retelling")
+            else:
+                s += f". On Bluesky, {_pct(link)} of posts that share a link hedge, and {_pct(own)} of posts in people's own words"
+        elif sc.get("bluesky_hedged_share") is not None:
+            s += f", against {_pct(sc['bluesky_hedged_share'])} of Bluesky posts making it"
+        slots["news"] = s + "."
+    keep = [k for k in ("story", "spread", "wapo", "news", "archetype", "without") if k in slots][:5]
     order = ("story", "spread", "wapo", "without", "archetype", "news")
     return [slots[k] for k in order if k in keep]
 
@@ -1027,6 +1274,7 @@ def build_from(c: Ctx, node_cap: int = NODE_CAP, edge_cap: int = EDGE_CAP) -> di
         "validation": validation(c),
         "news": news(c),
         "challenge": challenge(c),
+        "challenge_meta": (c.challenge_meta | {"accounts": len(c.challenge or []), "hand_labeled": sum(1 for a in c.challenge or [] if a.get("hand_label"))}) if c.challenge else {},
         "reddit": {"narratives": []},
         "sources": {
             "bot_model": (c.manifest.get("bot_model") or {}).get("version") or c.sources.get("bot_model"),

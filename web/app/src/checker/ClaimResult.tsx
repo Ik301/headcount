@@ -4,19 +4,23 @@ import { chartUrl } from "../api/client";
 import { config } from "../config";
 import { Icon } from "../components/Icons";
 import { ci, countWord, fmtInt, handle, isoSec, lift, localStamp, pct, plural, postRef, windowLabel } from "../lib/format";
+import { against, pickHeadline, versusWords, type HeadlinePick } from "../lib/compare";
 import { narrativeColor } from "../lib/narrativeColor";
 import { useCopy } from "../lib/useCopy";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
-/** The reply-shaped result. Every number is read from the /claim JSON; nothing is recomputed
- *  except the "x times baseline" ratio, which uses the same rule as the reply text (>= 2x). */
+/** The reply-shaped result. Every number is read from the /claim JSON; nothing is recomputed except the
+ *  "x times baseline" ratio (the reply text's rule, >= 2x) and, when no narrative can carry the headline, the overall
+ *  share (the narratives' shares weighted by size). A narrative carries the headline only with 30+ posts and an
+ *  interval at most 25 points wide (src/lib/compare.ts). */
 export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: number }) {
   const [copied, copy] = useCopy();
   const narr = r.narratives ?? [];
   const enough = r.matched_posts >= MIN_MATCHES && narr.length > 0;
   const baseline = r.baseline_bot_share ?? narr[0]?.baseline_bot_share;
-  const top = narr.length ? narr.reduce((a, b) => (b.bot_post_share > a.bot_post_share ? b : a)) : null;
+  const pick = pickHeadline(narr, r.matched_posts);
+  const top = pick.kind === "narrative" ? pick.n : null;
   const link = `${window.location.origin}/claim/${encodeURIComponent(r.claim_id)}`;
   const png = chartUrl(r);
   const win = windowLabel(r.window?.from, r.window?.to);
@@ -52,7 +56,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
         <div className="r-grid">
           <div className="r-head">
             <h1 id="res-h">
-              <Headline r={r} enough={enough} top={top} baseline={baseline} />
+              <Headline r={r} enough={enough} pick={pick} baseline={baseline} />
             </h1>
             <p className="r-meta">
               <span>
@@ -141,20 +145,27 @@ function ratio(n: ClaimNarrative, baseline?: number) {
   return n.bot_post_share / b;
 }
 
-function Headline({ r, enough, top, baseline }: { r: ClaimResult; enough: boolean; top: ClaimNarrative | null; baseline?: number }) {
+function Headline({ r, enough, pick, baseline }: { r: ClaimResult; enough: boolean; pick: HeadlinePick<ClaimNarrative>; baseline?: number }) {
   if (!enough)
     return r.matched_posts === 0 ? <>No Bluesky posts we have make this claim.</> : <>Only {fmtInt(r.matched_posts)} matching posts, too few to measure automation.</>;
-  if (!top || top.bot_post_share <= 0)
-    return (
+  if (pick.kind === "overall")
+    return pick.share > 0 ? (
+      <>
+        <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(pick.share)}</span> of them.
+      </>
+    ) : (
       <>
         <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. None of its narratives shows likely automated accounts at the default cutoff.
       </>
     );
+  const top = pick.n;
   const x = ratio(top, baseline);
+  const b = top.baseline_bot_share ?? baseline;
+  const vs = x ? null : b != null ? versusWords(against(top.bot_post_share_ci, b)) : null;
   return (
     <>
       <span className="n">{fmtInt(r.matched_posts)}</span> Bluesky posts make this claim. Likely automated accounts wrote <span className="sig n">{pct(top.bot_post_share)}</span> of those
-      in “{top.label}”{x ? `, about ${x.toFixed(1)}× the story’s baseline` : ""}.
+      in “{top.label}”{x ? `, about ${x.toFixed(1)}× the story’s baseline` : vs && b != null ? `, ${vs} the story’s ${pct(b, 1)} baseline` : ""}.
     </>
   );
 }
@@ -183,7 +194,7 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                 <span className="sw" style={{ background: narrativeColor(n.id, i) }} />
                 <span className="nm">
                   {n.label}
-                  {isTop && <span className="flag">Highest automation</span>}
+                  {isTop && <span className="flag">Highest measurable automation</span>}
                 </span>
                 <span className="sh">
                   <b>{pct(n.share_of_matches)}</b>
@@ -260,7 +271,7 @@ function AmpBlock({ r }: { r: ClaimResult }) {
       {a && a.n_humans > 0 && mix.length ? (
         <>
           <p className="sub">
-            <span className="mono">{fmtInt(a.n_humans)}</span> real accounts reposted, quoted or liked posts from likely automated accounts. Grouped by behavior.
+            <span className="mono">{fmtInt(a.n_humans)}</span> real {a.n_humans === 1 ? "account" : "accounts"} reposted, quoted or liked posts from likely automated accounts. Grouped by behavior.
           </p>
           <ul className="arows">
             {mix.map((m) => (
@@ -307,16 +318,18 @@ function AmpBlock({ r }: { r: ClaimResult }) {
 function NewsBlock({ r }: { r: ClaimResult }) {
   const n = r.news!;
   const heads = n.headlines ?? [];
+  const newsRate = n.hedging_rate ?? n.hedging?.news_share ?? null;
+  const socialRate = n.social_hedging_rate ?? n.hedging?.social_share ?? null;
   return (
     <section className="blk news" aria-labelledby="news-h">
       <h2 id="news-h">What accountable newsrooms report</h2>
       <p className="sub">Wire services and public broadcasters. Not neutral and not the truth, but edited and comparable.</p>
-      {n.hedging_rate != null && (
+      {newsRate != null && heads.length > 0 && (
         <p className="hedge">
-          <b className="mono">{pct(n.hedging_rate)}</b> of these headlines hedge (“alleged”, “suspected”)
-          {n.social_hedging_rate != null && (
+          <b className="mono">{pct(newsRate)}</b> of these headlines hedge (“alleged”, “suspected”, “claims”)
+          {socialRate != null && (
             <>
-              , against <b className="mono">{pct(n.social_hedging_rate)}</b> of the matching Bluesky posts
+              , against <b className="mono">{pct(socialRate)}</b> of the matching Bluesky posts
             </>
           )}
           .
@@ -327,12 +340,12 @@ function NewsBlock({ r }: { r: ClaimResult }) {
           {heads.slice(0, 6).map((h, i) => (
             <li key={i}>
               <span className="out">
-                {h.outlet}
+                {h.outlet ?? h.source}
                 {h.funding && <small> · {h.funding}</small>}
-                {h.t && <time className="mono"> {isoSec(h.t).slice(0, 10)}</time>}
+                {(h.t ?? h.published) && <time className="mono"> {isoSec(h.t ?? h.published).slice(0, 10)}</time>}
               </span>
-              {h.url ? (
-                <a href={h.url} target="_blank" rel="noreferrer">
+              {h.url ?? h.link ? (
+                <a href={h.url ?? h.link} target="_blank" rel="noreferrer">
                   {h.title}
                 </a>
               ) : (

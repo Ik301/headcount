@@ -216,3 +216,83 @@ def test_sample_is_small_and_consistent(full):
     assert len(ids) <= 5 and len(s["graph"]["edges"]) <= 3 and all(e["s"] in ids and e["t"] in ids for e in s["graph"]["edges"])
     assert len(s["public_accounts"]) <= 1
     assert B.privacy_violations(s, c) == []
+
+
+def _story_baseline(proc: Path, news=(49, 90), social=(3152, 7239), link=(2509, 5038), own=(643, 2201)):
+    blk = lambda h, n: {"share": round(h / n, 4), "hedged": h, "n": n}  # noqa: E731
+    (proc / "news").mkdir(exist_ok=True)
+    (proc / "news" / "story_baseline.json").write_text(json.dumps({"hedging": {
+        "news": blk(*news), "social": blk(*social), "social_with_link": blk(*link), "social_without_link": blk(*own)}}))
+
+
+def test_news_hedging_split_comes_from_the_news_module(tmp_path):
+    paths = write_corpus(tmp_path)
+    _story_baseline(Path(paths["processed"]))
+    site = B.build(**paths)
+    sc = site["news"]["spy_claim"]
+    assert sc["news_hedged_share"] == 0.5444 and sc["news_headlines"] == 90  # story_baseline.json wins over the raw feed
+    assert (sc["bluesky_link_hedged_share"], sc["bluesky_link_posts"]) == (0.498, 5038)
+    assert (sc["bluesky_own_words_hedged_share"], sc["bluesky_own_words_posts"]) == (0.2921, 2201)
+    assert sc["bluesky_hedged_share"] == 0.4354 and sc["bluesky_posts"] == 7239
+    assert "news_hedged_share_ci" not in sc  # an interval over different headlines would not belong to these numbers
+    f = next(x for x in site["findings"] if "headlines" in x and "hedge" in x)
+    assert f.startswith("54% of wire-service")
+    assert "(50% hedge)" in f and "29% hedge" in f and "caution survives the share button and disappears in the retelling" in f
+    assert site["news"]["hedge_terms"] == list(B.HEDGE_TERMS)
+
+
+def test_news_retelling_line_only_when_the_data_says_so(tmp_path):
+    paths = write_corpus(tmp_path)
+    _story_baseline(Path(paths["processed"]), link=(1000, 5000), own=(1500, 2000))  # own words hedge more: no retelling claim
+    f = next(x for x in B.build(**paths)["findings"] if "headlines" in x and "hedge" in x)
+    assert "retelling" not in f and "20% of posts that share a link hedge" in f and "75%" in f
+
+
+def test_news_split_computed_with_intervals_without_story_baseline(tmp_path):
+    paths = write_corpus(tmp_path)
+    posts = pl.read_parquet(Path(paths["processed"]) / "posts.parquet")
+    posts = posts.with_columns(pl.when(pl.col("text").str.contains("spy")).then(pl.lit(["https://x"])).otherwise(pl.lit([], dtype=pl.List(pl.Utf8))).alias("urls"))
+    posts.write_parquet(Path(paths["processed"]) / "posts.parquet")
+    sc = B.build(**paths)["news"]["spy_claim"]
+    assert sc["bluesky_link_posts"] == 30 and sc["bluesky_link_hedged_share"] == 0.0 and len(sc["bluesky_link_hedged_share_ci"]) == 2
+    assert "bluesky_own_words_posts" not in sc  # no spy post without a link here: no own-words row
+
+
+def test_mentions_masked_unless_public_bluesky(full):
+    c, _ = full
+    out = c.mask("cc @famous.example.com @person1.bsky.social @elonmusk and @Some_X_User, mail me at a@b.com.")
+    assert "@famous.example.com" in out and "@person1" not in out and "elonmusk" not in out and "Some_X_User" not in out
+    assert out.count(B.MASKED_MENTION) == 3 and "a@b.com." in out
+
+
+def test_matched_archetypes_use_m5_counts(tmp_path):
+    paths = write_corpus(tmp_path)
+    proc = Path(paths["processed"])
+    pl.DataFrame({"archetype_id": ["a1", "a2"], "label": ["Heavy reposters", "Everyone else"], "size": [20, 30], "n_amplifiers": [11, 14],
+                  "lift": [1.1, 0.93], "lift_lo": [0.8, 0.7], "lift_hi": [1.4, 1.2], "description": ["82% reposts; 6% replies", "1 post a day"],
+                  "defining_features": [["repost_share"], ["age_days_log"]], "examples_public": [["famous.example.com", "person2.bsky.social"], []]}).write_parquet(proc / "archetypes.parquet")
+    th = Path(paths["eval_dir"]) / "thesis"
+    th.mkdir(parents=True)
+    (th / "report-vm.md").write_text("- Amplifier: a likely human. **26 amplifiers.**\n| - | unmatched, left out of lift | 1 |\nBase amplifier rate in the matched sample: 0.50, so\n")
+    site = B.build(**paths)
+    am = site["archetypes_meta"]
+    assert am["matched"] and am["amplifiers"] == 26 and am["amplifiers_matched"] == 25 and am["amplifiers_unmatched"] == 1 and am["base_amplifier_rate"] == 0.5
+    a1 = next(a for a in site["archetypes"] if a["id"] == "a1")
+    assert a1["lift"] == 1.1 and a1["lift_ci"] == [0.8, 1.4] and a1["amplifiers"] == 11 and a1["size"] == 20
+    assert a1["examples_public"] == ["famous.example.com"]  # a private handle in M5's table never ships
+    assert "null" not in json.dumps([a.get("features", {}) for a in site["archetypes"]]) and "defining_features" not in a1
+    assert any("no archetype was clearly more likely" in f for f in site["findings"])
+
+
+def test_validation_prefers_vm_reports(tmp_path):
+    paths = write_corpus(tmp_path)
+    ev = Path(paths["eval_dir"])
+    (ev / "bots" / "report-vm.md").write_text("Model: `v-vm`\n\n| Scorer | @50 | @100 |\n|---|---|---|\n| lifetime posts per day (baseline) | 0.028 | 0.045 |\n| hgb, behavior | 0.213 | 0.272 |\n")
+    (ev / "narratives").mkdir()
+    (ev / "narratives" / "report.md").write_text("- narrative_id: held-out accuracy vs LLM labels 0.702 (n=8040)\n- side: held-out accuracy vs LLM labels 0.771 (n=8040)\n")
+    (ev / "retrieval").mkdir()
+    (ev / "retrieval" / "report-hybrid.md").write_text("recall@20 of at least 0.6 on the first 20 claims: **0.787 at floor 0.60** (0.785 with no floor) -> **pass**. All 50 claims: 0.646.\n")
+    v = B.build(**paths)["validation"]
+    assert v["recall_at_k"]["100"] == 0.272 and v["baseline_recall_at_k"]["100"] == 0.045 and v["report_model"] == "v-vm"
+    assert v["narrative_llm_agreement"] == 0.702 and v["gold_accuracy"] is None and v["hand_label_agreement"] is None
+    assert v["retrieval_recall_at_k"] == {"20": 0.787} and v["retrieval"]["recall_at_20_all"] == 0.646
