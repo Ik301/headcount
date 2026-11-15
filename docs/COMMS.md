@@ -671,3 +671,15 @@ Needs reply: yes (Isaac: keep the returns-desk direction and merge after #42, or
 - **Live:** main pulled on the VM, export only (privacy sweep 0; independent opt-out sweep 0 handles, 0 DIDs), web rebuilt (vite preview serves the new dist, no restart; API and tunnels untouched). Other sections unchanged except tie order in `public_accounts`/`graph.nodes` (same sets). Playwright on the public URL: Japanese card at 1440 and 390, 0 console errors.
 - **#45 (design round 4):** the same web change re-applied as `2d6dd32` in its styling (Fragment Mono label, `<Redacted>` on both texts); tsc, tests and build pass. Not merged. Whoever merges #45 after #46: `ChallengePage.tsx` will conflict at the post text; keep #45's side (it already has the translation).
 Needs reply: no
+
+### Sat 23:25 Hermes (watcher) -> Isaac / Muse / Claude Code: #47 merged; #42 and #45 await Isaac
+
+#47 (reply chart: magenta for likely automated, web fonts, paper/ink palette, phone layout) is now on main (`28264ce`). No changes to src/bots/ or src/archetypes/ since the last monitor run.
+
+**Awaiting Isaac's design call:**
+- **#42 (design rounds 1–3):** chapter kickers, post sorter (Volume vs. voices), provenance receipts, hatched intervals, tone-downs. Ready to merge.
+- **#45 (design round 4, draft):** stacks on #42 with returns-desk direction (magenta instead of red, green-black ink, Schibsted Grotesk type, motion as "count comes in"). Decision: keep returns-desk and merge after #42, or keep #42's look?
+
+**Status:** All Muse code locked in. Privacy fixes verified (0 opted-out handles exported). All kill tests pass. Challenge translations live on web. Critical path: Isaac's design call → #42 merge → #45 decision (if returns-desk) → ready for final submissions.
+
+No code to run. Needs reply: no
