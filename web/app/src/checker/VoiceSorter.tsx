@@ -7,14 +7,14 @@ import { narrativeColor, narrativeHex } from "../lib/narrativeColor";
  *   1 Volume       every post in one grey cloud: what a reader sees
  *   2 Narratives   the dots sort into one column per way of telling the claim
  *   3 Automated    posts from likely automated accounts settle to the bottom of each column. The interval is
- *                  drawn, not hidden: solid red is its low end, ringed dots are the rest of the range it allows
+ *                  drawn, not hidden: solid magenta is its low end, ringed dots are the rest of the range it allows
  *   4 Without them the point estimate drops out, the columns re-settle and re-rank
  * Every count comes from the /claim JSON (narratives[].posts or share_of_matches, bot_post_share and its
  * interval). Above a cap one dot stands for several posts, and the caption says how many. */
 
-const SIGNAL = "#D9472B";
-const PAPER = "#F7F5F0";
-const GREY = "#8A8F99";
+const SIGNAL = "#C81E66";
+const PAPER = "#ECEEE7";
+const GREY = "#7C867F";
 const STEPS = ["Volume", "Narratives", "Likely automated", "Without them"] as const;
 const DUR = 950; // ms per transition
 const DWELL = 2100; // ms per step while autoplaying
@@ -206,7 +206,7 @@ export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimN
       let busy = false;
       // baseline rule under the columns
       if (stage > 0) {
-        ctx.strokeStyle = "#E3DFD6";
+        ctx.strokeStyle = "#CBD1C4";
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, geo.base + 0.5);
@@ -300,7 +300,7 @@ export function VoiceSorter({ narr, matched, subject = "claim" }: { narr: ClaimN
     ],
     [
       `About ${fmtInt(round(A))} came from likely automated accounts.`,
-      `The interval runs from ${fmtInt(round(LO))} to ${fmtInt(round(HI))} posts. Solid red is its low end; ringed dots are the rest of the range it allows. They sit at the bottom of each column.`,
+      `The interval runs from ${fmtInt(round(LO))} to ${fmtInt(round(HI))} posts. Solid magenta is its low end; ringed dots are the rest of the range it allows. They sit at the bottom of each column.`,
     ],
     [
       `Without them, about ${fmtInt(round(total - A))} posts remain.`,

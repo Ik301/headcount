@@ -1,3 +1,4 @@
+import { seq } from "../../lib/motion";
 import { useState, type ReactNode } from "react";
 import { Icon } from "../../components/Icons";
 import { countWord, fmtInt, handle } from "../../lib/format";
@@ -32,8 +33,8 @@ export interface Chapter {
 function Head({ h, children }: { h: ReactNode; children?: ReactNode }) {
   return (
     <header className="g-chead">
-      <h1 className="g-h">{h}</h1>
-      {children && <div className="g-dek">{children}</div>}
+      <h1 className="g-h h-rise">{h}</h1>
+      {children && <div className="g-dek in" style={seq(1, 120)}>{children}</div>}
     </header>
   );
 }
@@ -164,7 +165,7 @@ function HowMuch({ g }: ChapterProps) {
       <figure className="g-fig g-split" ref={ref}>
         <div className="g-split-fig">
           <Waffle share={b.share} cols={10} />
-          <figcaption className="g-cap">Each square is 1 in 100 posts. <span className="g-key-auto">Red</span>: posts from likely automated accounts.</figcaption>
+          <figcaption className="g-cap">Each square is 1 in 100 posts. <span className="g-key-auto">Magenta</span>: posts from likely automated accounts.</figcaption>
         </div>
         <div className="g-interval">
           <p className="g-interval-text">
@@ -596,7 +597,7 @@ function HowWeKnow({ g, explore }: ChapterProps) {
         <figure className="g-fig" ref={ref}>
           <CheckGrid hits={hand.hits} n={hand.n} cols={w < 560 ? 10 : 25} />
           <figcaption className="g-cap">
-            Each square is one hand-checked account. <span className="g-key-auto">Red</span>: clearly automated when checked by hand. Outlined: not clearly automated.
+            Each square is one hand-checked account. <span className="g-key-auto">Magenta</span>: clearly automated when checked by hand. Outlined: not clearly automated.
           </figcaption>
         </figure>
       )}

@@ -1,12 +1,13 @@
+import { seq } from "../../lib/motion";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Narr } from "../model";
 import { pc, type Arch, type HedgeRow } from "./data";
 import { Receipt } from "../../components/Receipt";
 
 /* The guided story's charts. One visual grammar throughout: a dot for the best estimate, a line for the
- * 95% interval, a dashed rule for the comparison value. Red is reserved for likely automated. */
+ * 95% interval, a dashed rule for the comparison value. Magenta is reserved for likely automated. */
 
-export const C = { signal: "#D9472B", signalInk: "#B3371E", human: "#2F6F8F", ink: "#16181D", ink2: "#4A4F5A", cap: "#6B707A", rule: "#E3DFD6", panel: "#EBE7DF" };
+export const C = { signal: "#C81E66", signalInk: "#A1144F", human: "#245E7E", ink: "#111814", ink2: "#3B4640", cap: "#56615A", rule: "#CBD1C4", panel: "#E2E5DC" };
 
 export function useWidth<T extends HTMLElement>(fallback = 800): [React.RefObject<T>, number] {
   const ref = useRef<T>(null);
@@ -49,7 +50,8 @@ export function Waffle({ share, cols }: { share: number; cols: number }) {
     <svg className="g-waffle" viewBox={`0 0 ${cols * s} ${rows * s}`} role="img" aria-label={`${red} of every 100 posts came from likely automated accounts`}>
       {Array.from({ length: 100 }, (_, i) => {
         const x = (i % cols) * s, y = Math.floor(i / cols) * s;
-        return <rect key={i} x={x + s * 0.09} y={y + s * 0.09} width={s * 0.82} height={s * 0.82} rx={s * 0.08} fill={i < red ? C.signal : C.panel} />;
+        // the count comes in: squares report in order, the likely automated ones stamped first
+        return <rect key={i} className="g-sq" style={{ animationDelay: `${120 + i * 7}ms` }} x={x + s * 0.09} y={y + s * 0.09} width={s * 0.82} height={s * 0.82} rx={s * 0.08} fill={i < red ? C.signal : C.panel} />;
       })}
     </svg>
   );
@@ -68,9 +70,9 @@ export function EstimateBar({ value, ci, max, color = C.signal, label }: { value
       <svg width={w} height={H} role="img" aria-label={label}>
         <line x1={L} x2={w - R} y1={16} y2={16} stroke={C.rule} strokeWidth={6} strokeLinecap="round" />
         <Hatch id={hid} color={color} />
-        {ci && <rect x={x(ci[0])} y={10} width={Math.max(2, x(ci[1]) - x(ci[0]))} height={12} rx={1.5} fill={`url(#${hid})`} stroke={color} strokeOpacity={0.45} />}
+        {ci && <rect className="g-hatch" style={{ animationDelay: "520ms" }} x={x(ci[0])} y={10} width={Math.max(2, x(ci[1]) - x(ci[0]))} height={12} rx={1.5} fill={`url(#${hid})`} stroke={color} strokeOpacity={0.45} />}
         {ci && [ci[0], ci[1]].map((v, i) => <line key={i} x1={x(v)} x2={x(v)} y1={9} y2={23} stroke={color} strokeWidth={1.5} />)}
-        <circle cx={x(value)} cy={16} r={6.5} fill={color} stroke="#fff" strokeWidth={2} />
+        <circle className="g-dot" style={{ animationDelay: "360ms" }} cx={x(value)} cy={16} r={6.5} fill={color} stroke="#F9FAF6" strokeWidth={2} />
         {ticks.map((t, i) => (
           <text key={t} x={x(t)} y={41} textAnchor={i === 0 ? "start" : i === ticks.length - 1 ? "end" : "middle"} className="g-ax">
             {Math.round(t * 100)}%
@@ -99,13 +101,13 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
   const ticks = niceTicks(max).filter((t) => t <= max);
   return (
     <div className="g-rows" role="table" aria-label="Share of posts from likely automated accounts, by narrative, with 95% intervals">
-      {narr.map((n) => {
+      {narr.map((n, i) => {
         // Reuters-style: the verdict is drawn, not left to the reader. Solid when the interval clears the
         // whole-story line, hollow and lighter when it doesn't, and the words say which.
         const v = baseline != null && n.ci ? (n.ci[0] > baseline ? "above" : n.ci[1] < baseline ? "below" : "same") : null;
         const solid = v !== "same";
         return (
-          <div key={n.id} className={`g-row is-${v ?? "na"}`} role="row">
+          <div key={n.id} className={`g-row in-wipe is-${v ?? "na"}`} style={seq(i, 160)} role="row">
             <div className="g-row-label" role="rowheader">
               <span className="g-row-name">{n.label}</span>
               {note?.[n.id] && <span className="g-row-note">{note[n.id]}</span>}
@@ -114,8 +116,8 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
               <svg width={w} height={H} aria-hidden="true">
                 {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={0} y2={H} stroke={C.ink2} strokeDasharray="3 3" />}
                 <Hatch id={`${hid}${n.id}`} color={C.signal} />
-                {n.ci && <rect x={x(n.ci[0])} y={H / 2 - 5} width={Math.max(2, x(n.ci[1]) - x(n.ci[0]))} height={10} rx={1.5} fill={`url(#${hid}${n.id})`} stroke={C.signal} strokeOpacity={solid ? 0.5 : 0.25} opacity={solid ? 1 : 0.6} />}
-                <circle cx={x(n.bot)} cy={H / 2} r={6} fill={solid ? C.signal : "#fff"} stroke={solid ? "#fff" : C.signal} strokeWidth={2} />
+                {n.ci && <rect className="g-hatch" style={{ animationDelay: `${Math.min(i, 6) * 60 + 620}ms` }} x={x(n.ci[0])} y={H / 2 - 5} width={Math.max(2, x(n.ci[1]) - x(n.ci[0]))} height={10} rx={1.5} fill={`url(#${hid}${n.id})`} stroke={C.signal} strokeOpacity={solid ? 0.5 : 0.25} opacity={solid ? 1 : 0.6} />}
+                <circle className="g-dot" style={{ animationDelay: `${Math.min(i, 6) * 60 + 440}ms` }} cx={x(n.bot)} cy={H / 2} r={6} fill={solid ? C.signal : "#F9FAF6"} stroke={solid ? "#F9FAF6" : C.signal} strokeWidth={2} />
               </svg>
             </div>
             <div className="g-row-val" role="cell">
@@ -135,7 +137,7 @@ export function NarrativeRows({ narr, baseline, note }: { narr: Narr[]; baseline
               >
                 {pc(n.bot)}
               </Receipt>
-              {v && <span className="g-verdict">{v === "above" ? "above the story" : v === "below" ? "below the story" : "not clearly different"}</span>}
+              {v && <span className="g-verdict stamp" style={seq(i, 900)}>{v === "above" ? "above the story" : v === "below" ? "below the story" : "not clearly different"}</span>}
             </div>
           </div>
         );
@@ -290,7 +292,7 @@ export function LiftRows({ arch }: { arch: Arch[] }) {
                 )}
                 {cutLo && <path d={`M${x(a.ci![0]) + 7} ${y - 5} L${x(a.ci![0])} ${y} L${x(a.ci![0]) + 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}
                 {cutHi && <path d={`M${x(a.ci![1]) - 7} ${y - 5} L${x(a.ci![1])} ${y} L${x(a.ci![1]) - 7} ${y + 5}`} fill="none" stroke={C.human} strokeOpacity={0.6} strokeWidth={1.6} />}
-                <circle cx={x(a.lift)} cy={y} r={6} fill={clear ? C.human : "#fff"} stroke={clear ? "#fff" : C.human} strokeWidth={2} />
+                <circle cx={x(a.lift)} cy={y} r={6} fill={clear ? C.human : "#F9FAF6"} stroke={clear ? "#F9FAF6" : C.human} strokeWidth={2} />
               </svg>
             </div>
             <div className="g-row-val" role="cell">
@@ -335,7 +337,7 @@ export function CheckGrid({ hits, n, cols }: { hits: number; n: number; cols: nu
       {Array.from({ length: n }, (_, i) => {
         const x = (i % cols) * s, y = Math.floor(i / cols) * s;
         const hit = i < hits;
-        return <rect key={i} x={x + 2} y={y + 2} width={s - 4} height={s - 4} rx={2} fill={hit ? C.signal : "#fff"} stroke={hit ? "none" : C.ink2} strokeWidth={1.2} />;
+        return <rect key={i} x={x + 2} y={y + 2} width={s - 4} height={s - 4} rx={2} fill={hit ? C.signal : "#F9FAF6"} stroke={hit ? "none" : C.ink2} strokeWidth={1.2} />;
       })}
     </svg>
   );

@@ -54,7 +54,7 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
         <svg viewBox={`0 0 ${w} ${fh}`} preserveAspectRatio="none" style={{ height: fh }} role="img" aria-label="Lift by archetype with 95% intervals">
           {[0.5, 1, 2, 3, 4].filter((v) => v >= lo && v <= hi).map((v) => (
             <g key={v}>
-              <line x1={xl(v)} x2={xl(v)} y1={10} y2={fh - 28} stroke={v === 1 ? "#4A4F5A" : "#EFECE5"} strokeDasharray={v === 1 ? "3 3" : undefined} />
+              <line x1={xl(v)} x2={xl(v)} y1={10} y2={fh - 28} stroke={v === 1 ? "#3B4640" : "#DCE0D5"} strokeDasharray={v === 1 ? "3 3" : undefined} />
               <text x={xl(v)} y={fh - 9} textAnchor="middle" className="ax">
                 {v}×
               </text>
@@ -74,8 +74,8 @@ export function Archetypes({ m, openDrawer }: { m: Model; openDrawer: (c: Drawer
                   {lift(a.lift)}
                   {a.lift_ci ? ` (${a.lift_ci[0].toFixed(1)} to ${a.lift_ci[1].toFixed(1)})` : ""}
                 </text>
-                {a.lift_ci && <line x1={xl(a.lift_ci[0])} x2={xl(a.lift_ci[1])} y1={y} y2={y} stroke="#2F6F8F" strokeWidth={2.5} />}
-                {a.lift != null && <circle cx={xl(a.lift)} cy={y} r={5.5} fill={(a.lift_ci?.[1] ?? a.lift) < 1 ? "#fff" : "#2F6F8F"} stroke="#2F6F8F" strokeWidth={2} />}
+                {a.lift_ci && <line x1={xl(a.lift_ci[0])} x2={xl(a.lift_ci[1])} y1={y} y2={y} stroke="#245E7E" strokeWidth={2.5} />}
+                {a.lift != null && <circle cx={xl(a.lift)} cy={y} r={5.5} fill={(a.lift_ci?.[1] ?? a.lift) < 1 ? "#F9FAF6" : "#245E7E"} stroke="#245E7E" strokeWidth={2} />}
               </g>
             );
           })}

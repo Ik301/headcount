@@ -87,7 +87,7 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
     >
       {[0, 0.25, 0.5, 0.75, 1].map((f) => (
         <g key={f}>
-          <line x1={L} x2={W - R} y1={geo.ys(geo.ymax * f)} y2={geo.ys(geo.ymax * f)} stroke="#EFECE5" />
+          <line x1={L} x2={W - R} y1={geo.ys(geo.ymax * f)} y2={geo.ys(geo.ymax * f)} stroke="#DCE0D5" />
           <text x={L - 8} y={geo.ys(geo.ymax * f) + 4} textAnchor="end" className="ax">
             {fmtInt(geo.ymax * f)}
           </text>
@@ -99,20 +99,20 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
       <g>
         {geo.bands.map((b) => (
           <g key={b.id}>
-            <path d={b.top} fill={color.get(b.id) ?? "#8A8F99"} fillOpacity={0.82} />
-            <path d={b.auto} fill="#D9472B" />
+            <path d={b.top} fill={color.get(b.id) ?? "#7C867F"} fillOpacity={0.82} />
+            <path d={b.auto} fill="#C81E66" />
           </g>
         ))}
       </g>
       {geo.days.map((d) => (
         <g key={d.x}>
-          <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 5} stroke="#8A8F99" />
+          <line x1={d.x} x2={d.x} y1={TOP + ih} y2={TOP + ih + 5} stroke="#7C867F" />
           <text x={d.x + 4} y={TOP + ih + 17} className="ax">
             {d.label}
           </text>
         </g>
       ))}
-      <line x1={L} x2={W - R} y1={TOP + ih} y2={TOP + ih} stroke="#8A8F99" />
+      <line x1={L} x2={W - R} y1={TOP + ih} y2={TOP + ih} stroke="#7C867F" />
       {/* Events are numbered on the chart and spelled out in the list under it (RiverEvents), so labels never
           collide however close the events are. Major events get a solid line, the rest a dotted one. */}
       {m.events.map((e, i) => {
@@ -121,18 +121,18 @@ export function River({ m, T, onScrub }: { m: Model; T: number; onScrub: (h: num
         return (
           <g key={e.t}>
             <title>{`${i + 1}. ${e.label}, ${utcLabel(new Date(e.t))} UTC`}</title>
-            <line x1={ex} x2={ex} y1={TOP - 12} y2={TOP + ih} stroke={e.major ? "#16181D" : "#8A8F99"} strokeDasharray={e.major ? undefined : "2 3"} />
-            <circle cx={ex} cy={TOP - 22} r={9} fill={past ? "#16181D" : "#fff"} stroke="#16181D" strokeWidth={1.2} />
-            <text x={ex} y={TOP - 18.5} textAnchor="middle" className="ev-n" fill={past ? "#fff" : "#16181D"}>
+            <line x1={ex} x2={ex} y1={TOP - 12} y2={TOP + ih} stroke={e.major ? "#111814" : "#7C867F"} strokeDasharray={e.major ? undefined : "2 3"} />
+            <circle cx={ex} cy={TOP - 22} r={9} fill={past ? "#111814" : "#F9FAF6"} stroke="#111814" strokeWidth={1.2} />
+            <text x={ex} y={TOP - 18.5} textAnchor="middle" className="ev-n" fill={past ? "#F9FAF6" : "#111814"}>
               {i + 1}
             </text>
           </g>
         );
       })}
-      <rect x={x} y={TOP - 2} width={Math.max(0, W - R - x)} height={ih + 2} fill="#fff" fillOpacity={0.72} pointerEvents="none" />
+      <rect x={x} y={TOP - 2} width={Math.max(0, W - R - x)} height={ih + 2} fill="#F9FAF6" fillOpacity={0.72} pointerEvents="none" />
       <g transform={`translate(${x},0)`} pointerEvents="none">
-        <line y1={TOP - 4} y2={TOP + ih + 4} stroke="#16181D" strokeWidth={1.5} />
-        <rect x={-5} y={TOP + ih - 4} width={10} height={10} rx={2} fill="#16181D" />
+        <line y1={TOP - 4} y2={TOP + ih + 4} stroke="#111814" strokeWidth={1.5} />
+        <rect x={-5} y={TOP + ih - 4} width={10} height={10} rx={2} fill="#111814" />
       </g>
     </svg>
   );

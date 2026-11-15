@@ -11,6 +11,7 @@ import { Redacted } from "../components/Redacted";
 import { VoiceSorter } from "./VoiceSorter";
 import { CountUp } from "../components/CountUp";
 import { Receipt, type ReceiptLine } from "../components/Receipt";
+import { seq } from "../lib/motion";
 
 const MIN_MATCHES = 30; // src/config.py MIN_MATCHES; below this the API reports no shares
 
@@ -45,7 +46,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
   return (
     <section aria-labelledby="res-h">
       <div className="wrap result">
-        <div className="query">
+        <div className="query in" style={seq(0)}>
           <div>
             <q className="qtext">{r.claim}</q>
             <span className="src">
@@ -59,10 +60,10 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
 
         <div className="r-grid">
           <div className="r-head">
-            <h1 id="res-h">
+            <h1 id="res-h" className="h-rise" style={seq(0, 80)}>
               <Headline r={r} enough={enough} pick={pick} baseline={baseline} />
             </h1>
-            <p className="r-meta">
+            <p className="r-meta in" style={seq(2, 160)}>
               <span>
                 <span className="mono">{fmtInt(r.matched_posts)}</span> matching posts
               </span>
@@ -78,7 +79,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
                 </span>
               )}
             </p>
-            <p className="nojudge">
+            <p className="nojudge in" style={seq(3, 160)}>
               <Icon name="scale" />
               <span>
                 <b>I don’t judge whether the claim is true.</b> This shows who is posting it and how.
@@ -86,7 +87,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
             </p>
           </div>
 
-          <div className="actions">
+          <div className="actions in" style={seq(4, 160)}>
             <div className="row">
               <button className="btn" type="button" onClick={share}>
                 <Icon name="share" />
@@ -207,8 +208,14 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
       <p className="sub">Share of all {fmtInt(r.matched_posts)} matching posts, then the share written by likely automated accounts.</p>
       <div className="stack" role="img" aria-label={narr.map((n) => `${n.label} ${pct(n.share_of_matches)}`).join(", ")}>
         {narr.map((n, i) => (
-          <i key={n.id} style={{ flex: Math.max(n.share_of_matches, 0.004), background: narrativeColor(n.id, i) }} />
+          <i key={n.id} className="grow" style={{ flex: Math.max(n.share_of_matches, 0.004), background: narrativeColor(n.id, i), ...seq(i, 120) }} />
         ))}
+      </div>
+      <div className="nhead" aria-hidden="true">
+        <span>Narrative</span>
+        <span>Share of posts</span>
+        <span>Likely automated, 95% interval</span>
+        <span>Against the story</span>
       </div>
       <ul className="nrows">
         {narr.map((n, i) => {
@@ -216,7 +223,7 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
           const x = ratio(n, baseline);
           const [lo, hi] = n.bot_post_share_ci ?? [n.bot_post_share, n.bot_post_share];
           return (
-            <li key={n.id} className={`nrow${isTop ? " top" : ""}`}>
+            <li key={n.id} className={`nrow in-wipe${isTop ? " top" : ""}`} style={seq(i, 200)}>
               <div className="l1">
                 <span className="sw" style={{ background: narrativeColor(n.id, i) }} />
                 <span className="nm">
@@ -225,30 +232,32 @@ function NarrativesBlock({ r, narr, top, baseline }: { r: ClaimResult; narr: Cla
                 </span>
                 <span className="sh">
                   <b>{pct(n.share_of_matches)}</b>
-                  {n.posts != null && <> · {plural(n.posts, "post")}</>}
+                  {n.posts != null && <span className="pc">{plural(n.posts, "post")}</span>}
                 </span>
               </div>
               <div className="l2">
                 <div className="track" aria-hidden="true">
-                  <span className="band" style={{ left: pos(lo), width: `calc(${pos(hi)} - ${pos(lo)})` }} />
+                  <span className="band hatch-in" style={{ left: pos(lo), width: `calc(${pos(hi)} - ${pos(lo)})`, ...seq(i, 640) }} />
                   {baseline != null && <span className="base" style={{ left: pos(baseline) }} />}
-                  <span className="pt" style={{ left: pos(n.bot_post_share) }} />
+                  <span className="pt drop" style={{ left: pos(n.bot_post_share), ...seq(i, 460) }} />
                 </div>
                 <span className="au-val">
                   <Receipt lines={narrReceipt(r, n, baseline)} title={`Receipt · ${n.label}`} align="right">
                     <b>{pct(n.bot_post_share)}</b>
                   </Receipt>{" "}
                   {n.bot_post_share_ci && `(${ci(n.bot_post_share_ci)})`}
+                </span>
+                <span className="call">
                   {x ? (
-                    <span className="xb">{x.toFixed(1)}× baseline</span>
-                  ) : (
-                    baseline != null &&
-                    n.bot_post_share_ci && (
-                      <span className={`xb vs-${against(n.bot_post_share_ci, baseline)}`}>
-                        {against(n.bot_post_share_ci, baseline) === "above" ? "above baseline" : against(n.bot_post_share_ci, baseline) === "below" ? "below baseline" : "not clearly different"}
-                      </span>
-                    )
-                  )}
+                      <span className={`xb stamp vs-${n.bot_post_share_ci ? against(n.bot_post_share_ci, (n.baseline_bot_share ?? baseline)!) : "same"}`} style={seq(i, 900)}>{x.toFixed(1)}× baseline</span>
+                    ) : (
+                      baseline != null &&
+                      n.bot_post_share_ci && (
+                        <span className={`xb stamp vs-${against(n.bot_post_share_ci, baseline)}`} style={seq(i, 900)}>
+                          {against(n.bot_post_share_ci, baseline) === "above" ? "above baseline" : against(n.bot_post_share_ci, baseline) === "below" ? "below baseline" : "not clearly different"}
+                        </span>
+                      )
+                    )}
                 </span>
               </div>
             </li>
@@ -281,7 +290,7 @@ function CommonBlock({ r, top }: { r: ClaimResult; top: ClaimNarrative | null })
           <p className="sub">Observable signals among the likely automated accounts in these posts{top && top.bot_post_share > 0 ? `, most of them in “${top.label}”` : ""}.</p>
           <ul className="traits">
             {items.map((c, i) => (
-              <li key={i}>
+              <li key={i} className="in" style={seq(i, 300)}>
                 <span className="k">
                   {fmtInt(c.accounts)}
                   <small>{c.accounts === 1 ? "account" : "accounts"}</small>
@@ -313,8 +322,8 @@ function AmpBlock({ r }: { r: ClaimResult }) {
             <span className="mono">{fmtInt(a.n_humans)}</span> real {a.n_humans === 1 ? "account" : "accounts"} reposted, quoted or liked posts from likely automated accounts. Grouped by behavior.
           </p>
           <ul className="arows">
-            {mix.map((m) => (
-              <li key={m.id} className="arow">
+            {mix.map((m, i) => (
+              <li key={m.id} className="arow in-wipe" style={seq(i, 420)}>
                 <div className="l1">
                   <span className="nm">{m.label}</span>
                   <span className="sh">{pct(m.share)}</span>
@@ -323,8 +332,8 @@ function AmpBlock({ r }: { r: ClaimResult }) {
                   <div className="l2">
                     <div className="ltrack" aria-hidden="true">
                       <span className="one" style={{ left: x(1) }} />
-                      {m.lift_ci && <span className="band" style={{ left: x(m.lift_ci[0]), width: `calc(${x(m.lift_ci[1])} - ${x(m.lift_ci[0])})` }} />}
-                      <span className="pt" style={{ left: x(m.lift) }} />
+                      {m.lift_ci && <span className="band hatch-in" style={{ left: x(m.lift_ci[0]), width: `calc(${x(m.lift_ci[1])} - ${x(m.lift_ci[0])})`, ...seq(i, 860) }} />}
+                      <span className="pt drop" style={{ left: x(m.lift), ...seq(i, 680) }} />
                     </div>
                     <span className={`lift${m.lift_ci ? (m.lift_ci[0] > 1 ? "" : " low") : m.lift < 1 ? " low" : ""}`} title={m.lift_ci && m.lift_ci[0] <= 1 && m.lift_ci[1] >= 1 ? "Interval includes 1×: no clear difference" : undefined}>
                       <b>{lift(m.lift)}</b> {m.lift_ci && `(${m.lift_ci[0].toFixed(1)} to ${m.lift_ci[1].toFixed(1)})`}

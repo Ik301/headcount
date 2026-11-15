@@ -71,7 +71,7 @@ function hash(s: string): number {
 function Avatar({ seed }: { seed: string }) {
   const h0 = hash(seed);
   let bits = Math.imul(h0, 2654435761) >>> 0;
-  const fg = ["#4A4F5A", "#6B707A", "#5B6270"][h0 % 3];
+  const fg = ["#3B4640", "#56615A", "#56615A"][h0 % 3];
   const cells: JSX.Element[] = [];
   for (let y = 0; y < 5; y++)
     for (let x = 0; x < 3; x++) {
@@ -84,7 +84,7 @@ function Avatar({ seed }: { seed: string }) {
   return (
     <span className="c-av" aria-hidden="true">
       <svg viewBox="0 0 40 40">
-        <rect width="40" height="40" fill="#EEF0F2" />
+        <rect width="40" height="40" fill="#E2E5DC" />
         <g fill={fg}>{cells}</g>
       </svg>
     </span>
@@ -395,8 +395,8 @@ function Decide({ i, n, onAnswer, hasProfile }: { i: number; n: number; onAnswer
 
 const Tick = ({ dark }: { dark?: boolean }) => (
   <svg viewBox="0 0 22 22" aria-hidden="true">
-    <circle cx="11" cy="11" r="10" fill={dark ? "#16181D" : "none"} stroke="#16181D" strokeWidth={dark ? 0 : 1.5} />
-    {dark ? <path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#F7F5F0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M7 11h8" stroke="#16181D" strokeWidth="1.8" strokeLinecap="round" />}
+    <circle cx="11" cy="11" r="10" fill={dark ? "#111814" : "none"} stroke="#111814" strokeWidth={dark ? 0 : 1.5} />
+    {dark ? <path d="m6.5 11.3 3 3 6-6.3" fill="none" stroke="#ECEEE7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M7 11h8" stroke="#111814" strokeWidth="1.8" strokeLinecap="round" />}
   </svg>
 );
 

@@ -1,3 +1,4 @@
+import { seq } from "../lib/motion";
 import { useEffect, useState } from "react";
 import { Icon } from "../components/Icons";
 
@@ -51,7 +52,7 @@ export function RunProgress({ text, startedAt, onCancel }: { text: string; start
             const next = STAGES[i + 1]?.at;
             const frac = i === active ? (next ? Math.min(1, (t - s.at) / (next - s.at)) : Math.min(0.92, 1 - Math.exp(-(t - s.at) / 20))) : 0;
             return (
-              <li key={s.lbl} className={`step ${cls}`} aria-current={i === active ? "step" : undefined}>
+              <li key={s.lbl} className={`step in-wipe ${cls}`} style={seq(i, 80)} aria-current={i === active ? "step" : undefined}>
                 <span className="st">
                   <Icon name="check" />
                 </span>

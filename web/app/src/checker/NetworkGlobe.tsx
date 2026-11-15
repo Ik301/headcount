@@ -3,15 +3,17 @@ import { getSiteData } from "../api/client";
 import type { GraphEdge, GraphNode } from "../api/types";
 
 /* The checker's hero: the real Jensen Huang story network (site_data.json graph: the accounts the replay
- * draws and who engaged with whom) on a slowly turning globe. Likely automated accounts (score 0.5+) glow
- * red; everything else is a quiet grey point. Positions on the sphere are arbitrary; the caption says so.
+ * draws and who engaged with whom) on a slowly turning globe. Likely automated accounts (score 0.5+) are
+ * magenta; everything else is a quiet pale point. On load the accounts come in from the top of the globe
+ * down, like returns reporting in (static under reduced motion). Positions on the sphere are arbitrary; the caption says so.
  * mode "scan" (while a check runs) turns faster and sweeps a band across the globe. It never turns anything
- * red during a scan: that would suggest results the check hasn't returned. No handles are drawn. */
+ * magenta during a scan: that would suggest results the check hasn't returned. No handles are drawn. */
 
-const RED = "#FF5A3C";
-const DOT = "rgba(222,226,233,";
-const EDGE_AUTO = "rgba(255,90,60,";
-const EDGE = "rgba(170,178,190,";
+const SIG = "#FF5C9D";
+const DOT = "rgba(226,234,224,";
+const EDGE_AUTO = "rgba(255,92,157,";
+const EDGE = "rgba(178,200,186,";
+const RING = "#10261F";
 
 interface N3 {
   x: number;
@@ -19,6 +21,7 @@ interface N3 {
   z: number;
   auto: boolean;
   w: number;
+  k: number;
 }
 
 export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
@@ -45,7 +48,7 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
           const r = Math.sqrt(1 - y * y);
           const th = k * 2.39996323;
           const n = nodes[ni];
-          pos[ni] = { x: r * Math.cos(th), y, z: r * Math.sin(th), auto: (n.p_automated ?? 0) >= 0.5 || n.role === "likely_automated", w: Math.min(1, Math.log1p(n.degree ?? n.size ?? 1) / 6) };
+          pos[ni] = { x: r * Math.cos(th), y, z: r * Math.sin(th), auto: (n.p_automated ?? 0) >= 0.5 || n.role === "likely_automated", w: Math.min(1, Math.log1p(n.degree ?? n.size ?? 1) / 6), k: k / N };
         });
         const E: [number, number, boolean][] = [];
         for (const e of edges) {
@@ -81,6 +84,9 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
     ro.observe(el);
     const ctx = c.getContext("2d")!;
     let raf = 0, angle = 0.6, last = performance.now(), speed = 0.07;
+    const t0 = performance.now();
+    // arrival 0..1 per node: top latitude first, 1.3 s for the whole globe, 260 ms per node
+    const arrive = (k: number, now: number) => (reduced ? 1 : Math.max(0, Math.min(1, (now - t0 - 120 - k * 1300) / 260)));
     const tilt = 0.38;
     const draw = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
@@ -97,12 +103,13 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
         const y2 = p.y * ct - z1 * st;
         const z2 = p.y * st + z1 * ct;
         const k = 1 / (1.9 - z2 * 0.55); // gentle perspective
-        return { sx: cx + x1 * R * k * 1.75, sy: cy + y2 * R * k * 1.75, z: z2, auto: p.auto, w: p.w };
+        const a = arrive(p.k, now);
+        return { sx: cx + x1 * R * k * 1.75, sy: cy + y2 * R * k * 1.75 + (1 - a) * (1 - a) * -10, z: z2, auto: p.auto, w: p.w, a: 1 - (1 - a) * (1 - a) * (1 - a) };
       });
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
       // faint rim
-      ctx.strokeStyle = "rgba(170,178,190,0.10)";
+      ctx.strokeStyle = "rgba(178,200,186,0.16)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, R * 1.04, 0, Math.PI * 2);
@@ -113,7 +120,9 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
       for (const [a, b, auto] of graph.edges) {
         const A = P[a], B = P[b];
         const depth = (A.z + B.z + 2) / 4;
-        ctx.strokeStyle = (auto ? EDGE_AUTO : EDGE) + (auto ? 0.05 + depth * 0.2 : 0.02 + depth * 0.08) + ")";
+        const ea = Math.min(A.a, B.a);
+        if (ea <= 0) continue;
+        ctx.strokeStyle = (auto ? EDGE_AUTO : EDGE) + ea * (auto ? 0.05 + depth * 0.22 : 0.02 + depth * 0.08) + ")";
         ctx.lineWidth = auto ? 0.9 : 0.6;
         ctx.beginPath();
         ctx.moveTo(A.sx, A.sy);
@@ -125,17 +134,20 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
         const p = P[i];
         const depth = (p.z + 1) / 2;
         const near = scan ? Math.max(0, 1 - Math.abs(p.sy - bandY) / 26) : 0;
-        const r = (1.1 + p.w * 2.4) * (0.6 + depth * 0.6) + near * 1.2;
+        if (p.a <= 0) continue;
+        // smaller globes (phones) get smaller dots so the field doesn't clot
+        const r = ((1.1 + p.w * 2.4) * (0.6 + depth * 0.6) + near * 1.2) * (0.4 + 0.6 * p.a) * (0.5 + 0.5 * Math.min(1, R / 220));
         if (p.auto) {
-          ctx.shadowColor = RED;
-          ctx.shadowBlur = 10 * depth + 2;
-          ctx.fillStyle = RED;
-          ctx.globalAlpha = 0.35 + depth * 0.65;
+          // crisp ink dot with a ring cut out of the field, no glow
+          ctx.globalAlpha = (0.4 + depth * 0.6) * p.a;
+          ctx.fillStyle = RING;
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, r + 1.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = SIG;
         } else {
-          ctx.shadowBlur = near ? 8 : 0;
-          ctx.shadowColor = "rgba(222,226,233,0.9)";
-          ctx.fillStyle = DOT + (0.18 + depth * 0.55 + near * 0.3) + ")";
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = p.a;
+          ctx.fillStyle = DOT + (0.16 + depth * 0.5 + near * 0.34) + ")";
         }
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
@@ -145,9 +157,9 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
       ctx.globalAlpha = 1;
       if (scan) {
         const g = ctx.createLinearGradient(0, bandY - 30, 0, bandY + 30);
-        g.addColorStop(0, "rgba(222,226,233,0)");
-        g.addColorStop(0.5, "rgba(222,226,233,0.07)");
-        g.addColorStop(1, "rgba(222,226,233,0)");
+        g.addColorStop(0, "rgba(226,234,224,0)");
+        g.addColorStop(0.5, "rgba(226,234,224,0.08)");
+        g.addColorStop(1, "rgba(226,234,224,0)");
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, R * 1.04, 0, Math.PI * 2);
@@ -175,7 +187,7 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
   }, [graph]);
 
   return (
-    <figure className="globe" aria-label={graph ? `${graph.n} accounts from the Jensen Huang story network; ${graph.autoN} likely automated, shown in red` : undefined}>
+    <figure className="globe" aria-label={graph ? `${graph.n} accounts from the Jensen Huang story network; ${graph.autoN} likely automated, shown in magenta` : undefined}>
       <div className="globe-box" ref={box}>
         <canvas ref={cv} aria-hidden="true" />
       </div>
@@ -187,9 +199,9 @@ export function NetworkGlobe({ mode = "idle" }: { mode?: "idle" | "scan" }) {
           <span>
             <i className="globe-dot grey" /> {graph.n - graph.autoN} other accounts
           </span>
-          <span className="globe-src globe-src-short">Picked around likely automated accounts, so red is over-represented. Position means nothing.</span>
+          <span className="globe-src globe-src-short">Picked around likely automated accounts, so magenta is over-represented. Position means nothing.</span>
           <span className="globe-src globe-src-long">
-            Real accounts from the Jensen Huang week and who engaged with whom: the {graph.n} the story replay draws, picked around the likely automated ones, so red is over-represented here (it is about 1 in 20 posts story-wide). Position on the globe means nothing.
+            Real accounts from the Jensen Huang week and who engaged with whom: the {graph.n} the story replay draws, picked around the likely automated ones, so magenta is over-represented here (it is about 1 in 20 posts story-wide). Position on the globe means nothing.
           </span>
         </figcaption>
       )}

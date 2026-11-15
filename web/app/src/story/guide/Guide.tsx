@@ -86,11 +86,6 @@ export function Guide({ data, m, openDrawer, children }: { data: SiteData; m: Mo
       </div>
       <main className="g-wrap g-main">
         <article className="g-chapter" key={chapter.id} ref={top} tabIndex={-1} aria-label={`Chapter ${ch}: ${chapter.title}`}>
-          <p className="g-kicker">
-            Chapter {ch} of {n}
-            <span aria-hidden="true"> · </span>
-            {chapter.title}
-          </p>
           {chapter.render({ m, g, still, openDrawer, explore })}
         </article>
         <nav className="g-pager" aria-label="Chapter navigation">

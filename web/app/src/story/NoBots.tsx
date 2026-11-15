@@ -39,7 +39,7 @@ export function NoBots({ m, removed, setRemoved, openDrawer }: { m: Model; remov
           <div>
             <h2>{m.claim ? `“${m.claim}”` : "The story, narrative by narrative"}</h2>
             <p>
-              <span className="mono">{fmtInt(N.reduce((s, n) => s + n.posts, 0))}</span> posts in {N.length} narratives. Bars show share of posts; the red segment is posts from likely
+              <span className="mono">{fmtInt(N.reduce((s, n) => s + n.posts, 0))}</span> posts in {N.length} narratives. Bars show share of posts; the magenta segment is posts from likely
               automated accounts.
             </p>
           </div>
@@ -216,18 +216,18 @@ function CiSvg({ n, max, baseline }: { n: Narr; max: number; baseline?: number }
   const [lo, hi] = n.ci ?? [n.bot, n.bot];
   return (
     <svg viewBox={`0 0 ${w} 44`} preserveAspectRatio="none" aria-hidden="true">
-      <line x1={6} x2={w - 6} y1={18} y2={18} stroke="#E3DFD6" />
+      <line x1={6} x2={w - 6} y1={18} y2={18} stroke="#CBD1C4" />
       {ticks.map((v, i) => (
         <g key={i}>
-          <line x1={x(v)} x2={x(v)} y1={14} y2={22} stroke="#C9C4B9" />
+          <line x1={x(v)} x2={x(v)} y1={14} y2={22} stroke="#B5BCAE" />
           <text x={x(v)} y={38} textAnchor={i === 0 ? "start" : i === 3 ? "end" : "middle"} className="ax">
             {Math.round(v * 100)}%
           </text>
         </g>
       ))}
-      {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={6} y2={28} stroke="#4A4F5A" strokeDasharray="2 2" />}
-      <line x1={x(lo)} x2={x(hi)} y1={18} y2={18} stroke="#D9472B" strokeWidth={2.5} />
-      <circle cx={x(n.bot)} cy={18} r={5} fill="#D9472B" stroke="#fff" strokeWidth={1.5} />
+      {baseline != null && <line x1={x(baseline)} x2={x(baseline)} y1={6} y2={28} stroke="#3B4640" strokeDasharray="2 2" />}
+      <line x1={x(lo)} x2={x(hi)} y1={18} y2={18} stroke="#C81E66" strokeWidth={2.5} />
+      <circle cx={x(n.bot)} cy={18} r={5} fill="#C81E66" stroke="#F9FAF6" strokeWidth={1.5} />
     </svg>
   );
 }

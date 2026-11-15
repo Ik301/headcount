@@ -6,6 +6,7 @@ import { TopBar, Footer } from "../components/Shell";
 import { RunProgress } from "./RunProgress";
 import { CheckError } from "./CheckError";
 import { NetworkGlobe } from "./NetworkGlobe";
+import { seq } from "../lib/motion";
 
 /** Example chips. The first is the deep demo story (corpus path); the rest exercise retrieval. */
 export const EXAMPLES = [
@@ -71,13 +72,13 @@ export default function CheckerPage() {
         {state.kind === "idle" && (
           <section aria-labelledby="idle-h">
             <div className="wrap narrow idle">
-              <h1 id="idle-h">Who is pushing this story?</h1>
-              <p className="lede">
+              <h1 id="idle-h" className="h-rise">Who is pushing this story?</h1>
+              <p className="lede in" style={seq(1, 120)}>
                 Type a claim or a story. We find the Bluesky posts making it, group them into the different ways people tell it, and measure how much comes from likely automated
                 accounts and which real people spread it.
               </p>
 
-              <form className="field" autoComplete="off" onSubmit={onSubmit}>
+              <form className="field in" style={seq(2, 120)} autoComplete="off" onSubmit={onSubmit}>
                 <label htmlFor="q" className="sr-only">
                   Claim or story to check
                 </label>
@@ -104,12 +105,12 @@ export default function CheckerPage() {
                 </div>
               </form>
 
-              <p className="try" id="try-l">
+              <p className="try in" style={seq(3, 120)} id="try-l">
                 Or try one
               </p>
               <div className="chips as-list" role="group" aria-labelledby="try-l">
                 {EXAMPLES.map((ex, i) => (
-                  <button key={ex} type="button" className="chip" aria-pressed={text === ex} onClick={() => run(ex)}>
+                  <button key={ex} type="button" className="chip in-wipe" style={seq(4 + i, 120)} aria-pressed={text === ex} onClick={() => run(ex)}>
                     <span className="chip-n" aria-hidden="true">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -121,11 +122,11 @@ export default function CheckerPage() {
                 ))}
               </div>
 
-              <p className="scope-note">
+              <p className="scope-note in" style={seq(6, 240)}>
                 Claims about the Jensen Huang week answer from our archive in seconds. Any other story runs a live Bluesky search and takes up to a minute.
               </p>
 
-              <div className="never">
+              <div className="never in" style={seq(6, 300)}>
                 <p>
                   <Icon name="scale" />
                   <span>It measures who is posting a story. It never rules on whether the story is true.</span>
