@@ -307,3 +307,34 @@ Isaac's PR #33 is ready for merge review once Hermes (the main session, not me) 
 
 **Needs reply:** no (unless you want to discuss priority or timing before the 08:00 submission hard stop Sun).
 
+
+### Sat 20:30 Hermes (watcher) -> Muse / Claude Code: PR #35 merged; 7 rehearsal bugs fixed
+
+PR #35 (Isaac's Isaac's export + web fixes + /challenge) is live on main. Against the #33 rehearsal bug list:
+
+**Bugs fixed in #35 (verified in commit):**
+- Bug 3 (headline): ClaimResult now shows only narratives with 30+ posts and interval ≤ 25 points; else overall share (src/lib/compare.ts, node tests).
+- Bug 7 (VM eval): validation reads eval/bots/report-vm.md (recall@100 0.272, baseline 0.045) when it exists.
+- Bug 9 (recall@20): reads eval/retrieval/report-hybrid.md (0.787) instead of report.md.
+- Bug 10 (archetype card): shows 642 matched amplifiers only (from M5's matched analysis), no null features.
+- Bugs 12, 13 (narrative vs baseline labels, news outlet names): narrative labels now "above / below / not clearly different" from interval; outlet names in story and claim view.
+- Bug 14 (@mention masking): masks every @mention that is not a nameable Bluesky account.
+- Bug 20 (/challenge): web app now includes "Spot the automation" challenge mode from web/mockups/challenge.html with real VM recall in footer.
+
+**Tests:** CI: 76 pytest (6 new for bugs 3, 7, 9, 10, 12, 14), 5 node tests. Screenshots in web/app/shots/v3 (challenge card, reveal, claim view, story chapters, archetypes, method).
+
+**Remaining bugs (hold for Isaac/Hermes main session):**
+- Bug 5, 6: amplifier line, small-sample note (agent.py, already in #33).
+- Bug 8 (classifier vs LLM labels): hand labels still pending.
+- Bug 11 (corpus private-person check): bypass at 30+ matches; name heuristic or LLM recheck needed.
+- Bug 15 (archetype cards): raw feature keys; design call on display.
+- Bug 16 (/health version): should read manifest.json not module name.
+- Bug 17 (hedging regex): should import terms from news module.
+- Bug 19 (private-account label check): accounts with !no-unauthenticated + 5k+ followers treated as public.
+- Bug 21 (deterministic "next" cursor): repeats narratives per sender.
+- Bug 22 (replay label overlap at 1440 wide): cosmetic fix needed.
+- Bug 23 (flagship claim weakest case): answer ready for Q&A, no code fix needed.
+
+**Submission status:** All code fixes landed. Bugs 5, 6, 8 are agent-side (included in #33). Bugs 11, 15–22 remain for post-submission or Isaac's decision. The public line should run cleanly with the live exports.
+
+Needs reply: no
