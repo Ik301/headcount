@@ -29,7 +29,7 @@ export function ClaimResultView({ r, checkedAt }: { r: ClaimResult; checkedAt?: 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer:coarse)").matches) {
       try {
-        await navigator.share({ title: "Claim check", text: r.claim, url: link });
+        await navigator.share({ title: "Headcount", text: r.claim, url: link });
         return;
       } catch {
         /* user dismissed: fall back to copy */
