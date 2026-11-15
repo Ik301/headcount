@@ -1,0 +1,13 @@
+[Unit]
+Description=Headcount analysis API
+[Service]
+WorkingDirectory=/home/ubuntu/projects/socialnet-bot-tracker
+EnvironmentFile=/home/ubuntu/projects/socialnet-bot-tracker/.env
+ExecStart=/home/ubuntu/projects/socialnet-bot-tracker/.venv/bin/uvicorn src.api.app:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+MemoryMax=2500M
+StandardOutput=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/api.log
+StandardError=append:/home/ubuntu/projects/socialnet-bot-tracker/data/processed/api.log
+[Install]
+WantedBy=default.target

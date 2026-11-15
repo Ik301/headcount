@@ -38,6 +38,7 @@ from photon_api.rpc_generated import (
 
 from src.api import reply  # noqa: E402  (pure text helpers: intent routing, no analysis state)
 
+HEARTBEAT_SECONDS = 300  # the watchdog reads photon.log freshness
 CHECKING = "Checking who is pushing that. About 20 seconds."
 
 
@@ -111,6 +112,7 @@ def main() -> None:
     started = datetime.now(timezone.utc)
     with Photon(headers={"Authorization": f"Bearer {key}"}) as photon:
         print("Ready. Waiting for messages.", flush=True)
+        last_beat = time.monotonic()
         while True:
             query = {"createdSince": since, "direction": "received", "order": "asc", "pageSize": 100, "platform": "imessage"}
             try:
@@ -137,6 +139,12 @@ def main() -> None:
             except ApiError as e:
                 print(f"Photon API error {e.status} while polling (request {e.request_id or 'unknown'})", file=sys.stderr)
                 time.sleep(10 if e.status == 429 else 3)
+            except Exception as e:  # nothing may end the poller: log, wait, poll again (the watchdog also restarts it)
+                print(f"poller error {type(e).__name__}: {e}", file=sys.stderr, flush=True)
+                time.sleep(3)
+            if time.monotonic() - last_beat >= HEARTBEAT_SECONDS:
+                print(f"heartbeat {datetime.now(timezone.utc).isoformat(timespec='seconds')}", flush=True)
+                last_beat = time.monotonic()
             time.sleep(2)
 
 

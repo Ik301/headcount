@@ -1,0 +1,6 @@
+[Unit]
+Description=Headcount watchdog (API, poller, tunnel health)
+[Service]
+Type=oneshot
+WorkingDirectory=/home/ubuntu/projects/socialnet-bot-tracker
+ExecStart=/bin/bash /home/ubuntu/projects/socialnet-bot-tracker/deploy/watchdog.sh

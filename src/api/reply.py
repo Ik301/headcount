@@ -10,6 +10,16 @@ DECLINE = "I can't check claims about private people. Public stories are fine, l
 FAILURE = "Something broke on my end and I couldn't finish that check. Try again in a minute."
 STILL_CHECKING = "Still checking, the live search is slow on this one."
 OPERATOR_WORDS = re.compile(r"\b(run by|operated by|controlled by|behind these accounts|paid by)\b", re.I)
+TRUTH_RULING = re.compile(r"\b(is|are|was|were|be) (?:\w+ )?(true|false|fake|a lie|a hoax)\b|\bdebunked\b|\bfake news\b|\bconfirmed (?:true|false)\b", re.I)
+SAFE_LINE = "I can only show who is pushing a claim, not whether it is true."
+
+
+def guard_free_text(msg: str | None, limit: int = 600) -> str:
+    """Output check for free-form agent replies (templated reply_text is rule-checked already)."""
+    msg = OPERATOR_WORDS.sub("linked to", msg or "")
+    if TRUTH_RULING.search(msg):
+        return SAFE_LINE
+    return msg[:limit]
 
 
 def pct(x: float) -> str:
