@@ -1,6 +1,10 @@
 import json
 from unittest.mock import MagicMock
 
+import pytest
+
+pytest.importorskip("photon_api")  # CI installs the core deps only; the messaging stack runs on the VM
+
 from src.messaging import photon_service as ps
 
 PNG = b"\x89PNG\r\n\x1a\n" + bytes(range(256)) * 4
