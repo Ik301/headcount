@@ -52,6 +52,23 @@ def test_chart_renders():
     assert png[:8] == b"\x89PNG\r\n\x1a\n"
 
 
+def test_chart_renders_with_no_narratives():
+    png = reply.chart_png(result(n=0, narratives=[]))
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_chart_falls_back_without_font_files(monkeypatch, tmp_path):
+    monkeypatch.setattr(reply, "_FONT_DIR", tmp_path)  # no TTFs here -> DejaVu, still a PNG
+    png = reply.chart_png(result())
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_chart_source_line_states_the_cutoff():
+    lines = reply._source_lines(result())
+    assert "n=200" in lines[0] and "Bluesky" in lines[0]
+    assert "likely automated" in lines[1] and "bots" not in " ".join(lines)
+
+
 def test_declined_and_failed_results_keep_their_template():
     # src.api.app recomposes every result, so the live path's decline must survive compose()
     r = result(n=0, narratives=[])
