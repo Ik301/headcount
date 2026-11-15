@@ -216,7 +216,8 @@ export interface ChallengeItem {
   account_ref: string;
   public_handle?: string | null;
   tier?: string;
-  posts?: (string | { t?: string; text: string; kind?: string })[];
+  /** Non-English posts carry the export's language and English translation (src/export/translate.py); English posts have neither. */
+  posts?: (string | { t?: string; text: string; kind?: string; lang?: string; lang_name?: string; text_en?: string })[];
   p_automated?: number;
   reasons?: string[];
   /** Isaac's call ("automated" or "human"); missing until he labels it, and then the reveal shows only the model */

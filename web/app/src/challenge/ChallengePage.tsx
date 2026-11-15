@@ -21,14 +21,20 @@ interface Acct {
   p: number | null;
   reasons: string[];
   hand: "automated" | "human" | null;
-  posts: { t: Date | null; text: string; kind?: string }[];
+  posts: { t: Date | null; text: string; kind?: string; lang?: string; langName?: string; en?: string }[];
   profile: NonNullable<ChallengeItem["profile"]>;
 }
 
+const squeeze = (s: string | undefined) => (s ?? "").replace(/\n\s*\n+/g, "\n").trim();
+
 function toAcct(c: ChallengeItem): Acct {
   const posts = (c.posts ?? [])
-    .map((p) => (typeof p === "string" ? { t: null, text: p } : { t: parseT(p.t), text: p.text, kind: p.kind }))
-    .map((p) => ({ ...p, text: (p.text ?? "").replace(/\n\s*\n+/g, "\n").trim() }))
+    .map((p) =>
+      typeof p === "string"
+        ? { t: null, text: p }
+        : { t: parseT(p.t), text: p.text, kind: p.kind, lang: p.lang, langName: p.lang_name, en: p.text_en },
+    )
+    .map((p) => ({ ...p, text: squeeze(p.text), en: p.en ? squeeze(p.en) || undefined : undefined }))
     .filter((p) => p.text?.trim())
     .sort((a, b) => (b.t?.getTime() ?? 0) - (a.t?.getTime() ?? 0));
   const h = (c.hand_label ?? "").toLowerCase();
@@ -201,7 +207,15 @@ function Posts({ a }: { a: Acct }) {
                 Quote post
               </span>
             )}
-            <p className="c-pt"><Redacted text={p.text} /></p>
+            {p.en ? (
+              <>
+                <p className="c-pt" lang="en"><Redacted text={p.en} /></p>
+                <p className="c-tr">Translated from {p.langName ?? "another language"}</p>
+                <p className="c-orig" lang={p.lang}><Redacted text={p.text} /></p>
+              </>
+            ) : (
+              <p className="c-pt"><Redacted text={p.text} /></p>
+            )}
           </li>
         );
       })}

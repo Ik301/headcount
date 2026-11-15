@@ -44,6 +44,9 @@
 .challenge .c-posts li { padding: 12px 0; border-bottom: 1px solid var(--soft-rule); font-size: 14px; line-height: 1.38; }
 .challenge .c-posts li:last-child { border-bottom: 0; }
 .challenge .c-posts .c-pt { margin: 0; overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+/* non-English posts: the export's English translation leads, then a mono label and the original, smaller and muted */
+.challenge .c-posts .c-tr { margin: 7px 0 2px; font: 400 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--cap); }
+.challenge .c-posts .c-orig { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--cap); overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 /* timestamps: humane date and clock time in the UI sans, tabular figures so the minutes line up */
 .challenge .c-posts time { display: block; font: 500 12.5px/1.2 var(--sans); font-variant-numeric:lining-nums; color: var(--ink-2); margin-bottom: 3px; letter-spacing: .005em; }
 .challenge .c-posts time .c-gap { font-weight: 400; }
@@ -154,6 +157,8 @@
   .challenge .c-posts time { font-size: 14px; margin-bottom: 5px; }
   .challenge .c-posts .c-rp { font-size: 14.5px; gap: 6px; }
   .challenge .c-posts .c-rp svg { width: 15px; height: 15px; }
+  .challenge .c-posts .c-tr { font-size: 12px; margin-top: 9px; }
+  .challenge .c-posts .c-orig { font-size: 14.5px; }
   .challenge .c-when { padding: 16px 24px 18px; }
   .challenge .c-when .c-lab { font-size: 14px; }
   .challenge .c-hours { height: 36px; gap: 3px; margin-top: 10px; }
@@ -238,6 +243,8 @@
   .challenge .c-posts li { padding: 18px 0; font-size: 19px; }
   .challenge .c-posts time { font-size: 15px; margin-bottom: 6px; }
   .challenge .c-posts .c-rp { font-size: 15.5px; }
+  .challenge .c-posts .c-tr { font-size: 12.5px; }
+  .challenge .c-posts .c-orig { font-size: 15.5px; }
   .challenge .c-when { padding: 18px 28px 20px; }
   .challenge .c-when .c-lab { font-size: 15px; }
   .challenge .c-hours { height: 40px; }
