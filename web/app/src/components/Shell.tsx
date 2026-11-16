@@ -6,14 +6,11 @@ export function TopBar({ right }: { right?: ReactNode }) {
   return (
     <header className="bar">
       <div className="wrap">
-        <Link className="mark" to="/" aria-label="Headcount, start a new check">
+        <Link className="mark" to="/story" aria-label="Headcount, home">
           <Mark />
           Headcount
         </Link>
         <nav className="topnav" aria-label="Views">
-          <NavLink to="/" end>
-            Check a claim
-          </NavLink>
           <NavLink to="/story">Jensen Huang story</NavLink>
           <NavLink to="/challenge">
             <span className="nav-long">Spot the automation</span>

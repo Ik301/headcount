@@ -580,8 +580,8 @@ function Final({ accts, answered, calls, left, onResume }: { accts: Acct[]; answ
             <path d="M3.5 8h9M8.5 4l4 4-4 4" />
           </svg>
         </button>
-        <Link className="c-secondary" to="/">
-          Check a claim of your own
+        <Link className="c-secondary" to="/story">
+          See the Jensen Huang story
         </Link>
       </div>
     </section>
