@@ -6,10 +6,9 @@ Headcount takes a claim or a story, finds the public Bluesky posts about it, and
 
 **Runner-Up, Arlequin AI Track 2 at HackPrinceton Fall 2026** (Social Media Analysis: Combining Content & Connectivity Patterns).
 
-- Live: https://demoyk.com
 - The guided story (Jensen Huang's resignation week): https://demoyk.com/story
 - Spot the automation, a game with 20 real accounts: https://demoyk.com/challenge
-- You can also text the agent a claim over iMessage (Photon). The number is on the Devpost page and in the demo.
+- The live claim checker and the iMessage line ran during judging. We turned off the API behind them afterwards to stop paying for it, so the site is now static. The code for both is in this repo (`src/api`, `src/messaging`, `web/app/src/checker`).
 
 ![Findings from the Jensen Huang week: no bot campaign defends Huang](docs/architecture/04-findings.png)
 

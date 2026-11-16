@@ -4,7 +4,7 @@
 #   web/app/deploy-vercel.sh https://<api-tunnel>.trycloudflare.com
 # When the API tunnel URL changes, rerun this. Links in text replies come from DASHBOARD_BASE in .env.
 set -euo pipefail
-API="${1:?usage: deploy-vercel.sh <api base url>}"
+API="${1:-}"  # optional: the site is static since the API was retired; pass a URL only if the checker comes back
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${OUT:-$HOME/projects/headcount-deploy}"
 cd "$HERE"
@@ -17,4 +17,4 @@ cat > "$OUT/vercel.json" <<'EOF'
 EOF
 cd "$OUT"
 npx -y vercel@latest deploy --prod --yes --name headcount
-for u in / /story /challenge; do curl -s -o /dev/null -w "$u %{http_code}\n" "https://demoyk.com$u"; done
+for u in /story /challenge; do curl -s -o /dev/null -w "$u %{http_code}\n" "https://demoyk.com$u"; done
